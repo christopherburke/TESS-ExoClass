@@ -12,6 +12,7 @@ Christopher J Burke (MIT), Jeffrey Coughlin (SETI/NASA Ames), Susan Mullally (ST
 
 ### Results:
 Sector Number | Detection Source | Result Tables | Summary PDFs
+------------- | ---------------- | ------------- | ------------
 3 | NASA Ames SPOC TCE | [Tables](https://www.dropbox.com/sh/lakbewewji4ieap/AABT-7AquQRV4u1RwBwhvz_Ea?dl=0) | [PDFs](https://www.dropbox.com/sh/pd0lsf5u5uk7qil/AABc2UrZcdI75VExtkDmkLqpa?dl=0)
 
 ### Description:
