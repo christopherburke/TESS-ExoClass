@@ -1,0 +1,84 @@
+All Files are space delimited ascii text.  Users are strongly encouraged to read Coughlin et al. (2016)
+http://adsabs.harvard.edu/abs/2016ApJS..224...12C
+ and Thompson et al. (2018)
+http://adsabs.harvard.edu/abs/2018ApJS..235...38T (especially the appendix)
+for further details of the terminology used in this document.
+
+Triage file
+Examine all the NASA Ames SPOC TCEs and determine which ones should fail the triage stage.
+
+Column #  - Name - Explanation
+1 - TICID - [int] TESS Input Catalog identification number
+2 - PN - [int] SPOC TCE Planet Number
+3 - PASS_FLAG - [int] Pass triage flag 1=Yes;0=No
+4 - COMMENT - [str] Reason for Fail Name
+              'PASS' - Pass Triage.  No Fails.
+              'AltDetFail' - Data quantity requirement not met
+	      		     when calculating the alternative detrending.
+                             There must be at least 1.4 days worth
+                             of valid data, orbital period > 0.3 day,
+                             transit duration relative to orbital period < 0.2,
+                             and at least >0.52 of the observations must be
+			     valid in order to meet the data quantity
+			     requirement.
+               'SesStatFail' - Calculation of the SES time series could
+                               only identify a single valid transit and/or
+			       the CHASES and SES/MES calculation failed.
+               'newMesBelowThresh' - SPOC Pipeline MES/SNR is recalculated after
+	       			     applying an alternative detrending. Fail
+              			     triage if the new MES/SNR < 4.5.
+	       'newMesShrink' - If new MES is shrinks too much, fail triage.
+               'ses2MesFail' - Fail triage if the SES/MES ratio is too large.
+               'mnSes2mnMes' - A variant of the SES/MES ratio more sensitive 
+	       		        the deepest transit being significantly deeper
+				than the others.
+               'ChasesFail' - CHASES test fail
+               'SecondaryOfPN_##' - This TCE corresponds to a significant
+	       			    secondary of the indicated planet number.
+
+Tier 1 file
+Triage passing TCEs that pass all the additional tests and the SPOC centroids are consistent with no spatial offset during transit.  This list represents the most suitable planet candidates.  Before observing the candidates, end users are strongly encouraged to consult the TEC summary pdf in order to verify that the planet candidate meets the quality level for their risk tolerance.
+
+Column #  - Name - Explanation
+1 - TICID - [int] TESS Input Catalog identification number 
+2 - PN - [int] SPOC TCE Planet Number
+3 - RANK - [float] Priority ranking based upon being most suitable for 
+                   follow up observing (e.g., bright host, small planet, 
+                   high snr, low insolation flux, etc...)
+4 - KNOWN_FLAG - [int] Known transiting planet or candidate
+                       1-TOI alert at MAST ; 2 - Confirmed Planet at NExScI
+                       ***NOTE*** The cross match is typically calculated
+                                  before the TOI's are alerted at MAST, thus one
+                                  will find many of these TOIs on a more 
+                                  updated TOI list.
+
+Tier 2 file
+Triage passing TCEs that have one or more additional tests that indicate a problem with supporting the detection as a planet candidate.  Because a detection appears in this list doesn't fully rule out the detection as a candidate.  Some metrics can have false negative alarms.  End users are encouraged to consult the TEC summary pdf in order to verify that the problem metric is consistent with failing.
+
+Column  - Name - Explanation
+Columns 1-4 are the same as in the Tier 1 file.
+5 - FAIL_FLAGS - [str] Flag string indicating which test the TCE 'failed'
+                       and should be examined in more detail in order to 
+                       confirm a failing test.  The flags in the string
+                       from left to right are
+          1 - DV indicates centroid relative to OOT image is high significance
+          2 - DV indicates centroid relative to TIC "
+          3 - Modshift primary transit not unique with alternate detrending
+          4 - "  with DV median detrended
+          5 - Modshift significant secondary with alt detrending
+          6 - " with DV median detrended
+          7 - Modshift Odd Even significant difference with alt detrending
+          8 - " DV median detrended
+          9 - SWEET test fail.  Evidence for sinusoidal variation in PDC
+
+
+Tier 3 File
+These are TCEs that are consistent with detached and/or contact eclipsing binaries.  These are special/'left-over' TCEs that failed by having significant secondaries or failed due to the SWEET test.  These are specifically excluded from appearing in the Tier 2 file as they likely represent detached and/or contact eclipsing binaries that do not have a centroid shift.
+
+Column - Name - Explanation
+Columns 1-4 are the same as in the Tier 1 file.
+5 - HAS_SEC_FLAG - [boolean/str] Has a significant secondary according to model shift test.
+6 - SWEET_FAIL_FLAG - [boolean/str] Fails the SWEET test.
+
+TEC Report Summary PDFs:
+These reports are based off the SPOC NASA Ames pipeline DV summary page along with the model shift test summary pages, and DV centroid/difference image reports. The TEC report is a subset of the the Kepler TCERT vetting reports documented here (https://exoplanetarchive.ipac.caltech.edu/docs/KSCI-19105-001.pdf).  Reports only exist for the detections that pass the triage stage.  Currently the last page has an experimental in-transit difference calculation based upon a per-pixel model shift test.  No calculations are performed on these model shift difference images, they are only their for ongoing development and testing.

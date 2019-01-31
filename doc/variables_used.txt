@@ -1,0 +1,52 @@
+federate_knownPWtce.py and federate_toiWtce.py
+  -TCE ephemeris info fill in all transit fit version
+  epicid
+  planetNum
+  at_period
+  at_epochbtjd
+  at_dur
+  at_valid == 1
+  trp_valid == 1
+  trp_period == at_period
+  trp_epochbtjd == at_epochbtjd
+  trp_dur = at_dur
+
+flux_triage.py (same as federate...py)
+
+modshift_test.py
+from ses_mes routine
+altDetrend
+validData
+time
+lc_med_detrend
+
+ses_mes_stats.py
+  epicid
+  planetNum
+  at_period
+  at_epochbtjd
+  at_dur
+  at_valid == 1
+  trp_valid == 1
+  pulsedur == at_dur
+  mes == (detection SNR estimte?)  this will need some tuning for other pipelines
+  pdc_flux
+  valid_data_flag
+  timetbjd
+
+rank_tces.py
+  at_valid == 1
+  trp_valid == 1
+  at_effflux 
+  rstar
+  logg
+  maxsesinmes == (detection SNR estimate/5.0)
+  at_snr (fit SNR estimate)
+  at_depth
+  trp_detph == at_depth
+  at_rp
+  tmag
+  cent_oot_offset = 0.0
+  cent_oot_oofset_e = 1.0
+  cent_tic_offset = 0.0
+  cent_tic_offset_e = 1.0
