@@ -1,0 +1,2 @@
+Sector 4 TEC run notes during spot checks
+The model shift odd/even test appears to be a bit overly sensitive.  There were several confirmed planets that appeared on the Tier 2 list due to odd/even fails (bits 7&8).  I may want to consider a higher threshold for higher SNR events?
