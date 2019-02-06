@@ -49,10 +49,11 @@ Now we are ready to start running some TEC codes
    
   comments: This is a step which you will need to write your own version
   of for your own pipeline.  This code gathers all the essential information
-  about a detection and fills in the 'tce_seed' class.  I don't know which
-  entries in the tce_seed class are required, so do your best to fill
-  in as many as you can.  One should just leave items under
-  Ghost diag, TCE Infor, Trpzed fit, Centroid Fits, Odd/Even as zeros
+  about a detection and fills in the 'tce_seed' class.  Very few of the
+  entries in the tce_seed class are required.  See variables_used.txt
+  for a list of variables actually used in current TEC code.
+  One should just leave items under
+  Ghost diag, TCE Infor, Centroid Fits, Odd/Even as zeros
   and we'll just have to see what breaks in later codes as a result.
   If you have multiple detections per target then make separate tce_seed
   class entries for each one that has the same epicId (really TIC id) and 
@@ -74,10 +75,9 @@ Now we are ready to start running some TEC codes
 
    comments: This is also a step in which you will need to write
      your own version for your own pipeline.  This code gathers
-     the flux time series, I believe the pdf flux is the only
-     time series really used, but this is another fill that 
-     and we'll see what breaks if the other flux time series 
-     are not filled in.  Also, the time vector needs to be
+     the flux time series.  See variables_used.txt in doc folder
+     for a list of the arrays that actually need to be
+     filled.  Also, the time vector needs to be
      on the same system that the ephemeris zeropoint is in the 
      previous step.  As a bit of historical development, originally
      the 2min data was resampled in order to be on the same 30min
@@ -90,7 +90,7 @@ Now we are ready to start running some TEC codes
      to x5 (10min).  For FFI time series one should not use any
      resampling.  Just pack the h5d data into the correct format
      and be sure to set the valid data flags as you see fit.
-     I think TEC uses the PDC flux and uses it's own detrending.
+     TEC uses the PDC flux and uses it's own detrending.
      Thus, you can feed in data that has been fully detrended, or
      ones that are not fully detrended.  If you are inputing flux
      time series with numerous 'jumps' or discontinuities, then
