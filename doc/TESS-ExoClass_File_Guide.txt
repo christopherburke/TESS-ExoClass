@@ -47,6 +47,9 @@ Column #  - Name - Explanation
                    high snr, low insolation flux, etc...)
 4 - KNOWN_FLAG - [int] Known transiting planet or candidate
                        1-TOI alert at MAST ; 2 - Confirmed Planet at NExScI
+		       -1 - TOI alert at MAST, but did not match
+		       	    ephemeris directly.  Need to manually examine
+			    system to see what happened.
                        ***NOTE*** The cross match is typically calculated
                                   before the TOI's are alerted at MAST, thus one
                                   will find many of these TOIs on a more 
@@ -70,6 +73,7 @@ Columns 1-4 are the same as in the Tier 1 file.
           7 - Modshift Odd Even significant difference with alt detrending
           8 - " DV median detrended
           9 - SWEET test fail.  Evidence for sinusoidal variation in PDC
+	 10 - Another TCE, spatially nearby, matches the ephemeris of this TCE
 
 
 Tier 3 File
