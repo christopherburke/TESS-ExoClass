@@ -13,6 +13,7 @@ import pickle
 import numpy as np
 import toidb_federate as fed
 from gather_tce_fromdvxml import tce_seed
+import scipy.special as spec
 import csv
 import sys
 import time
@@ -110,10 +111,21 @@ def query_ticcone(curRa, curDec, searchRad):
 
     return ticList
 
+def coughlin_sigmap(p1,p2):
+    up1 = p1
+    up2 = p2
+    if up1 > up2:
+        tmp = up2
+        up2 = up1
+        up1 = tmp
+    delP = (up1 - up2)/up1
+    delPp = abs(delP - round(delP))
+    return np.sqrt(2.0)*spec.erfcinv(delPp)
 
 
 if __name__ == '__main__':
-    fout = open('federate_knownP_sector4_20190129.txt', 'w')
+    fout = open('federate_knownP_sector1_3_20190208.txt', 'w')
+    dataSpan = 80.9
     wideSearch = True
     searchRad = 180.0 # Arcsecond search radius for other TICs
 
@@ -145,11 +157,23 @@ if __name__ == '__main__':
     gtDec = dataBlock['f5']
     gtTIC = np.arange(len(gtName))
     gtTOI = np.arange(len(gtName))
+    # Check for missing ephemeris values
+#    idxBd = np.where((np.logical_not(np.isfinite(gtPer))) | \
+#                     (np.logical_not(np.isfinite(gtEpc))) | \
+#                     (np.logical_not(np.isfinite(gtDur))))[0]
+    idxBd = np.where((np.logical_not(np.isfinite(gtPer))))[0]
+    if len(idxBd) > 0:
+        print('Bad Ephemeris for Known Planets')
+        print(gtName[idxBd])
+    idx = np.where((np.isfinite(gtPer)))[0]
+    gtName = gtName[idx]
+    gtPer, gtEpc, gtDur, gtRa, gtDec, gtTIC, gtTOI = cjb.idx_filter(idx, \
+        gtPer, gtEpc, gtDur, gtRa, gtDec, gtTIC, gtTOI                                                            )
     print("Tot # PCs: {0:d}".format(len(gtName)))
 
 
     # Load the tce data pickle    
-    tceSeedInFile = 'sector4_20190129_tce.pkl'
+    tceSeedInFile = 'sector1_3_20190208_tce.pkl'
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
     fin.close()
@@ -193,7 +217,7 @@ if __name__ == '__main__':
 
 #    if np.min(useepc)-1.0 < uowStart:
     uowStart = np.min(useepc)-1.0
-    uowEnd = np.max(useepc) + 13.0
+    uowEnd = np.max(useepc) + dataSpan + 1.0
     # Go  the ground truth data (ground truth acts like KOIs in kepler federation)
     for i in range(len(gtTIC)):
         curTic = gtTIC[i]
@@ -222,8 +246,35 @@ if __name__ == '__main__':
             trypn = allpn[idx]
             trydur = usedur[idx]
             trytic = alltic[idx]
-            bstpn, bsttic, bstMatch, bstStat, bstPeriodRatio, bstPeriodRatioFlag, bstFederateFlag = \
-                    genericFed(curper, curepc, tryper, tryepc, trydur, trypn, trytic, uowStart, uowEnd)
+            sigMatch = np.zeros((len(tryper),), dtype=np.float)
+            for j in range(len(tryper)):
+                sigMatch[j] = coughlin_sigmap(curper, tryper[j])
+            idxSig = np.where(sigMatch > 3.0)[0]
+            if len(idxSig)>0:
+                tryper = tryper[idxSig]
+                tryepc = tryepc[idxSig]
+                trypn = trypn[idxSig]
+                trydur = trydur[idxSig]
+                trytic = trytic[idxSig]
+                idxSigia = np.argsort(trypn)[0]
+                bstpn = trypn[idxSigia]
+                bsttic = trytic[idxSigia]
+                bstStat = sigMatch[idxSigia]
+                bstPeriodRatio = curper / tryper[idxSigia]
+                bstPeriodRatioFlag = 1
+                bstFederateFlag = 1
+                bstMatch = 1
+            else:
+                bstpn = 0
+                bstMatch = -1
+                bstStat = -1.0
+                bstPeriodRatio = -1.0
+                bstPeriodRatioFlag = 0
+                bstFederateFlag = 0
+                bsttic = 0
+                
+#            bstpn, bsttic, bstMatch, bstStat, bstPeriodRatio, bstPeriodRatioFlag, bstFederateFlag = \
+#                    genericFed(curper, curepc, tryper, tryepc, trydur, trypn, trytic, uowStart, uowEnd)
             
         else:
             #print("No match in Ground truth")

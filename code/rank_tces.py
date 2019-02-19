@@ -77,38 +77,39 @@ if __name__ == '__main__':
     # These are for parallel procoessing
     # if nWrk>1 then files with text output are not written out
     #  nWrk>1 should be used with doMergeSum = True for generating summary
-    wID = 5
-    nWrk = 6
+    wID = 0
+    nWrk = 1
     
-    summaryFolder = '/pdo/spoc-data/sector-04/dv-reports'
-    summaryPrefix = 'tess2018292093540-'
-    summaryPostfix = '-00135_dvs.pdf'
-    Sector1 = 4
-    Sector2 = 4
-    multiRun = False
+    summaryFolder = '/scratch2/cjb/spoc-data/sector-01-03/'
+    summaryPrefix = 'tess2018206190142-'
+    summaryPostfix = '-00129_dvs.pdf'
+    Sector1 = 1
+    Sector2 = 3
+    multiRun = True
     if Sector2 - Sector1 > 0:
         multiRun = True
 
 
-    doPNGs = True
-    pngFolder = '/pdo/users/cjburke/spocvet/sector4/pngs/'
-    doMergeSum = True
-    pdfFolder = '/pdo/users/cjburke/spocvet/sector4/pdfs/'
-    Sector1 = 4
-    Sector2 = 4
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector4'
-    SECTOR=4
+    doPNGs =False
+    pngFolder = '/pdo/users/cjburke/spocvet/sector1-3/pngs/'
+    doMergeSum = False
+    pdfFolder = '/pdo/users/cjburke/spocvet/sector1-3/pdfs/'
+    Sector1 = 1
+    Sector2 = 3
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-3'
+    SECTOR=-1
 
-    fileOut1 = 'spoc_sector4_ranking_Tier1_20190129.txt'
-    fileOut2 = 'spoc_sector4_ranking_Tier2_20190129.txt'
-    fileOut3 = 'spoc_sector4_ranking_Tier3_20190129.txt'
-    vetFile = 'spoc_sector4_fluxtriage_20190129.txt'
-    tceSeedInFile = 'sector4_20190129_tce.pkl'
-    modshiftFile = 'spoc_sector4_modshift_20190129.txt'
-    modshiftFile2 = 'spoc_sector4_modshift_med_20190129.txt'
-    sweetFile = 'spoc_sector4_sweet_20190129.txt'
-    toiFederateFile = 'federate_toiWtce_sector4_20190129.txt'
-    knowPFederateFile = 'federate_knownP_sector4_20190129.txt'
+    fileOut1 = 'spoc_sector1_3_ranking_Tier1_20190208.txt'
+    fileOut2 = 'spoc_sector1_3_ranking_Tier2_20190208.txt'
+    fileOut3 = 'spoc_sector1_3_ranking_Tier3_20190208.txt'
+    vetFile = 'spoc_sector1_3_fluxtriage_20190208.txt'
+    tceSeedInFile = 'sector1_3_20190208_tce.pkl'
+    modshiftFile = 'spoc_sector1_3_modshift_20190208.txt'
+    modshiftFile2 = 'spoc_sector1_3_modshift_med_20190208.txt'
+    sweetFile = 'spoc_sector1_3_sweet_20190208.txt'
+    toiFederateFile = 'federate_toiWtce_sector1_3_20190208.txt'
+    knowPFederateFile = 'federate_knownP_sector1_3_20190208.txt'
+    selfMatchFile = 'selfMatch_sector1-3-20190208.txt'
 
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
@@ -220,13 +221,28 @@ if __name__ == '__main__':
     dataBlock = np.genfromtxt(toiFederateFile, dtype=dtypeseq)
     toiFedTic = dataBlock['f3']
     toiFedPN = dataBlock['f4']
+    toiFedQual = dataBlock['f9']
     
     # load Known Planet federation File
     dtypeseq=['i4','f8','U40','i4','i4','i4','f8','i4','f8','i4']
     dataBlock = np.genfromtxt(knowPFederateFile, dtype=dtypeseq)
     kpFedTic = dataBlock['f3']
     kpFedPN = dataBlock['f4']
-           
+    
+    # load TCE vs TCE match file
+    dtypeseq=['i4','i4','i4','i4','i4','f8','i4','f8','i4','f8']
+    dataBlock = np.genfromtxt(selfMatchFile, dtype=dtypeseq)
+    smFedTic1 = dataBlock['f0']
+    smFedPN1 = dataBlock['f1']
+    smFedTic2 = dataBlock['f2']
+    smFedPN2 = dataBlock['f3']
+    smFedSep = dataBlock['f9']
+    smFedMatch = dataBlock['f8']
+    idx = np.where((smFedMatch == 1) & (smFedSep<1.3))[0]
+    smFedTic1 = smFedTic1[idx]
+    smFedPN1 = smFedPN1[idx]
+    
+               
     # calculate expected duration
     expdur = transit_duration(allrstar, alllogg, allper, 0.0)
     durrat = np.abs(1.0 - alldur / expdur)
@@ -303,10 +319,16 @@ if __name__ == '__main__':
             j = ia[i]
             # Look for a TOI match
             matchFlg = 0
-            fc = np.zeros((9,), dtype=np.int)
+            # fc is the cause flags for going to Tier 2
+            fc = np.zeros((10,), dtype=np.int)
             ib = np.where((alltic[j] == toiFedTic) & (allpn[j] == toiFedPN))[0]
             if len(ib)>0:
-                matchFlg = 1
+                # Was it a direct match or not
+                mtch = np.max(toiFedQual[ib])
+                if mtch == 1:
+                    matchFlg = 1
+                else:
+                    matchFlg = -1
             # Look to previous Planet match
             ib = np.where((alltic[j] == kpFedTic) & (allpn[j] == kpFedPN))[0]
             if len(ib)>0:
@@ -319,6 +341,9 @@ if __name__ == '__main__':
             kidx2 = np.where((alltic[j] == modTic2) & (allpn[j] == modPN2))[0]
             # Find sweet data 
             kswidx = np.where((alltic[j] == swTic) & (allpn[j] == swPN))[0]
+            # Find self match TCE
+            ksmidx = np.where((alltic[j] == smFedTic1) & (allpn[j] == smFedPN1))[0]
+
             # Tier 1 must have no centroid issues, primary signif, no secondary (else albedo or period half),
             # and no odd/even sig
             tier1 = True
@@ -358,6 +383,12 @@ if __name__ == '__main__':
                     tier1 = False
                     fc[8] = 1
                     sweetFail = True
+            # Other TCE match
+            if len(ksmidx)>0:
+                tier1 = False
+                fc[9] = 1
+                
+
             reportIt = False
             if tier1:
                 if nWrk == 1:
@@ -395,6 +426,14 @@ if __name__ == '__main__':
                     inputFile4 = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_diffImg_{0:016d}_{1:02d}_centsum.pdf'.format(curTic,curPn))
                     if os.path.isfile(inputFile4):
                         inputFileList.append(inputFile4)
+                    for curSec in np.arange(Sector1, Sector2+1):
+                        inputFile4 = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_mods_diffImg_{0:016d}_{1:02d}_{2:02d}.pdf'.format(curTic,curPn,curSec))
+                        if os.path.isfile(inputFile4):
+                            inputFileList.append(inputFile4)
+                    for curSec in np.arange(Sector1, Sector2+1):
+                        inputFile4 = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_bsc_diffImg_{0:016d}_{1:02d}_{2:02d}.pdf'.format(curTic,curPn,curSec))
+                        if os.path.isfile(inputFile4):
+                            inputFileList.append(inputFile4)
                 else:
                     inputFile4 = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_diffImg_{0:016d}_{1:02d}_{2:02d}.pdf'.format(curTic,curPn,Sector1))
                     inputFileList.append(inputFile4)

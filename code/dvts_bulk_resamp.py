@@ -41,7 +41,7 @@ def dvts_resamp(file, dirOut, RESAMP, SECTOR=None, overwrite=True):
     hdulist = fits.open(file)
     prihdr = hdulist[0].header
     nTces = prihdr['NUMTCES']
-
+    dataSpanMax = 0.0
     # Get header information that we should keep
     if not SECTOR is None:
         keepprihdr = ['TICID','RA_OBJ', \
@@ -99,6 +99,8 @@ def dvts_resamp(file, dirOut, RESAMP, SECTOR=None, overwrite=True):
                                        deweights)
         
             # Do downsampling of data stream
+            cadenceNoBeg = np.min(np.reshape(cadenceNo, (newNImage, RESAMP)), axis=1)
+            cadenceNoEnd = np.max(np.reshape(cadenceNo, (newNImage, RESAMP)), axis=1)
             cadenceNo = np.mean(np.reshape(cadenceNo, (newNImage, RESAMP)), axis=1, dtype=np.int)
             timetbjd = np.mean(np.reshape(timetbjd, (newNImage, RESAMP)), axis=1)
             lc_init = np.mean(np.reshape(lc_init, (newNImage, RESAMP)), axis=1)
@@ -116,11 +118,18 @@ def dvts_resamp(file, dirOut, RESAMP, SECTOR=None, overwrite=True):
             idx = np.where((np.isfinite(timetbjd)) & (np.isfinite(lc_init)) & (np.isfinite(pdc_flux)))[0]
             valid_data_flag = np.zeros((newNImage,), dtype=np.bool_)
             valid_data_flag[idx] = True
-            
+            # Get the data span in days for use in federation steps
+            idx = np.where(valid_data_flag == True)[0]
+            if (len(idx)>0):
+                dataSpan = np.max(timetbjd[idx]) - np.min(timetbjd[idx])
+                if dataSpan > dataSpanMax:
+                    dataSpanMax = dataSpan
     
             # Now save data as h5py 
             f = h5py.File(fileoutput, 'w')
             tmp = f.create_dataset('cadenceNo', data=cadenceNo, compression='gzip') 
+            tmp = f.create_dataset('cadenceNoBeg', data=cadenceNoBeg, compression='gzip') 
+            tmp = f.create_dataset('cadenceNoEnd', data=cadenceNoEnd, compression='gzip') 
             tmp = f.create_dataset('timetbjd', data=timetbjd, compression='gzip')
             tmp = f.create_dataset('lc_init', data=lc_init, compression='gzip')
             tmp = f.create_dataset('lc_init_err', data=lc_init_err, compression='gzip')
@@ -141,21 +150,24 @@ def dvts_resamp(file, dirOut, RESAMP, SECTOR=None, overwrite=True):
                     tmp = f.create_dataset(keepprihdr[i], data=np.array([-1], dtype=formatprihdr[i]))
                             
             f.close()
-    
+    return dataSpanMax
 
 if __name__ == "__main__":
 
-    dirInputs = '/pdo/spoc-data/sector-04/dv-time-series'
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector4/'
+    dirInputs = '/scratch2/cjb/spoc-data/sector-01-03/'
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector1-3/'
     RESAMP = 5  ###  USE AN ODD NUMBER HELPS WITH CADENCE NO ###
-    SECTOR_OVRRIDE = None# -1 # If NOT multisector set this to None ###
+    SECTOR_OVRRIDE = -1# -1 # If NOT multisector set this to None ###
     overwrite = True # Set False to keep old results and only do files that dont exist
 
-    fileList = glob.glob(os.path.join(dirInputs, '*dvt.fits.gz'))
+    fileList = glob.glob(os.path.join(dirInputs, '*dvt.fits*'))
     cnt = 0
+    # Keep track of max data span for use in federation
+    dataSpanMax = 0.0
     for fil in fileList:
         cnt = cnt + 1
         if np.mod(cnt,10) == 0:
-            print(cnt)
-        dvts_resamp(fil, dirOutputs, RESAMP, SECTOR=SECTOR_OVRRIDE, overwrite=overwrite)
-        
+            print(cnt,' Data Span {0:f}'.format(dataSpanMax))
+        dataSpan = dvts_resamp(fil, dirOutputs, RESAMP, SECTOR=SECTOR_OVRRIDE, overwrite=overwrite)
+        if dataSpan > dataSpanMax:
+            dataSpanMax = dataSpan

@@ -184,19 +184,19 @@ if __name__ == "__main__":
     nWrk = 6
     # Load the pickle file that contains TCE seed information
     # The pickle file is created by gather_tce_fromdvxml.py
-    tceSeedInFile = 'sector4_20190129_tce.pkl'
+    tceSeedInFile = 'sector1_3_20190208_tce.pkl'
     #  Directory storing the resampled dv time series data
-    dvDataDir = '/pdo/users/cjburke/spocvet/sector4'
+    dvDataDir = '/pdo/users/cjburke/spocvet/sector1-3'
     # Directory of output hd5 files
     outputDir = dvDataDir
-    SECTOR=4
+    SECTOR=-1
     # What fraction of data can be missing and still calculat ses_mes
     # In Sector 1 due to the 2 days of missing stuff it was 0.68
     validFrac = 0.52
-    overWrite = False
+    overWrite = True
 
     # Skyline data excises loud cadecnes
-    dataBlock = np.genfromtxt('skyline_data_sector4_20190129.txt', dtype=['f8'])
+    dataBlock = np.genfromtxt('skyline_data_sector1_3_20190208.txt', dtype=['f8'])
     badTimes = dataBlock['f0']
 
     # Search and filter parameters
@@ -266,6 +266,7 @@ if __name__ == "__main__":
                 #useFlux3 = useFlux3 + 1.0
                 vd = np.array(f['valid_data_flag'])
                 time = np.array(f['timetbjd'])
+                cadNo = np.array(f['cadenceNo'])
                 for jj, curTime in enumerate(time):
                     diff = np.abs(curTime - badTimes)
                     if np.min(diff) < 5.0/60.0/24.0:
@@ -398,6 +399,7 @@ if __name__ == "__main__":
                 tmp = f.create_dataset('altDetrend', data=final_smooth_flux, compression='gzip')
                 tmp = f.create_dataset('validData', data=vd, compression='gzip')
                 tmp = f.create_dataset('time', data=time, compression='gzip')
+                tmp = f.create_dataset('cadNo', data=cadNo, compression='gzip')
                 tmp = f.create_dataset('phi', data=usePhase, compression='gzip')
                 tmp = f.create_dataset('events', data=useEvents, compression='gzip')
                 tmp = f.create_dataset('initFlux', data=useFlux, compression='gzip')

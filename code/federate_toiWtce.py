@@ -130,7 +130,9 @@ def query_othertics(ticWant, searchRad):
 
 
 if __name__ == '__main__':
-    fout = open('federate_toiWtce_sector4_20190129.txt', 'w')
+    fout = open('federate_toiWtce_sector1_3_20190208.txt', 'w')
+    dataSpan = 80.9
+
     wideSearch = True
     searchRad = 180.0 # Arcsecond search radius for other TICs
     
@@ -146,10 +148,17 @@ if __name__ == '__main__':
     gtPer = dataBlock['f9']
     gtEpc = dataBlock['f7']
     gtDur = dataBlock['f11']
-#    uowStart = np.min(gtEpc) - 1.0
+    # Need to fix single transit TOIs with nan for period
+    idx = np.where(np.logical_not(np.isfinite(gtPer)))[0]
+    gtPer[idx] = 1000.0
+
+    # Use the following to debug a particular target
+#    idx = np.where(gtTIC == 279741379)[0]
+#    gtTIC, gtTOI, gtDisp, gtPer, gtEpc, gtDur = cjb.idx_filter(idx, gtTIC, \
+#                                gtTOI, gtDisp, gtPer, gtEpc, gtDur)
 
     # Load the tce data pickle    
-    tceSeedInFile = 'sector4_20190129_tce.pkl'
+    tceSeedInFile = 'sector1_3_20190208_tce.pkl'
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
     fin.close()
@@ -193,7 +202,7 @@ if __name__ == '__main__':
 
 #    if np.min(useepc)-1.0 < uowStart:
     uowStart = np.min(useepc)-1.0
-    uowEnd = np.max(useepc) + 13.0
+    uowEnd = np.max(useepc) + dataSpan + 1.0
     # Go  the ground truth data (ground truth acts like KOIs in kepler federation)
     for i in range(len(gtTIC)):
         curTic = gtTIC[i]

@@ -16,6 +16,7 @@ import os
 import math
 import pickle
 from gather_tce_fromdvxml import tce_seed
+import cjb_utils as cjb
 
 
 def make_data_dirs(prefix, sector, epic):
@@ -35,7 +36,7 @@ def idx_filter(idx, *array_list):
         new_array_list.append(array[idx])
     return new_array_list
 
-def tpf_resamp(file, dirOut, RESAMP):
+def tpf_resamp(file, fileOut, RESAMP, lcFile):
     """ Resample TESS target pixel file and save as h5d format
         resamp - Resample factor just make it odd okay"""    
     hdulist = fits.open(file)
@@ -63,6 +64,16 @@ def tpf_resamp(file, dirOut, RESAMP):
     flux_array = hdulist[1].data[:]['FLUX']
     flux_bkg_array = hdulist[1].data[:]['FLUX_BKG']
     dq_flag = hdulist[1].data[:]['QUALITY']
+    
+    f = h5py.File(lcFile,'r')
+    cadNo = np.array(f['cadenceNo'])
+    cadNoBeg = np.array(f['cadenceNoBeg'])
+    cadNoEnd = np.array(f['cadenceNoEnd'])
+    ia, ib = cjb.intersect(cadNoBeg, cadenceNo)
+    frstIdx = ib[0]
+    ia, ib = cjb.intersect(cadNoEnd, cadenceNo)    
+    endIdx = ib[-1]    
+
     #Make a fix for Sector 3 where not all cadences were used
     # in the backend DV
     #idx = np.where((cadenceNo>=114115) & (cadenceNo<=128706))[0]
@@ -71,15 +82,13 @@ def tpf_resamp(file, dirOut, RESAMP):
     #flux_array = flux_array[idx, :, :]
     #flux_bkg_array = flux_bkg_array[idx, :, :]
 
-    newNImage = int(np.floor(nImage / RESAMP))
-    oldNImage = newNImage*RESAMP
     # trim off the excess images not integral into resamp
-    cadenceNo = cadenceNo[0:oldNImage]
-    timetbjd = timetbjd[0:oldNImage]
-    flux_array = flux_array[0:oldNImage, :, :]
-    flux_bkg_array = flux_bkg_array[0:oldNImage, :,:]
-    dq_flag = dq_flag[0:oldNImage]
-    
+    cadenceNo = cadenceNo[frstIdx:endIdx+1]
+    timetbjd = timetbjd[frstIdx:endIdx+1]
+    flux_array = flux_array[frstIdx:endIdx+1, :, :]
+    flux_bkg_array = flux_bkg_array[frstIdx:endIdx+1, :,:]
+    dq_flag = dq_flag[frstIdx:endIdx+1]
+    newNImage = len(cadenceNo) // RESAMP    
     # Do downsampling of data stream
     cadenceNo = np.mean(np.reshape(cadenceNo, (newNImage, RESAMP)), axis=1, dtype=np.int)
     timetbjd = np.mean(np.reshape(timetbjd, (newNImage, RESAMP)), axis=1)
@@ -110,8 +119,8 @@ def tpf_resamp(file, dirOut, RESAMP):
     # Now save data as h5py
     epic = hdulist[0].header['TICID']
     sec = hdulist[0].header['SECTOR']
-    fileoutput = os.path.join(make_data_dirs(dirOut,sec,epic), 'tess_tpf_{0:016d}.h5d'.format(epic))
-    f = h5py.File(fileoutput, 'w')
+#    fileoutput = os.path.join(make_data_dirs(dirOut,sec,epic), 'tess_tpf_{0:016d}.h5d'.format(epic))
+    f = h5py.File(fileOut, 'w')
     tmp = f.create_dataset('cadenceNo', data=cadenceNo, compression='gzip') 
     tmp = f.create_dataset('timetbjd', data=timetbjd, compression='gzip')
     tmp = f.create_dataset('flux_array', data=flux_array, compression='gzip')
@@ -139,30 +148,38 @@ def tpf_resamp(file, dirOut, RESAMP):
     
 
 if __name__ == "__main__":
+    #  Directory list for Sector light curve files
+    fileInputPrefixList = ['/pdo/spoc-data/sector-01/sector_early_look/target-pixel/tess2018206045859-s0001-', \
+                          '/pdo/spoc-data/sector-02/target-pixel/tess2018234235059-s0002-', \
+                          '/pdo/spoc-data/sector-03/target-pixel/tess2018263035959-s0003-']
+    fileInputSuffixList = ['-0120-s_tp.fits.gz', \
+                           '-0121-s_tp.fits.gz', \
+                           '-0123-s_tp.fits.gz']
 
-    dirInputs = '/pdo/spoc-data/sector-04/target-pixel'
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector4/'
+    nSector = len(fileInputPrefixList)    
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector1-3/'
+    SECTOR = -1# =-1 if multi-sector
     RESAMP = 5  ###  USE AN ODD NUMBER HELPS WITH CADENCE NO ###
 
     # Only do tpfs for the targets with TCEs
     #  You can specify a multisector tce seed file because
     #   al that it uses is TIC.  If it exists it is made
-    tceSeedInFile = 'sector4_20190129_tce.pkl'
+    tceSeedInFile = 'sector1_3_20190208_tce.pkl'
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
     fin.close()
     alltic = np.unique(np.array([x.epicId for x in all_tces], dtype=np.int64))
 
 
-    fileList = glob.glob(os.path.join(dirInputs, '*tp.fits.gz'))
-
     cnt=0
-    for fil in fileList:
-        dirName, fileName = os.path.split(fil)
-        tokens = fileName.split('-')
-        curTic = np.int64(tokens[2])
-        idx = np.where(alltic == curTic)[0]
-        if len(idx) > 0: 
-            print(cnt)
-            tpf_resamp(fil, dirOutputs, RESAMP)
-            cnt = cnt + 1
+    for curTic in alltic:
+        print(cnt)
+        fileLCInputList = glob.glob(os.path.join(make_data_dirs(dirOutputs, SECTOR, curTic), 'tess_dvts_{0:016d}_*.h5d'.format(curTic)))
+        if len(fileLCInputList)>0:    
+            for k in range(nSector):
+                fileInput = '{0}{1:016d}{2}'.format(fileInputPrefixList[k], curTic, fileInputSuffixList[k])
+    
+                fileOutput = os.path.join(make_data_dirs(dirOutputs, SECTOR, curTic), 'tess_tpf_{0:016d}_{1:02d}.h5d'.format(curTic, k+1))
+                if os.path.isfile(fileInput):
+                    tpf_resamp(fileInput, fileOutput, RESAMP, fileLCInputList[0])
+        cnt = cnt + 1

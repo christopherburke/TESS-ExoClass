@@ -20,6 +20,7 @@ from astropy.visualization import simple_norm
 import fluxts_conditioning as flux_cond
 import glob
 import cjb_utils as cjb
+import statsmodels.robust as sm
 
 def idx_filter(idx, *array_list):
     new_array_list = []
@@ -79,7 +80,7 @@ def assignEvents(t, epc, phi, per, phiDur):
 
 if __name__ == '__main__':
     # These are for parallel procoessing
-    wID = 0
+    wID = 3
     nWrk = 6
     OVERWRITE = False
     #  Directory storing the ses mes time series
@@ -160,7 +161,7 @@ if __name__ == '__main__':
         if np.mod(i, nWrk) == wID:
             curPn = allpn[i]
 
-            outFile = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_mods_diffImg_{0:016d}_{1:02d}_*.pdf'.format(curTic,curPn))
+            outFile = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_bsc_diffImg_{0:016d}_{1:02d}_*.pdf'.format(curTic,curPn))
             outFileList = glob.glob(outFile)
             if OVERWRITE or not (len(outFileList)>0):
                 fileInput = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_sesmes_{0:016d}_{1:02d}.h5d'.format(curTic,curPn))
@@ -235,6 +236,7 @@ if __name__ == '__main__':
                         intvdGd[idx] = False
                         # Check to see if there are any in transit points
                         #  If none skip this sector diff image generation
+
                         if (np.sum(intvdGd) > 0):
                             searchDurationHours = alldur[i]
                     
@@ -255,7 +257,6 @@ if __name__ == '__main__':
                                     # Need to add a bias level 
                                     mnFlx = np.min(curFlx[useVD])
                                     print('MinFlux: {:f}'.format(mnFlx))
-                                    # Catch nan in TPF
                                     if np.isfinite(mnFlx) and (len(np.where(tpf_vd)[0])>0):
                                         if mnFlx < 0.0:
                                             curFlx = curFlx - mnFlx + 10.0
@@ -275,49 +276,25 @@ if __name__ == '__main__':
                         #                    plt.plot(usePhase[validData], final_smooth_flux[validData]-1.0, '.')
                         #                    plt.show()
                                         # Put detrended flux and trapezoid model into a temporary file                
-                                        fileOutput = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_cent_modtemp_{0:016d}_{1:02d}.txt'.format(curTic, curPn))
-                                        np.savetxt(fileOutput, np.transpose([useTime[useVD], \
-                                                                final_smooth_flux[useVD]-1.0, \
-                                                                useTrpzdModel[useVD]]))
-                                        pngOutputPrefix = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_cnt_modtemp_{0:02d}_{1:02d}_{2:016d}_{3:02d}_{4:02d}'.format(ii,jj, curTic, curPn, k))
-                                        # Build argument list
-                                        syscall = '/pdo/users/cjburke/spocvet/modshift/modshift {:s} {:s} {:016d}_{:02d} {:f} {:f} 1'.format(\
-                                                            fileOutput, pngOutputPrefix, curTic, curPn, allper[i], allatepoch[i])
-                                        p = Popen(syscall.split(), stdin=None, stdout=PIPE, stderr=PIPE)
-                                        sysreturn, err = p.communicate()
-                                        rc = p.returncode
-                                        #print('alpha')
-                                        retlist = sysreturn.split()[1:]
-                                        try:
-                                            primsig = float(retlist[0])
-                                            secsig = float(retlist[1])
-                                            tersig = float(retlist[2])
-                                            possig = float(retlist[3])
-                                            oesig = float(retlist[4])
-                                            depmnmedtest = float(retlist[5])
-                                            shptest = float(retlist[6])
-                                            asymtest = float(retlist[7])
-                                            threshany = float(retlist[8])
-                                            threshdiff = float(retlist[9])
-                                            fred = float(retlist[10])
-                                            primphi = float(retlist[11])
-                                            secphi = float(retlist[12])
-                                            terphi = float(retlist[13])
-                                            posphi = float(retlist[14])
-                                            secdep = float(retlist[15])
-                                            secdeperr = float(retlist[16])
-                                        except:
-                                            primsig = 0.0
-                                            fred = 1.0
-                                            possig = 0.0
-                        
-                        
-                                        depthImg[ii,jj] = primsig
-                                        if fred > 0.0:
-                                            snrImg[ii,jj] = primsig/fred
+                                        ts = useTime[useVD]
+                                        flx = final_smooth_flux[useVD] - 1.0
+                                        mdl = useTrpzdModel[useVD]
+                                        idxInTrn = np.where((mdl < -1.0e-5))[0]
+                                        idxOutTrn = np.where((mdl > -1.0e-5))[0]
+                                        if len(idxInTrn)==0  or len(idxOutTrn) ==0:
+                                            noiseEst = 1.0
+                                            avgDepth = 0.0
                                         else:
-                                            snrImg[ii,jj] = primsig
-                                        priposImg[ii,jj] = np.max([primsig - possig, 0.0])
+                                            noiseEst = sm.mad(flx[idxOutTrn])
+                                            minModelFlux = np.min(mdl[idxInTrn])
+                                            delFlxThresh =  minModelFlux*0.7
+                                            idxInTrnUse = np.where((mdl < delFlxThresh))[0]
+        
+                                            avgDepth = np.max([np.median(flx[idxInTrnUse]*(-1.0) * 1.0e6), -10.0])
+                                        
+                                        
+                        
+                                        depthImg[ii,jj] = avgDepth / noiseEst
                         
                         #                plt.cla()
                         #                plt.plot(usePhase[validData], final_smooth_flux[validData], '.')
@@ -334,7 +311,7 @@ if __name__ == '__main__':
                                         #print('Row: {:d} of {:d} Col: {:d} of {:d}'.format(ii, imgShp[0], jj, imgShp[1]) )
                                         #plt.plot(usePhase, final_smooth_flux[validData], '.')
                                         #plt.show()
-                            if (np.sum(np.isfinite(tpf_medimg.ravel())) > 10):                          
+                            if (np.sum(np.isfinite(tpf_medimg.ravel())) > 10):
                                 norm = simple_norm(tpf_medimg, 'log', percent=99.)
                                 plt.subplot(2,2,1)
                                 plt.imshow(tpf_medimg, norm=norm, origin='lower', cmap='viridis')
@@ -342,7 +319,7 @@ if __name__ == '__main__':
                                 if hasCent:
                                     plt.plot(centFlxw1-centRow0, centFlxw2-centCol0,   '-c')
                                 plt.title('Median Image S{0:02d}'.format(k))
-                            
+                                
                             norm = simple_norm(depthImg, 'linear', percent=99.)
                             plt.subplot(2,2,3)
                             plt.imshow(depthImg, norm=norm, origin='lower', cmap='viridis')
@@ -351,19 +328,19 @@ if __name__ == '__main__':
                                 plt.plot(centFlxw1-centRow0, centFlxw2-centCol0,   '-c')
                             plt.title('Primary Sig S{0:02d}'.format(k))
                         
-                            norm = simple_norm(snrImg, 'linear', percent=99.)
-                            plt.subplot(2,2,4)
-                            plt.imshow(snrImg, norm=norm, origin='lower', cmap='viridis')
-                            plt.colorbar()   
-                            plt.title('Primary Sig / Fred')
-                            
-                            norm = simple_norm(priposImg, 'linear', percent=99.)
-                            plt.subplot(2,2,2)
-                            plt.imshow(snrImg, norm=norm, origin='lower', cmap='viridis')
-                            plt.colorbar()   
-                            plt.title('Primary - Positive Sig')
+#                            norm = simple_norm(snrImg, 'linear', percent=99.)
+#                            plt.subplot(2,2,4)
+#                            plt.imshow(snrImg, norm=norm, origin='lower', cmap='viridis')
+#                            plt.colorbar()   
+#                            plt.title('Primary Sig / Fred')
+#                            
+#                            norm = simple_norm(priposImg, 'linear', percent=99.)
+#                            plt.subplot(2,2,2)
+#                            plt.imshow(snrImg, norm=norm, origin='lower', cmap='viridis')
+#                            plt.colorbar()   
+#                            plt.title('Primary - Positive Sig')
                     
-                            outFile = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_mods_diffImg_{0:016d}_{1:02d}_{2:02d}.pdf'.format(curTic,curPn,k))
+                            outFile = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_bsc_diffImg_{0:016d}_{1:02d}_{2:02d}.pdf'.format(curTic,curPn,k))
                             plt.savefig(outFile, format='pdf')
                             #plt.show()
                             plt.close()

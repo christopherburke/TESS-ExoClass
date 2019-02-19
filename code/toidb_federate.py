@@ -94,6 +94,8 @@ def federateFunction(period, epoch, ts, tcePeriods, tceEpochs, tceDurations):
     toiephem = ts.ephemCentral
     toiephem2d = np.tile(toiephem, (curntce, 1))
     nindatabase = np.sum(toiephem2d, 1)
+    idx = np.where(nindatabase == 0)[0]
+    nindatabase[idx] = 1
     # Build the 2D ephem matrix for the TCEs
     curngd = np.zeros((curntce,))
     curngd2 = np.zeros_like(curngd)
@@ -113,7 +115,7 @@ def federateFunction(period, epoch, ts, tcePeriods, tceEpochs, tceDurations):
         tceDuration = np.max([tceDuration, durFloor])
         ts = ts.makeEphemVector(tcePeriod, tceEpoch, tceDuration)
         tceephem2d[kk,:] = ts.ephemFull
-        curngd2[kk] = np.sum(ts.ephemCentral)
+        curngd2[kk] = np.max([1.0,np.sum(ts.ephemCentral)])
         curngd[kk] = np.sum(ts.ephemFull)
     inverttceephem2d = np.logical_not(tceephem2d)
     corr1 = tceephem2d * toiephem2d

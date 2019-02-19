@@ -95,14 +95,14 @@ class tce_seed(object):
         
         
 if __name__ == "__main__":
-    tceSeedOutFile = 'sector4_20190129_tce.pkl'
-    headXMLPath = '/pdo/spoc-data/sector-04/dv-results/'
+    tceSeedOutFile = 'sector1_3_20190208_tce.pkl'
+    headXMLPath = '/scratch2/cjb/spoc-data/sector-01-03/'
     # Namespace there is extra junk prepended to tags
     #  This is supposed to make it easier to use 
     ns = {'ns': 'http://www.nasa.gov/2018/TESS/DV'}
     
     # Get list of XML files 
-    fileList = glob.glob(headXMLPath + '*.xml.gz')
+    fileList = glob.glob(headXMLPath + '*.xml*')
     # Gather data for each TCE
     all_tces = []
     for i in range(len(fileList)):
@@ -110,12 +110,17 @@ if __name__ == "__main__":
             print("Parsed {0:d} of {1:d} Targs w/TCEs: {2:d}".format(i, len(fileList), len(all_tces)))
 
         
-        # open and read gzipped xml file
-        infile = gzip.open( fileList[i] )
-
+        # open and read gzipped xml file locally files are gzipped
+        #  but they are not gzip from MAST deal with both situations
         # parse xml file content
+        try:
+            infile = gzip.open( fileList[i] )
+            tree = ET.parse(infile)
+        except:
+            infile = open(fileList[i])
+            tree = ET.parse(infile)
+
         #dom = parseString( content )
-        tree = ET.parse(infile)
         root = tree.getroot()
         # Number of candidates
         nCand = int(root.get('planetCandidateCount'))
