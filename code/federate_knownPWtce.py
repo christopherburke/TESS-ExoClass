@@ -124,8 +124,8 @@ def coughlin_sigmap(p1,p2):
 
 
 if __name__ == '__main__':
-    fout = open('federate_knownP_sector1_3_20190208.txt', 'w')
-    dataSpan = 80.9
+    fout = open('federate_knownP_sector6_20190222.txt', 'w')
+    dataSpan = 21.8
     wideSearch = True
     searchRad = 180.0 # Arcsecond search radius for other TICs
 
@@ -158,13 +158,45 @@ if __name__ == '__main__':
     gtTIC = np.arange(len(gtName))
     gtTOI = np.arange(len(gtName))
     # Check for missing ephemeris values
-#    idxBd = np.where((np.logical_not(np.isfinite(gtPer))) | \
-#                     (np.logical_not(np.isfinite(gtEpc))) | \
-#                     (np.logical_not(np.isfinite(gtDur))))[0]
-    idxBd = np.where((np.logical_not(np.isfinite(gtPer))))[0]
+    idxBd = np.where((np.logical_not(np.isfinite(gtPer))) | \
+                     (np.logical_not(np.isfinite(gtEpc))))[0]
+#    idxBd = np.where((np.logical_not(np.isfinite(gtPer))))[0]
     if len(idxBd) > 0:
-        print('Bad Ephemeris for Known Planets')
-        print(gtName[idxBd])
+        for curIdxBd in idxBd:
+            print('Bad Ephemeris for Known Planet')
+            print(gtName[curIdxBd])
+            # Load known multi data planet table from NEXSCI   
+            whereString = 'mpl_name like \'{0}\''.format(gtName[curIdxBd])
+            url = 'https://exoplanetarchive.ipac.caltech.edu/cgi-bin/nstedAPI/nph-nstedAPI?'
+            data = {'table':'exomultpars', \
+                    'select':'mpl_name,mpl_orbper,mpl_tranmid,mpl_trandur', \
+                    'format':'csv', \
+                    'where':whereString}
+            url_values = urllib.urlencode(data)
+            #print url_values
+            queryData = urllib2.urlopen(url + url_values)
+            returnPage = queryData.read()
+            dtypeseq = ['U40']
+            dtypeseq.extend(['f8'] * 3)
+            dataBlock = np.genfromtxt(returnPage.splitlines(), delimiter=',', skip_header=1, \
+                        dtype=dtypeseq)
+            curName = dataBlock['f0']
+            curPer = dataBlock['f1']
+            curEpc = dataBlock['f2']
+            curDur = dataBlock['f3']
+            if curPer.size > 1:
+                gotValues = False
+                idxGd = np.where(np.isfinite(curPer))[0]
+                for ip in range(len(curPer)):
+                    if np.isfinite(curPer[ip]) and np.isfinite(curEpc[ip]) and not gotValues:
+                        gotValues = True
+                        gtPer[curIdxBd] = curPer[ip]
+                        gtEpc[curIdxBd] = curEpc[ip]
+                        print('Found {0} {1} {2}'.format(gtPer[curIdxBd], gtEpc[curIdxBd], np.mean(curPer[idxGd])))
+            else:
+                print('Not Matching to {0}'.format(gtName[curIdxBd]))
+                print(curPer, curEpc)
+           
     idx = np.where((np.isfinite(gtPer)))[0]
     gtName = gtName[idx]
     gtPer, gtEpc, gtDur, gtRa, gtDec, gtTIC, gtTOI = cjb.idx_filter(idx, \
@@ -173,7 +205,7 @@ if __name__ == '__main__':
 
 
     # Load the tce data pickle    
-    tceSeedInFile = 'sector1_3_20190208_tce.pkl'
+    tceSeedInFile = 'sector6_20190222_tce.pkl'
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
     fin.close()
@@ -246,35 +278,36 @@ if __name__ == '__main__':
             trypn = allpn[idx]
             trydur = usedur[idx]
             trytic = alltic[idx]
-            sigMatch = np.zeros((len(tryper),), dtype=np.float)
-            for j in range(len(tryper)):
-                sigMatch[j] = coughlin_sigmap(curper, tryper[j])
-            idxSig = np.where(sigMatch > 3.0)[0]
-            if len(idxSig)>0:
-                tryper = tryper[idxSig]
-                tryepc = tryepc[idxSig]
-                trypn = trypn[idxSig]
-                trydur = trydur[idxSig]
-                trytic = trytic[idxSig]
-                idxSigia = np.argsort(trypn)[0]
-                bstpn = trypn[idxSigia]
-                bsttic = trytic[idxSigia]
-                bstStat = sigMatch[idxSigia]
-                bstPeriodRatio = curper / tryper[idxSigia]
-                bstPeriodRatioFlag = 1
-                bstFederateFlag = 1
-                bstMatch = 1
-            else:
-                bstpn = 0
-                bstMatch = -1
-                bstStat = -1.0
-                bstPeriodRatio = -1.0
-                bstPeriodRatioFlag = 0
-                bstFederateFlag = 0
-                bsttic = 0
+            bstpn, bsttic, bstMatch, bstStat, bstPeriodRatio, bstPeriodRatioFlag, bstFederateFlag = \
+                    genericFed(curper, curepc, tryper, tryepc, trydur, trypn, trytic, uowStart, uowEnd)
+
+#            sigMatch = np.zeros((len(tryper),), dtype=np.float)
+#            for j in range(len(tryper)):
+#                sigMatch[j] = coughlin_sigmap(curper, tryper[j])
+#            idxSig = np.where(sigMatch > 3.0)[0]
+#            if len(idxSig)>0:
+#                tryper = tryper[idxSig]
+#                tryepc = tryepc[idxSig]
+#                trypn = trypn[idxSig]
+#                trydur = trydur[idxSig]
+#                trytic = trytic[idxSig]
+#                idxSigia = np.argsort(trypn)[0]
+#                bstpn = trypn[idxSigia]
+#                bsttic = trytic[idxSigia]
+#                bstStat = sigMatch[idxSigia]
+#                bstPeriodRatio = curper / tryper[idxSigia]
+#                bstPeriodRatioFlag = 1
+#                bstFederateFlag = 1
+#                bstMatch = 1
+#            else:
+#                bstpn = 0
+#                bstMatch = -1
+#                bstStat = -1.0
+#                bstPeriodRatio = -1.0
+#                bstPeriodRatioFlag = 0
+#                bstFederateFlag = 0
+#                bsttic = 0
                 
-#            bstpn, bsttic, bstMatch, bstStat, bstPeriodRatio, bstPeriodRatioFlag, bstFederateFlag = \
-#                    genericFed(curper, curepc, tryper, tryepc, trydur, trypn, trytic, uowStart, uowEnd)
             
         else:
             #print("No match in Ground truth")

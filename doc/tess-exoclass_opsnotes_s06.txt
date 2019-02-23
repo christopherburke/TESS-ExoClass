@@ -1,0 +1,287 @@
+Here are some notes and operations guidance for running TEC.
+Essentially you run a long series of python codes, and each
+one has hardcoded directory paths and filenames to fill in.
+There are also a few tips for using TEC with your own pipeline.
+The runtimes below are for a single sector run and will
+  be longer for multi-sector runs probably scaling as N sectors.
+Formally this is running under python 2.7 (only because the location
+of the data files is on a machine only running python 2.7, e.g., not my choice)
+, but I typically code to python 3+ standards, so this should
+work with python 3+.
+
+Python package dependencies
+numpy
+matplotlib
+scipy
+astropy
+h5py
+statsmodels
+spectrum
+
+System call dependencies (only tested on linux)
+pdftotext
+grep
+gs
+
+Pre1. make a new directory,
+      `mkdir sector#`
+      `cd sector#`
+Pre2. copy python codes from last time it was run into created directory
+     `cp ../sector#/*py .`
+Pre3. make a data directory where outputs from TEC are kept
+      `mkdir S??`, where ?? is the two digit sector number with a leading
+                   zero
+      ***NOTE*** For a multi-sector run USE -1 for sector number
+        `mkdir S-1`
+Pre4. You should have a directories containing the SPOC
+       DV XML files, DV time series,
+      and optionally target pixel files
+
+Now we are ready to start running some TEC codes
+
+1. gather_tce_fromdvxml.py
+  Modify headXMLPath to point to directory containing DV XML files
+  tceSeedOutFile - is the output pkl file from this routine.
+
+  This reads in the DV xml to gather information about every TCE,
+   and writes out a pkl file storing information for all the detections
+   you want to analyze with TEC.  All the later routines essentially 
+   read in the tceSeedOutFile and work on the detections stored in
+   the pkl file created with this routine.
+   
+  comments: This is a step which you will need to write your own version
+  of for your own pipeline.  This code gathers all the essential information
+  about a detection and fills in the 'tce_seed' class.  Very few of the
+  entries in the tce_seed class are required.  See variables_used.txt
+  for a list of variables actually used in current TEC code.
+  One should just leave items under
+  Ghost diag, TCE Infor, Centroid Fits, Odd/Even as zeros
+  and we'll just have to see what breaks in later codes as a result.
+  If you have multiple detections per target then make separate tce_seed
+  class entries for each one that has the same epicId (really TIC id) and 
+  increasing planetNum. 
+  (runtime 1min)
+
+2. dvts_bulk_resamp.py 
+   Reads in dv time series and resamples them at the 2minx5 ~ 10 min cadence
+    and packages into hd5.  The resample factor RESAMP can be changed, 
+    but it should be kept odd.
+
+   Modify dirInputs to point to dv time series directory
+     dirOutputs to point to the head directory set in step Pre1.
+     note: Normally the sector to run is obtained from the
+        header of the dv time series fits file.   This was
+        found to not work for multi-sector runs, thus
+        SECTOR_OVRRIDE=None for single sector runs and
+        SECTOR_OVRRIDE=-1 for a multi-sector runs.
+
+   comments: This is also a step in which you will need to write
+     your own version for your own pipeline.  This code gathers
+     the flux time series.  See variables_used.txt in doc folder
+     for a list of the arrays that actually need to be
+     filled.  Also, the time vector needs to be
+     on the same system that the ephemeris zeropoint is in the 
+     previous step.  As a bit of historical development, originally
+     the 2min data was resampled in order to be on the same 30min
+     time scale as the FFIs, thus TEC would be easier to work for
+     FFI only detections.  The other motivation for the resampling
+     was to make the data files much smaller for more efficient run times
+     and storage space.  However, it was found to vet properly 2-min detections
+     one needed at least 10 min cadence or else some very short duration
+     events just didn't vet well.  Thus, the 2-min cadence data is resampled
+     to x5 (10min).  For FFI time series one should not use any
+     resampling.  Just pack the h5d data into the correct format
+     and be sure to set the valid data flags as you see fit.
+     TEC uses the PDC flux and uses it's own detrending.
+     Thus, you can feed in data that has been fully detrended, or
+     ones that are not fully detrended.  If you are inputing flux
+     time series with numerous 'jumps' or discontinuities, then
+     we may need to work together to make sure the TEC detrending
+     works well with such light curves.
+    (runtime 8 min for 850 targets)
+
+*This step can be run while dvts_bulk_resamp.py is running
+* You need the Data Span estimates printed out while dvts_bulk_resamp.py
+*  is runing for the next step, but after 30-40 targets it shouldn't change
+3. skyline_spoc.py
+   Generate a skyline plot and generate cadences to exclude when 
+   recalculating MES.
+   Modify fout - text file for skyline results
+   tceSeedInFil - points to tce_seed file created in step 1.
+   It will bring up a figure showing which cadences are overpopulated
+   with TCEs in red.
+   (runtime 1min)
+
+   federate_knownPWtce.py
+   Federate/ephemeris match known planets as given on exoplanet archive with TCEs
+   Modify fout for output
+    tceSeedInFile - is tce_seed pkl from step 1.  It is far into the file
+     dataSpan - from dvts_bulk_resamp      
+   Note: Currently only looks for confirmed planets in southern ecliptic latitude.   st_elat<0.0 needs to be changed in North TESS pointings.
+   comment: The 2nd to last column is the period ratio.  For matching
+     to known planets one should confirm the match even if the period ratio
+     is a known integer/fractional ratio, it is likely a match and should
+     be considered as such.  Someday I will describe the output column meanings.     
+   (runtime 2min)
+
+   federate_toiWtce.py
+   Federate TOI alerts at MAST with TCEs.
+   Make sure to download a new MAST TOI alert file
+   On the MAST TOI alerts page
+   https://archive.stsci.edu/prepds/tess-data-alerts/
+    there is a link to download the TOI target information csv
+   Modify fout to the output filename
+   qlpfile is the name of the TOI information csv file from MAST
+   tceSeedInFile - tce_seed pkl from step 1
+     dataSpan - from dvts_bulk_resamp
+   (runtime 2min)
+
+   selfMatch_spoc.py
+   Federate the TCE list with itself.  This can identify
+   clusters of TCEs that all have the same ephemeris and are suspect.
+   Modify fout - output text file
+      tceSeedInFile - 
+     dataSpan - from dvts_bulk_resamp
+
+Complete all previous steps before continuing
+4. Ses_mes_stat.py
+   Now we actually have a routine that calculates some metrics.
+   This calculates SES, MES, and CHASES based metrics after applying
+   the adopted deterending with proteced transits (see smoothn.py for
+   detrending details).
+   This is a time consuming step, and can be parallelized 
+   Modify tceSeedInFile - file from step 1
+          dvDataDir - set to the head path set in step Pre1
+	  SECTOR - set to sector number
+	  Ln 199 reads in skyline data file created in step 3
+     With no parallel processing set wID=0 and nWrk=1.
+     In order to use parallel processing just run multiple instances
+     of python ses_mes_stats.py incrementing wID and saving in between.
+     For instance if you want to use 3 workers hard code nWrk=3, and
+     hard code wID = 0.  Then call `python ses_mes_stats.py`.  Hardcode
+     wID = 1 and resave ses_mes_stats.py, then in new terminal call
+     `python ses_mes_stats.py` again.  And repeat again after hardcoding
+      wID = 2.
+    (runtime w/ 6 workers ~5-10 minutes)
+
+*The following can be run in parallel with step 4 and steps 6-10
+5. get_dv_report_page.py rips the differenece image pages from full dv report
+   Modify summaryFolder, summaryPrefix, summaryPostfix to match
+       the corresponding items for the full dv reports.  
+   Sector1 and Sector2 should be the same for a single sector run
+       but for a multi-sector run should be the beginning and end sectors
+       of the search as given in the report filenames
+   multiRun = False for single sector run; True for multiRun
+   tceSeedInFile - tce_seed file from step1
+   sesMesDir - head folder created in step Pre1.
+   SECTOR - sector number
+   comment:  Lots of warnings and errors are generated but seems to work
+   (runtime ~ 60 min)
+
+Wait for Step 4 to complete before continuing
+6. flux_triage.py
+   Filters out TCEs using results from ses mes stat
+   Modify tceSeedInFile - tce_seed from step 1
+    sesDataDir- head path from step Pre 1 + *** Also includes the S?? directory**
+    fluxVetOut - output triage results file
+   (runtime 1 min)
+
+7. modshift_test.py
+   Runs Jeff Coughlins model shift test after fitting a trapezoid model
+   (with the PGMCMC package) to the phase folded transit signal.  This
+   will be run twice once with the DV median detrended flux time series
+   and another with the TEC alternative detrending.  You can 
+   do both runs in parallel with several min between starting
+   to make sure you don't inadvertently clobber temporary files
+   that modshift needs.
+   The source for modshift is c++
+   https://github.com/JeffLCoughlin/Model-Shift
+   the version of modshift.cpp included in TEC has a few changes,
+   thus one should use the one included here.  You need to 
+   successfully compile modshift before running the python version
+   g++ -std=c++11 -Wno-unused-result -O3 -o modshift -O modshift.cpp
+   you will get some runtime warnings from modshift, pgmcmc, and 
+   (bounded vals bad)  that appears to be benign.
+
+   Modify sesMesDir - head path set in step Pre1
+   SECTOR - sector #
+   medianInputFlux - True (uses DV median detrended); False (use TEC detrend)
+   		   **You need to run modshift_test.py twice.  Once with True;
+ 		   once with False
+   fileOut - output filename for modshift.  
+   	     	    **Write to a separate filename both times running modshift
+   vetFile - Set to file output by flux_triage step 6.
+   tceSeedInFile - Set to tce_seed pkl from step 1.
+   syscall - ~Ln 457 needs to point to your compiled modshift binary
+
+   (runtime 10min for a single run of modshifit over 227 TCEs)
+
+* Step 8 can be run independent of Step 7
+8. sweet_test.py
+   This is the SWEET variable star check.  See Kepler robovetter docs
+    for details.  It uses PGMCMC for fitting of sinusoids.
+    It is configured to run only on
+    triage passing detections with orbital period < MAXPER = 5.0 day
+
+    Modify sesMesDir - head path director from step Pre1
+    SECTOR - sector number
+    fileOut - Sweet test output results
+    vetFile - Set to file output by flux_triage step 6.
+    tceSeedInFile - Set to tce_seed pkl from step 1.
+    (runtime 8 min over 148 TCEs)
+
+* Step 8b can be run independent of Step 7 and 8
+8b. grab_flxwcent.py
+    Get the flux weighted centroid time series and PDC data
+    for the target.
+
+* Steps 9 and 10 are ongoing development for centroid/difference
+  image analysis.  They aren't actively being used in the TEC 
+  ranking or decisions.  You are on your own if you want to
+  play along with the pixel level analysis.  These definitely
+  only work for single sector runs and are not factored
+  for multi-sector runs.  Proceed to Step
+  11 to do the final ranking.
+9. tpf_bulk_resamp.py
+   (runtime 10:53)
+
+10. centroid_form_modshift.py
+
+10b. centroid_form_basic.py
+
+Make sure to complete previous steps (9&10 optional) before the final ranking.
+11. rank_tces.py
+   Does ranking and Tier separation of TCEs
+   Also generates the TEC pdf report.
+   Generating the TEC pdf report takes a long time,
+    so if you want to just run the ranking and generate Tier files
+    without the TEC pdf report.
+    make sure wID=0; nWrk=1; and doPNGs=False.
+   
+   Follow the description for parallel processing under the ses_mes_stat (step4)
+   in order to generate the TEC pdf reports in parallel.  If nWrk>1 then,
+   only TEC pdf reports are generated.  So, one should probably
+   run rank_tces.py with wID=0; nWrk=1; and doPNGs=False to generate
+   Tier lists as this is quick.  Then rerun multiple instances
+   of rank_tces.py with nWrk=#, doPNGs=True, and doMergeSum=True.
+   
+   Modify summaryFolder, summaryPrefix, and summaryPostfix as well
+    as Sector1,Sector2 in the same manner as in step 5 (get_dv_report_page).
+    ***The summaryPostfix should point to dvs.pdf summaries rather than
+       dvr.pdf like in get_dv_report_page
+   doPNGs - True=generate TEC pdf report; False=only generate Tier ranked files
+   pngFolder - Path to a png folder created under the head director from Pre1
+       also make the directory `mkdir pngs`
+   pdfFolder - Path to a pdf folder created under the head directory from Pre1
+       also make the directory `mkdir pdfs`
+   Sector1, Sector2 - Set to sector number or sector range for multi-sector run
+   sesMesDir - set to head directory path from Pre1
+   SECTOR - set to sector number
+   fileOut? - File output name from this routine for the Tier lists
+   vetFile, tceSeedInFile, modshiftFile, modshiftFile2, sweetFile,
+     toiFederateFile, knownPFederateFile, selfMatchFile - are filenames that were
+     generated in the previous TEC steps.
+
+   (runtime for pdf generation 10min per worker  )
+
+

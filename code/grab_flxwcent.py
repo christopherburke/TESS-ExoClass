@@ -40,23 +40,29 @@ def idx_filter(idx, *array_list):
 
 if __name__ == '__main__':
     #  Directory list for Sector light curve files
-    fileInputPrefixList = ['/pdo/spoc-data/sector-01/sector_early_look/light-curve/tess2018206045859-s0001-', \
-                          '/pdo/spoc-data/sector-02/light-curve/tess2018234235059-s0002-', \
-                          '/pdo/spoc-data/sector-03/light-curve/tess2018263035959-s0003-']
-    fileInputSuffixList = ['-0120-s_lc.fits.gz', \
-                           '-0121-s_lc.fits.gz', \
-                           '-0123-s_lc.fits.gz']
+#    fileInputPrefixList = ['/pdo/spoc-data/sector-01/sector_early_look/light-curve/tess2018206045859-s0001-', \
+#                          '/pdo/spoc-data/sector-02/light-curve/tess2018234235059-s0002-', \
+#                          '/pdo/spoc-data/sector-03/light-curve/tess2018263035959-s0003-']
+#    fileInputSuffixList = ['-0120-s_lc.fits.gz', \
+#                           '-0121-s_lc.fits.gz', \
+#                           '-0123-s_lc.fits.gz']
+# In the case of a single sector One needs dummy entries for
+#  every sector
+    fileInputPrefixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
+                           '/pdo/spoc-data/sector-06/light-curve/tess2018349182459-s0006-']
+    fileInputSuffixList = ['-foo1','-foo2','-foo3','-foo4','-foo5',\
+                           '-0126-s_lc.fits.gz']
 
     nSector = len(fileInputPrefixList)    
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector1-3/'
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector6/'
     RESAMP = 31  ###  USE AN ODD NUMBER ###
-    SECTOR = -1# =-1 if multi-sector
+    SECTOR = 6# =-1 if multi-sector
 
-    fileOut = 'spoc_sector1_3_pdcstats_20190208.txt'
+    fileOut = 'spoc_sector6_pdcstats_20190222.txt'
     fom = open(fileOut, 'w')
-    vetFile = 'spoc_sector1_3_fluxtriage_20190208.txt'
+    vetFile = 'spoc_sector6_fluxtriage_20190222.txt'
     #vetFile = 'junk.txt'
-    tceSeedInFile = 'sector1_3_20190208_tce.pkl'
+    tceSeedInFile = 'sector6_20190222_tce.pkl'
 
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
@@ -109,6 +115,8 @@ if __name__ == '__main__':
         curPn = allpn[i]
         hasSector = np.zeros((nSector,), dtype=np.int)
         pdcTot = np.zeros((nSector,), dtype=np.float)
+        pdcNoise = np.zeros((nSector,), dtype=np.float)
+        pdcCor = np.zeros((nSector,), dtype=np.float)
         
         # Find files for each sector
         for k in range(nSector):
@@ -116,6 +124,13 @@ if __name__ == '__main__':
             fileOutput = os.path.join(make_data_dirs(dirOutputs, SECTOR, curTic), 'tess_flxwcent_{0:016d}_{1:02d}_{2:02d}.h5d'.format(curTic,curPn, k+1))
             if os.path.isfile(fileInput):
                 hdulist = fits.open(fileInput)
+                
+                # Get some PDC statistics
+                hasSector[k] = 1
+                pdcTot[k] = hdulist[1].header['PDC_TOT']
+                pdcNoise[k] = hdulist[1].header['PDC_NOI']
+                pdcCor[k] = hdulist[1].header['PDC_COR']
+                pdcStats = np.array([pdcTot[k], pdcNoise[k], pdcCor[k]], dtype=np.float)
                 flxw_centr1 = hdulist[1].data['MOM_CENTR1']
                 flxw_centr2 = hdulist[1].data['MOM_CENTR2']
                 time = hdulist[1].data['TIME']
@@ -147,6 +162,7 @@ if __name__ == '__main__':
                 tmp = f.create_dataset('flxw_centr2', data=flxw_centr2, compression='gzip')
                 tmp = f.create_dataset('dqflgs', data=dqflgs, compression='gzip')
                 tmp = f.create_dataset('valid_data_flag', data=valid_data_flag, compression='gzip')
+                tmp = f.create_dataset('pdc_stats', data=pdcStats)
                 
                 print(curTic, 'alpha')                
 

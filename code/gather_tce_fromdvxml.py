@@ -95,14 +95,14 @@ class tce_seed(object):
         
         
 if __name__ == "__main__":
-    tceSeedOutFile = 'sector1_3_20190208_tce.pkl'
-    headXMLPath = '/scratch2/cjb/spoc-data/sector-01-03/'
+    tceSeedOutFile = 'sector6_20190222_tce.pkl'
+    headXMLPath = '/pdo/spoc-data/sector-06/dv-results/'
     # Namespace there is extra junk prepended to tags
     #  This is supposed to make it easier to use 
     ns = {'ns': 'http://www.nasa.gov/2018/TESS/DV'}
     
     # Get list of XML files 
-    fileList = glob.glob(headXMLPath + '*.xml*')
+    fileList = glob.glob(headXMLPath + '*_dvr.xml*')
     # Gather data for each TCE
     all_tces = []
     for i in range(len(fileList)):
@@ -123,8 +123,11 @@ if __name__ == "__main__":
         #dom = parseString( content )
         root = tree.getroot()
         # Number of candidates
-        nCand = int(root.get('planetCandidateCount'))
-        ticId = int(root.get('ticId'))
+        try:
+            ticId = int(root.get('ticId'))
+            nCand = int(root.get('planetCandidateCount'))
+        except:
+            print('ERROR READING FILE {0}'.format(fileList[i]))
         # instantiate tce_seed class
         targdata = tce_seed()
         # Fill in the target specific information
