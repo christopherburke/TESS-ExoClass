@@ -12,6 +12,7 @@ from gather_tce_fromdvxml import tce_seed
 import os
 from subprocess import call
 import math
+import h5py
 
 def make_data_dirs(prefix, sector, epic):
     secDir = 'S{0:02d}'.format(sector)
@@ -77,8 +78,8 @@ if __name__ == '__main__':
     # These are for parallel procoessing
     # if nWrk>1 then files with text output are not written out
     #  nWrk>1 should be used with doMergeSum = True for generating summary
-    wID = 5
-    nWrk = 6
+    wID = 0
+    nWrk = 1
     
     summaryFolder = '/pdo/spoc-data/sector-06/dv-reports'
     summaryPrefix = 'tess2018349182739-'
@@ -89,9 +90,9 @@ if __name__ == '__main__':
     if Sector2 - Sector1 > 0:
         multiRun = True
 
-    doPNGs = True
+    doPNGs = False
     pngFolder = '/pdo/users/cjburke/spocvet/sector6/pngs/'
-    doMergeSum = True
+    doMergeSum = False
     pdfFolder = '/pdo/users/cjburke/spocvet/sector6/pdfs/'
     Sector1 = 6
     Sector2 = 6
@@ -240,7 +241,22 @@ if __name__ == '__main__':
     idx = np.where((smFedMatch == 1) & (smFedSep<1.3))[0]
     smFedTic1 = smFedTic1[idx]
     smFedPN1 = smFedPN1[idx]
-    
+
+    # Load the PDC fit goodness statistics
+    pdcTic = np.array([], dtype=np.int)
+    pdcPn = np.array([], dtype=np.int)
+    pdcNoi = np.array([], dtype=np.float)
+    pdcCor = np.array([], dtype=np.float)
+    for i, curTic in enumerate(alltic):
+        curPn = allpn[i]
+        pdcResults = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_flxwcent_{0:016d}_{1:02d}_{2:02d}.h5d'.format(curTic,curPn, SECTOR))
+        f = h5py.File(pdcResults,'r')
+        pdcStats = np.array(f['pdc_stats'])
+        pdcTic = np.append(pdcTic, curTic)
+        pdcPn = np.append(pdcPn, curPn)
+        pdcNoi = np.append(pdcNoi, pdcStats[1])
+        pdcCor = np.append(pdcCor, pdcStats[2])
+
                
     # calculate expected duration
     expdur = transit_duration(allrstar, alllogg, allper, 0.0)
@@ -319,7 +335,7 @@ if __name__ == '__main__':
             # Look for a TOI match
             matchFlg = 0
             # fc is the cause flags for going to Tier 2
-            fc = np.zeros((10,), dtype=np.int)
+            fc = np.zeros((14,), dtype=np.int)
             ib = np.where((alltic[j] == toiFedTic) & (allpn[j] == toiFedPN))[0]
             if len(ib)>0:
                 # Was it a direct match or not
@@ -342,6 +358,11 @@ if __name__ == '__main__':
             kswidx = np.where((alltic[j] == swTic) & (allpn[j] == swPN))[0]
             # Find self match TCE
             ksmidx = np.where((alltic[j] == smFedTic1) & (allpn[j] == smFedPN1))[0]
+            # Find PDC Goodness stat data
+            kpdcidx = np.where((alltic[j] == pdcTic) & (allpn[j] == pdcPn))[0]
+            # Find planet radius
+            curRp = allrp[j]
+            curSNR = allsnr[j]
 
             # Tier 1 must have no centroid issues, primary signif, no secondary (else albedo or period half),
             # and no odd/even sig
@@ -364,15 +385,24 @@ if __name__ == '__main__':
                     tier1 = False
                     fc[4] = 1
                     hasSec = True
+                else:
+                    tier1 = False
+                    fc[12] = 1
             if modSecFlg2[kidx2] == 1:
                 if modSecOvrFlg2[kidx2] == 0:
                     tier1 = False
                     fc[5] = 1
                     hasSec = True
-            if modOESig[kidx] > 2.8:
+                else:
+                    tier1 = False
+                    fc[13] = 1
+            OEThresh = 2.8
+            if curSNR > 30.0:
+                OEThresh = 4.0
+            if modOESig[kidx] > OEThresh:
                 tier1 = False
                 fc[6] = 1
-            if modOESig2[kidx2] > 2.8:
+            if modOESig2[kidx2] > OEThresh:
                 tier1 = False
                 fc[7] = 1
             sweetFail = False
@@ -386,6 +416,16 @@ if __name__ == '__main__':
             if len(ksmidx)>0:
                 tier1 = False
                 fc[9] = 1
+            # PDC goodness stat
+            if len(kpdcidx)>0:
+                if pdcNoi[kpdcidx] < 0.8:# and pdcCor[kpdcidx] <:
+                    tier1 = False
+                    fc[10] = 1
+            # Planet radius too big caution
+            if curRp > 20.0:
+                tier1 = False
+                fc[11] = 1
+            
                 
 
             reportIt = False
