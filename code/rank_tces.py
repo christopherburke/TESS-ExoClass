@@ -12,6 +12,7 @@ from gather_tce_fromdvxml import tce_seed
 import os
 from subprocess import call
 import math
+import h5py
 
 def make_data_dirs(prefix, sector, epic):
     secDir = 'S{0:02d}'.format(sector)
@@ -77,38 +78,38 @@ if __name__ == '__main__':
     # These are for parallel procoessing
     # if nWrk>1 then files with text output are not written out
     #  nWrk>1 should be used with doMergeSum = True for generating summary
-    wID = 5
-    nWrk = 6
+    wID = 0
+    nWrk = 1
     
-    summaryFolder = '/pdo/spoc-data/sector-06/dv-reports'
-    summaryPrefix = 'tess2018349182739-'
-    summaryPostfix = '-00144_dvs.pdf'
-    Sector1 = 6
-    Sector2 = 6
+    summaryFolder = '/pdo/spoc-data/sector-05/dv-reports'
+    summaryPrefix = 'tess2018319112539-'
+    summaryPostfix = '-00140_dvs.pdf'
+    Sector1 = 5
+    Sector2 = 5
     multiRun = False
     if Sector2 - Sector1 > 0:
         multiRun = True
 
-    doPNGs = True
-    pngFolder = '/pdo/users/cjburke/spocvet/sector6/pngs/'
-    doMergeSum = True
-    pdfFolder = '/pdo/users/cjburke/spocvet/sector6/pdfs/'
-    Sector1 = 6
-    Sector2 = 6
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector6'
-    SECTOR=6 # -1 for multi-sector
+    doPNGs = False
+    pngFolder = '/pdo/users/cjburke/spocvet/sector5/pngs/'
+    doMergeSum = False
+    pdfFolder = '/pdo/users/cjburke/spocvet/sector5/pdfs/'
+    Sector1 = 5
+    Sector2 = 5
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector5'
+    SECTOR=5 # -1 for multi-sector
 
-    fileOut1 = 'spoc_sector6_ranking_Tier1_20190222.txt'
-    fileOut2 = 'spoc_sector6_ranking_Tier2_20190222.txt'
-    fileOut3 = 'spoc_sector6_ranking_Tier3_20190222.txt'
-    vetFile = 'spoc_sector6_fluxtriage_20190222.txt'
-    tceSeedInFile = 'sector6_20190222_tce.pkl'
-    modshiftFile = 'spoc_sector6_modshift_20190222.txt'
-    modshiftFile2 = 'spoc_sector6_modshift_med_20190222.txt'
-    sweetFile = 'spoc_sector6_sweet_20190222.txt'
-    toiFederateFile = 'federate_toiWtce_sector6_20190222.txt'
-    knowPFederateFile = 'federate_knownP_sector6_20190222.txt'
-    selfMatchFile = 'selfMatch_sector6-20190222.txt'
+    fileOut1 = 'spoc_sector5_ranking_Tier1_20190223.txt'
+    fileOut2 = 'spoc_sector5_ranking_Tier2_20190223.txt'
+    fileOut3 = 'spoc_sector5_ranking_Tier3_20190223.txt'
+    vetFile = 'spoc_sector5_fluxtriage_20190223.txt'
+    tceSeedInFile = 'sector5_20190223_tce.pkl'
+    modshiftFile = 'spoc_sector5_modshift_20190223.txt'
+    modshiftFile2 = 'spoc_sector5_modshift_med_20190223.txt'
+    sweetFile = 'spoc_sector5_sweet_20190223.txt'
+    toiFederateFile = 'federate_toiWtce_sector5_20190223.txt'
+    knowPFederateFile = 'federate_knownP_sector5_20190223.txt'
+    selfMatchFile = 'selfMatch_sector5-20190223.txt'
 
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
@@ -241,6 +242,20 @@ if __name__ == '__main__':
     smFedTic1 = smFedTic1[idx]
     smFedPN1 = smFedPN1[idx]
     
+    # Load the PDC fit goodness statistics
+    pdcTic = np.array([], dtype=np.int)
+    pdcPn = np.array([], dtype=np.int)
+    pdcNoi = np.array([], dtype=np.float)
+    pdcCor = np.array([], dtype=np.float)
+    for i, curTic in enumerate(alltic):
+        curPn = allpn[i]
+        pdcResults = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_flxwcent_{0:016d}_{1:02d}_{2:02d}.h5d'.format(curTic,curPn, SECTOR))
+        f = h5py.File(pdcResults,'r')
+        pdcStats = np.array(f['pdc_stats'])
+        pdcTic = np.append(pdcTic, curTic)
+        pdcPn = np.append(pdcPn, curPn)
+        pdcNoi = np.append(pdcNoi, pdcStats[1])
+        pdcCor = np.append(pdcCor, pdcStats[2])
                
     # calculate expected duration
     expdur = transit_duration(allrstar, alllogg, allper, 0.0)
@@ -319,7 +334,7 @@ if __name__ == '__main__':
             # Look for a TOI match
             matchFlg = 0
             # fc is the cause flags for going to Tier 2
-            fc = np.zeros((10,), dtype=np.int)
+            fc = np.zeros((14,), dtype=np.int)
             ib = np.where((alltic[j] == toiFedTic) & (allpn[j] == toiFedPN))[0]
             if len(ib)>0:
                 # Was it a direct match or not
@@ -342,6 +357,12 @@ if __name__ == '__main__':
             kswidx = np.where((alltic[j] == swTic) & (allpn[j] == swPN))[0]
             # Find self match TCE
             ksmidx = np.where((alltic[j] == smFedTic1) & (allpn[j] == smFedPN1))[0]
+            # Find PDC Goodness stat data
+            kpdcidx = np.where((alltic[j] == pdcTic) & (allpn[j] == pdcPn))[0]
+            # Find planet radius
+            curRp = allrp[j]
+            curSNR = allsnr[j]
+            
 
             # Tier 1 must have no centroid issues, primary signif, no secondary (else albedo or period half),
             # and no odd/even sig
@@ -364,15 +385,24 @@ if __name__ == '__main__':
                     tier1 = False
                     fc[4] = 1
                     hasSec = True
+                else:
+                    tier1 = False
+                    fc[12] = 1
             if modSecFlg2[kidx2] == 1:
                 if modSecOvrFlg2[kidx2] == 0:
                     tier1 = False
                     fc[5] = 1
                     hasSec = True
-            if modOESig[kidx] > 2.8:
+                else:
+                    tier1 = False
+                    fc[13] = 1
+            OEThresh = 2.8
+            if curSNR > 30.0:
+                OEThresh = 4.0
+            if modOESig[kidx] > OEThresh:
                 tier1 = False
                 fc[6] = 1
-            if modOESig2[kidx2] > 2.8:
+            if modOESig2[kidx2] > OEThresh:
                 tier1 = False
                 fc[7] = 1
             sweetFail = False
@@ -386,6 +416,15 @@ if __name__ == '__main__':
             if len(ksmidx)>0:
                 tier1 = False
                 fc[9] = 1
+            # PDC goodness stat
+            if len(kpdcidx)>0:
+                if pdcNoi[kpdcidx] < 0.8:# and pdcCor[kpdcidx] <:
+                    tier1 = False
+                    fc[10] = 1
+            # Planet radius too big caution
+            if curRp > 20.0:
+                tier1 = False
+                fc[11] = 1
                 
 
             reportIt = False

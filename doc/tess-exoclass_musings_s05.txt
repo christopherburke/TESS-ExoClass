@@ -1,0 +1,7 @@
+Added several checks for Tier ranking.
+-PDC goodness Noise metri is now checked.  Sometimes PDC adds noise.  In this case Set flag.  This can sometimes get tripped if the star has intrinsic
+   noise.
+-Odd/Even depth difference must be higher Significance >4 if SNR>30.
+   previous was 2.8 for all SNR, now if is 2.8 for SNR<30
+-Planet radius estimate needs to be <20 Rearth to stay in Tier1
+-Has secondary override for possible planet induced seconcary (albedo<1) is now moved to Tier 2.

@@ -65,21 +65,6 @@ def mastQuery(request):
     return head,content
 
 
-
-def genericFed(per, epc, tryper, tryepc, trydur, trypn, trytic, tStart, tEnd):
-    ts = fed.timeseries(tStart, tEnd)
-    federateResult = fed.federateFunction(per, epc, ts, \
-                    tryper, tryepc, trydur)
-    bstpn = trypn[federateResult[0]]
-    bsttic = trytic[federateResult[0]]
-    bstMatch = int(federateResult[1])
-    bstStat = federateResult[2]
-    bstPeriodRatio = federateResult[3]
-    bstPeriodRatioFlag = federateResult[4]
-    bstFederateFlag = federateResult[5]
-    
-    return bstpn, bsttic, bstMatch, bstStat, bstPeriodRatio, bstPeriodRatioFlag, bstFederateFlag
-
 # Do cone search around TIC
 def query_ticcone(curRa, curDec, searchRad):
     
@@ -124,52 +109,44 @@ def coughlin_sigmap(p1,p2):
 
 
 if __name__ == '__main__':
-    fout = open('federate_knownP_sector5_20190223.txt', 'w')
+    fout = open('spatialmatch_otherP_sector5_20190223.txt', 'w')
     dataSpan = 25.6
     wideSearch = True
-    searchRad = 180.0 # Arcsecond search radius for other TICs
+    searchRad = 30.0 # Arcsecond search radius for other TICs
 
-    # Load known transiting planet table from NEXSCI   
-    whereString = 'pl_tranflag = 1 and st_elat<0.0'
+    # Load known non-transiting planet table from NEXSCI   
+    whereString = 'pl_tranflag = 0 and st_elat<0.0'
     url = 'https://exoplanetarchive.ipac.caltech.edu/cgi-bin/nstedAPI/nph-nstedAPI?'
     data = {'table':'planets', \
-            'select':'pl_name,pl_orbper,pl_tranmid,pl_trandur,ra,dec', \
+            'select':'pl_name,pl_orbper,ra,dec', \
             'format':'csv', \
             'where':whereString}
     url_values = urllib.urlencode(data)
     #print url_values
     queryData = urllib2.urlopen(url + url_values)
 
-
-#    url_values = urllib.parse.urlencode(data)
-    #print url_values
-#    queryData = urllib.request.urlopen(url + url_values)
     returnPage = queryData.read()
     dtypeseq = ['U40']
-    dtypeseq.extend(['f8'] * 5)
+    dtypeseq.extend(['f8'] * 3)
     dataBlock = np.genfromtxt(returnPage.splitlines(), delimiter=',', skip_header=1, \
                         dtype=dtypeseq)
     gtName = dataBlock['f0']
     gtPer = dataBlock['f1']
-    gtEpc = dataBlock['f2']-2457000.0
-    gtDur = dataBlock['f3']*24.0 # Is in days convert to hours
-    gtRa = dataBlock['f4']
-    gtDec = dataBlock['f5']
+    gtRa = dataBlock['f2']
+    gtDec = dataBlock['f3']
     gtTIC = np.arange(len(gtName))
     gtTOI = np.arange(len(gtName))
     # Check for missing ephemeris values
-    idxBd = np.where((np.logical_not(np.isfinite(gtPer))) | \
-                     (np.logical_not(np.isfinite(gtEpc))))[0]
-#    idxBd = np.where((np.logical_not(np.isfinite(gtPer))))[0]
+    idxBd = np.where((np.logical_not(np.isfinite(gtPer))))[0]
     if len(idxBd) > 0:
         for curIdxBd in idxBd:
-            print('Bad Ephemeris for Known Planet')
+            print('Bad Period for Known Planet')
             print(gtName[curIdxBd])
             # Load known multi data planet table from NEXSCI   
             whereString = 'mpl_name like \'{0}\''.format(gtName[curIdxBd])
             url = 'https://exoplanetarchive.ipac.caltech.edu/cgi-bin/nstedAPI/nph-nstedAPI?'
             data = {'table':'exomultpars', \
-                    'select':'mpl_name,mpl_orbper,mpl_tranmid,mpl_trandur', \
+                    'select':'mpl_name,mpl_orbper', \
                     'format':'csv', \
                     'where':whereString}
             url_values = urllib.urlencode(data)
@@ -177,30 +154,27 @@ if __name__ == '__main__':
             queryData = urllib2.urlopen(url + url_values)
             returnPage = queryData.read()
             dtypeseq = ['U40']
-            dtypeseq.extend(['f8'] * 3)
+            dtypeseq.extend(['f8'])
             dataBlock = np.genfromtxt(returnPage.splitlines(), delimiter=',', skip_header=1, \
                         dtype=dtypeseq)
             curName = dataBlock['f0']
             curPer = dataBlock['f1']
-            curEpc = dataBlock['f2']
-            curDur = dataBlock['f3']
             if curPer.size > 1:
                 gotValues = False
                 idxGd = np.where(np.isfinite(curPer))[0]
                 for ip in range(len(curPer)):
-                    if np.isfinite(curPer[ip]) and np.isfinite(curEpc[ip]) and not gotValues:
+                    if np.isfinite(curPer[ip]) and not gotValues:
                         gotValues = True
                         gtPer[curIdxBd] = curPer[ip]
-                        gtEpc[curIdxBd] = curEpc[ip]
-                        print('Found {0} {1} {2}'.format(gtPer[curIdxBd], gtEpc[curIdxBd], np.mean(curPer[idxGd])))
+                        print('Found {0} {1}'.format(gtPer[curIdxBd], np.mean(curPer[idxGd])))
             else:
                 print('Not Matching to {0}'.format(gtName[curIdxBd]))
-                print(curPer, curEpc)
+                print(curPer)
            
     idx = np.where((np.isfinite(gtPer)))[0]
     gtName = gtName[idx]
-    gtPer, gtEpc, gtDur, gtRa, gtDec, gtTIC, gtTOI = cjb.idx_filter(idx, \
-        gtPer, gtEpc, gtDur, gtRa, gtDec, gtTIC, gtTOI                                                            )
+    gtPer,  gtRa, gtDec, gtTIC, gtTOI = cjb.idx_filter(idx, \
+        gtPer, gtRa, gtDec, gtTIC, gtTOI                                                            )
     print("Tot # PCs: {0:d}".format(len(gtName)))
 
 
@@ -247,30 +221,22 @@ if __name__ == '__main__':
     fout.write('# Match {:s}\n'.format('Exoplanet Archive Confirmed Planets'))
     fout.write('# To {:s}\n'.format(tceSeedInFile))
 
-#    if np.min(useepc)-1.0 < uowStart:
-    uowStart = np.min(useepc)-1.0
-    uowEnd = np.max(useepc) + dataSpan + 1.0
     # Go  the ground truth data (ground truth acts like KOIs in kepler federation)
     for i in range(len(gtTIC)):
         curTic = gtTIC[i]
         curper = gtPer[i]
-        curepc = gtEpc[i]
         curToi = gtTOI[i]
         curName = gtName[i]
         curRa = gtRa[i]
         curDec = gtDec[i]
         # If wideSearch True then query MAST for 
         #  all TICs within searchRad arcsec of this target
-        if wideSearch:
-            otherTICs = np.array(query_ticcone(curRa, curDec, searchRad), dtype=np.int64)
-            #otherTICs = np.sort(otherTICs)
-            idx = np.array([], dtype=np.int64)
-            for ot in otherTICs:
-                idxtmp = np.where(ot == alltic)[0]
-                idx = np.append(idx, idxtmp)                
-        else:
-            # find this tic in the tces
-            idx = np.where(curTic == alltic)[0]
+        otherTICs = np.array(query_ticcone(curRa, curDec, searchRad), dtype=np.int64)
+        #otherTICs = np.sort(otherTICs)
+        idx = np.array([], dtype=np.int64)
+        for ot in otherTICs:
+            idxtmp = np.where(ot == alltic)[0]
+            idx = np.append(idx, idxtmp)                
         if len(idx) > 0:
             # Potential match
             tryper = useper[idx]
@@ -278,36 +244,17 @@ if __name__ == '__main__':
             trypn = allpn[idx]
             trydur = usedur[idx]
             trytic = alltic[idx]
-            bstpn, bsttic, bstMatch, bstStat, bstPeriodRatio, bstPeriodRatioFlag, bstFederateFlag = \
-                    genericFed(curper, curepc, tryper, tryepc, trydur, trypn, trytic, uowStart, uowEnd)
-
-#            sigMatch = np.zeros((len(tryper),), dtype=np.float)
-#            for j in range(len(tryper)):
-#                sigMatch[j] = coughlin_sigmap(curper, tryper[j])
-#            idxSig = np.where(sigMatch > 3.0)[0]
-#            if len(idxSig)>0:
-#                tryper = tryper[idxSig]
-#                tryepc = tryepc[idxSig]
-#                trypn = trypn[idxSig]
-#                trydur = trydur[idxSig]
-#                trytic = trytic[idxSig]
-#                idxSigia = np.argsort(trypn)[0]
-#                bstpn = trypn[idxSigia]
-#                bsttic = trytic[idxSigia]
-#                bstStat = sigMatch[idxSigia]
-#                bstPeriodRatio = curper / tryper[idxSigia]
-#                bstPeriodRatioFlag = 1
-#                bstFederateFlag = 1
-#                bstMatch = 1
-#            else:
-#                bstpn = 0
-#                bstMatch = -1
-#                bstStat = -1.0
-#                bstPeriodRatio = -1.0
-#                bstPeriodRatioFlag = 0
-#                bstFederateFlag = 0
-#                bsttic = 0
-                
+            sigMatch = np.zeros((len(tryper),), dtype=np.float)
+            for j in range(len(tryper)):
+                sigMatch[j] = coughlin_sigmap(curper, tryper[j])
+            idxSigia = np.argsort(sigMatch)[-1]
+            bstpn = trypn[idxSigia]
+            bsttic = trytic[idxSigia]
+            bstStat = sigMatch[idxSigia]
+            bstPeriodRatio = curper / tryper[idxSigia]
+            bstPeriodRatioFlag = 1
+            bstFederateFlag = 1
+            bstMatch = 1                
             
         else:
             #print("No match in Ground truth")

@@ -74,6 +74,10 @@ Columns 1-4 are the same as in the Tier 1 file.
           8 - " DV median detrended
           9 - SWEET test fail.  Evidence for sinusoidal variation in PDC
 	 10 - Another TCE, spatially nearby, matches the ephemeris of this TCE
+	 11 - PDC noise added flag
+	 12 - Rp too big
+	 13 - Has secondary but could be due to planet (i.e., albedo<1)
+	 14 - " with DV median detrended
 
 
 Tier 3 File
