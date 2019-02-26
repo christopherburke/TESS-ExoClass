@@ -109,7 +109,6 @@ def coughlin_sigmap(p1,p2):
 
 
 if __name__ == '__main__':
-
     fout = open('spatialmatch_otherP_sector6_20190222.txt', 'w')
     dataSpan = 25.6
     wideSearch = True
@@ -181,7 +180,6 @@ if __name__ == '__main__':
 
     # Load the tce data pickle    
     tceSeedInFile = 'sector6_20190222_tce.pkl'
-
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
     fin.close()
@@ -274,3 +272,4 @@ if __name__ == '__main__':
             fout.write(str)
             print(str)
     fout.close()
+    print('hello world')

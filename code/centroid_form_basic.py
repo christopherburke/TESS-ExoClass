@@ -80,17 +80,22 @@ def assignEvents(t, epc, phi, per, phiDur):
 
 if __name__ == '__main__':
     # These are for parallel procoessing
-    wID = 5
+    wID = 4
     nWrk = 6
     OVERWRITE = False
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector5'
-    SECTOR=5
-    SECTOR1 = 5
-    SECTOR2 = 5
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector6'
+    SECTOR=6
+    SECTOR1 = 6
+    SECTOR2 = 6
+#    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-2'
+#    SECTOR=-1
 
-    vetFile = 'spoc_sector5_fluxtriage_20190223.txt'
-    tceSeedInFile = 'sector5_20190223_tce.pkl'
+    #vetFile = 'spoc_sector1_early_fluxvet_20180904.txt'
+    vetFile = 'spoc_sector6_fluxtriage_20190222.txt'
+    tceSeedInFile = 'sector6_20190222_tce.pkl'
+#    vetFile = 'spoc_sector1_2_fluxtriage_20181019.txt'
+#    tceSeedInFile = 'sector1_2_20181019_tce.pkl'
 
     # Max number cadences closest to midtransit to go into  median depth estiamte
     MEDDEPN = 15

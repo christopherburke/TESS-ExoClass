@@ -13,7 +13,6 @@ import math
 import os
 
 if __name__ == '__main__':
-
     tic = 55652896
     pn = 1
     sector = 5
