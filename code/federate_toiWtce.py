@@ -130,8 +130,8 @@ def query_othertics(ticWant, searchRad):
 
 
 if __name__ == '__main__':
-    fout = open('federate_toiWtce_sector6_20190222.txt', 'w')
-    dataSpan = 21.8
+    fout = open('federate_toiWtce_sector5_20190223.txt', 'w')
+    dataSpan = 25.8
 
     wideSearch = True
     searchRad = 180.0 # Arcsecond search radius for other TICs
@@ -158,7 +158,7 @@ if __name__ == '__main__':
 #                                gtTOI, gtDisp, gtPer, gtEpc, gtDur)
 
     # Load the tce data pickle    
-    tceSeedInFile = 'sector6_20190222_tce.pkl'
+    tceSeedInFile = 'sector5_20190223_tce.pkl'
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
     fin.close()

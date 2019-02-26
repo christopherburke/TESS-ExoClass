@@ -218,13 +218,13 @@ if __name__ == '__main__':
     MAXPER = 5.0
     
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector6'
-    SECTOR=6
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector5'
+    SECTOR=5
 
-    fileOut = 'spoc_sector6_sweet_20190222.txt'
+    fileOut = 'spoc_sector5_sweet_20190223.txt'
     fom = open(fileOut, 'w')
-    vetFile = 'spoc_sector6_fluxtriage_20190222.txt'
-    tceSeedInFile = 'sector6_20190222_tce.pkl'
+    vetFile = 'spoc_sector5_fluxtriage_20190223.txt'
+    tceSeedInFile = 'sector5_20190223_tce.pkl'
 
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)

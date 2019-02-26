@@ -180,23 +180,23 @@ def get_ses_stats(corr, norm, phi, phiDur, events, debug=True):
     
 if __name__ == "__main__":
     # These are for parallel procoessing
-    wID = 5
-    nWrk = 6
+    wID = 0
+    nWrk = 1
     # Load the pickle file that contains TCE seed information
     # The pickle file is created by gather_tce_fromdvxml.py
-    tceSeedInFile = 'sector6_20190222_tce.pkl'
+    tceSeedInFile = 'sector5_20190223_tce.pkl'
     #  Directory storing the resampled dv time series data
-    dvDataDir = '/pdo/users/cjburke/spocvet/sector6'
+    dvDataDir = '/pdo/users/cjburke/spocvet/sector5'
     # Directory of output hd5 files
     outputDir = dvDataDir
-    SECTOR=6
+    SECTOR=5
     # What fraction of data can be missing and still calculat ses_mes
     # In Sector 1 due to the 2 days of missing stuff it was 0.68
     validFrac = 0.52
     overWrite = True
 
     # Skyline data excises loud cadecnes
-    dataBlock = np.genfromtxt('skyline_data_sector6_20190222.txt', dtype=['f8'])
+    dataBlock = np.genfromtxt('skyline_data_sector5_20190223.txt', dtype=['f8'])
     badTimes = dataBlock['f0']
 
     # Search and filter parameters
@@ -211,7 +211,7 @@ if __name__ == "__main__":
     # These next few lines can be used to examine a single target    
     #all_epics = np.array([x.epicId for x in all_tces], dtype=np.int64)
     #all_pns = np.array([x.planetNum for x in all_tces], dtype=np.int)
-    #ia = np.where((all_epics == 31850842) & (all_pns == 3))[0]
+    #ia = np.where((all_epics == 300871545) & (all_pns == 1))[0]
     #doDebug = True
     # Loop over tces and perform various ses, mes, chases tests
     cnt = 0

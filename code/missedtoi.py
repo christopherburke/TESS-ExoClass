@@ -75,7 +75,11 @@ if __name__ == '__main__':
 #    alltic, allpn, useper, useepc, usedur = cjb.idx_filter(ia, alltic, \
 #                                allpn, useper, useepc, usedur)
 
+<<<<<<< HEAD
     vetFile = 'spoc_sector6_fluxtriage_20190222.txt'
+=======
+    vetFile = 'spoc_sector5_fluxtriage_20190223.txt'
+>>>>>>> 2b8dd61b12e4837edd88fab43f21f82563640f2c
     # Load the  flux vetting
     dataBlock = np.genfromtxt(vetFile, dtype=[int,int,int,'S1'])
     fvtic = dataBlock['f0']

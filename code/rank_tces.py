@@ -81,16 +81,17 @@ if __name__ == '__main__':
     wID = 0
     nWrk = 1
     
-    summaryFolder = '/pdo/spoc-data/sector-06/dv-reports'
-    summaryPrefix = 'tess2018349182739-'
-    summaryPostfix = '-00144_dvs.pdf'
-    Sector1 = 6
-    Sector2 = 6
+    summaryFolder = '/pdo/spoc-data/sector-05/dv-reports'
+    summaryPrefix = 'tess2018319112539-'
+    summaryPostfix = '-00140_dvs.pdf'
+    Sector1 = 5
+    Sector2 = 5
     multiRun = False
     if Sector2 - Sector1 > 0:
         multiRun = True
 
     doPNGs = False
+
     pngFolder = '/pdo/users/cjburke/spocvet/sector6/pngs/'
     doMergeSum = False
     pdfFolder = '/pdo/users/cjburke/spocvet/sector6/pdfs/'
@@ -99,17 +100,17 @@ if __name__ == '__main__':
     sesMesDir = '/pdo/users/cjburke/spocvet/sector6'
     SECTOR=6 # -1 for multi-sector
 
-    fileOut1 = 'spoc_sector6_ranking_Tier1_20190222.txt'
-    fileOut2 = 'spoc_sector6_ranking_Tier2_20190222.txt'
-    fileOut3 = 'spoc_sector6_ranking_Tier3_20190222.txt'
-    vetFile = 'spoc_sector6_fluxtriage_20190222.txt'
-    tceSeedInFile = 'sector6_20190222_tce.pkl'
-    modshiftFile = 'spoc_sector6_modshift_20190222.txt'
-    modshiftFile2 = 'spoc_sector6_modshift_med_20190222.txt'
-    sweetFile = 'spoc_sector6_sweet_20190222.txt'
-    toiFederateFile = 'federate_toiWtce_sector6_20190222.txt'
-    knowPFederateFile = 'federate_knownP_sector6_20190222.txt'
-    selfMatchFile = 'selfMatch_sector6-20190222.txt'
+    fileOut1 = 'spoc_sector5_ranking_Tier1_20190223.txt'
+    fileOut2 = 'spoc_sector5_ranking_Tier2_20190223.txt'
+    fileOut3 = 'spoc_sector5_ranking_Tier3_20190223.txt'
+    vetFile = 'spoc_sector5_fluxtriage_20190223.txt'
+    tceSeedInFile = 'sector5_20190223_tce.pkl'
+    modshiftFile = 'spoc_sector5_modshift_20190223.txt'
+    modshiftFile2 = 'spoc_sector5_modshift_med_20190223.txt'
+    sweetFile = 'spoc_sector5_sweet_20190223.txt'
+    toiFederateFile = 'federate_toiWtce_sector5_20190223.txt'
+    knowPFederateFile = 'federate_knownP_sector5_20190223.txt'
+    selfMatchFile = 'selfMatch_sector5-20190223.txt'
 
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
@@ -256,7 +257,6 @@ if __name__ == '__main__':
         pdcPn = np.append(pdcPn, curPn)
         pdcNoi = np.append(pdcNoi, pdcStats[1])
         pdcCor = np.append(pdcCor, pdcStats[2])
-
                
     # calculate expected duration
     expdur = transit_duration(allrstar, alllogg, allper, 0.0)
@@ -425,8 +425,6 @@ if __name__ == '__main__':
             if curRp > 20.0:
                 tier1 = False
                 fc[11] = 1
-            
-                
 
             reportIt = False
             if tier1:

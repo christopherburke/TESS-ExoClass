@@ -55,11 +55,11 @@ if __name__ == '__main__':
     
     # Load the pickle file that contains TCE seed information
     # The pickle file is created by gather_tce_fromdvxml.py
-    tceSeedInFile = 'sector6_20190222_tce.pkl'
+    tceSeedInFile = 'sector5_20190223_tce.pkl'
 
     #  Directory storing the ses mes data
-    sesDataDir = '/pdo/users/cjburke/spocvet/sector6/S06'
-    fluxVetOut = 'spoc_sector6_fluxtriage_20190222.txt'
+    sesDataDir = '/pdo/users/cjburke/spocvet/sector5/S05'
+    fluxVetOut = 'spoc_sector5_fluxtriage_20190223.txt'
 #    fluxVetOut = 'junk2.txt'
 
     fin = open(tceSeedInFile, 'rb')
@@ -73,7 +73,7 @@ if __name__ == '__main__':
     # For a particular id
     debug=False
 #    alltic = np.array([x.epicId for x in all_tces], dtype=np.int64)
-#    idxdebug = np.where(alltic == 287328866)[0]
+#    idxdebug = np.where(alltic == 300871376)[0]
     cnt = 0
 #    for td in [all_tces[idxdebug[0]],all_tces[idxdebug[0]]]:
     for td in all_tces:
