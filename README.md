@@ -8,7 +8,7 @@ Your transiting planet detection pipeline results in a huge pile of detections. 
 No!  Algorithmic filtering and classifying is available with TESS-ExoClass (TEC).
 
 ### Authors:
-Christopher J Burke (MIT), Jeffrey Coughlin (SETI/NASA Ames), Susan Mullally (STScI), Fergal Mullally (SETI), Jessie Christiansen (NExSci)
+Christopher J Burke (MIT), Jeffrey Coughlin (SETI/NASA Ames), Susan Mullally (STScI), Aylin Garcia Soto (MIT), Fergal Mullally (SETI), Jessie Christiansen (NExSci)
 
 ### Results:
 Sector Number | Detection Source | Result Tables | Summary PDFs
