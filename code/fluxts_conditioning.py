@@ -285,8 +285,8 @@ def fill_extend_fluxts(flux, vd, noiseWindow, doExtend=True, debug=False):
         frstCadOK = False
         # temporarily make the first cadence valid
         vd[0] = True
-
-    # Next is extend to the power of two
+        print('First cadence invalid')
+   # Next is extend to the power of two
     valid_data_flag_ext = np.zeros((wantNExtend,), dtype=np.bool_)
     valid_data_flag_ext[0:origN] = np.copy(vd)
     final_smooth_flux_ext = np.zeros((wantNExtend,))
@@ -298,7 +298,9 @@ def fill_extend_fluxts(flux, vd, noiseWindow, doExtend=True, debug=False):
     
     # Look for even single gaps
     idxGaps = np.where(np.diff(tmpcad_ext) > 1)[0]
-    # want the index from the original length
+    #plt.plot(flux, '.')
+    #plt.show()
+     # want the index from the original length
     idxGapStart = tmpcad_ext[idxGaps]
     # Add in the last valid cadence
     idxGapStart = np.append(idxGapStart, tmpcad_ext[-1])+1
@@ -306,9 +308,16 @@ def fill_extend_fluxts(flux, vd, noiseWindow, doExtend=True, debug=False):
     idxGapEnd = np.append(idxGapEnd, wantNExtend)
     # Now that we have determined gaps unfix the situation where the first cadence was invalid
     if not frstCadOK:
-        vd[0] = False
-        valid_data_flag_ext[0] = False
-        idxGapStart[0] = 0
+        # if there are additional false after first this is taken care of
+        if vd[1] == False:
+            vd[0] = False
+            valid_data_flag_ext[0] = False
+            idxGapStart[0] = 0
+        else: # first and only first was bad
+            vd[0] = False
+            valid_data_flag_ext[0] = False
+            idxGapStart = np.insert(idxGapStart, 0, 0)
+            idxGapEnd = np.insert(idxGapEnd, 0, 1)
     # Do the fills backward order in order to
     # First do the extension fill
     # Allow previous filled data to now be valid

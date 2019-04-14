@@ -78,38 +78,38 @@ if __name__ == '__main__':
     # These are for parallel procoessing
     # if nWrk>1 then files with text output are not written out
     #  nWrk>1 should be used with doMergeSum = True for generating summary
-    wID = 0
-    nWrk = 1
+    wID = 5
+    nWrk = 6
     
-    summaryFolder = '/pdo/spoc-data/sector-06/dv-reports'
-    summaryPrefix = 'tess2018349182739-'
-    summaryPostfix = '-00144_dvs.pdf'
-    Sector1 = 6
-    Sector2 = 6
+    summaryFolder = '/pdo/spoc-data/sector-08/dv-reports'
+    summaryPrefix = 'tess2019033200935-'
+    summaryPostfix = '-00182_dvs.pdf'
+    SECTOR1 = 8
+    SECTOR2 = 8
     multiRun = False
-    if Sector2 - Sector1 > 0:
+    if SECTOR2 - SECTOR1 > 0:
         multiRun = True
 
-    doPNGs = False
-    pngFolder = '/pdo/users/cjburke/spocvet/sector6/pngs/'
-    doMergeSum = False
-    pdfFolder = '/pdo/users/cjburke/spocvet/sector6/pdfs/'
-    Sector1 = 6
-    Sector2 = 6
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector6'
-    SECTOR=6 # -1 for multi-sector
+    doPNGs = True
+    pngFolder = '/pdo/users/cjburke/spocvet/sector8/pngs/'
+    doMergeSum = True
+    pdfFolder = '/pdo/users/cjburke/spocvet/sector8/pdfs/'
+    SECTOR1 = 8
+    SECTOR2 = 8
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector8'
+    SECTOR = 8 # -1 for multi-sector
 
-    fileOut1 = 'spoc_sector6_ranking_Tier1_20190222.txt'
-    fileOut2 = 'spoc_sector6_ranking_Tier2_20190222.txt'
-    fileOut3 = 'spoc_sector6_ranking_Tier3_20190222.txt'
-    vetFile = 'spoc_sector6_fluxtriage_20190222.txt'
-    tceSeedInFile = 'sector6_20190222_tce.pkl'
-    modshiftFile = 'spoc_sector6_modshift_20190222.txt'
-    modshiftFile2 = 'spoc_sector6_modshift_med_20190222.txt'
-    sweetFile = 'spoc_sector6_sweet_20190222.txt'
-    toiFederateFile = 'federate_toiWtce_sector6_20190222.txt'
-    knowPFederateFile = 'federate_knownP_sector6_20190222.txt'
-    selfMatchFile = 'selfMatch_sector6-20190222.txt'
+    fileOut1 = 'spoc_ranking_Tier1_sector8_20190405.txt'
+    fileOut2 = 'spoc_ranking_Tier2_sector8_20190405.txt'
+    fileOut3 = 'spoc_ranking_Tier3_sector8_20190405.txt'
+    vetFile = 'spoc_fluxtriage_sector8_20190405.txt'
+    tceSeedInFile = 'sector8_20190405_tce.pkl'
+    modshiftFile = 'spoc_modshift_sector8_20190405.txt'
+    modshiftFile2 = 'spoc_modshift_med_sector8_20190405.txt'
+    sweetFile = 'spoc_sweet_sector8_20190405.txt'
+    toiFederateFile = 'federate_toiWtce_sector8_20190405.txt'
+    knowPFederateFile = 'federate_knownP_sector8_20190405.txt'
+    selfMatchFile = 'selfMatch_sector8_20190405.txt'
 
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
@@ -171,10 +171,11 @@ if __name__ == '__main__':
                    (allvet == 1))[0]
     alltic, allpn, allrp, allrstar, alllogg, allper, alltmags, \
             allmes, allsnr, alldur, allsolarflux, allatdep, alltrpdep, allsesinmes, \
-            allcentootsig, allcentticsig, alloesig = idx_filter(idx, \
+            allcentootsig, allcentticsig, alloesig,\
+            allcentoote, allcenttice = idx_filter(idx, \
             alltic, allpn, allrp, allrstar, alllogg, allper, alltmags, \
             allmes, allsnr, alldur, allsolarflux, allatdep, alltrpdep, allsesinmes, \
-            allcentootsig, allcentticsig, alloesig)
+            allcentootsig, allcentticsig, alloesig, allcentoote, allcenttice)
 
     # load the modshift test information
     dtypeseq=['i4','i4']
@@ -336,6 +337,7 @@ if __name__ == '__main__':
             matchFlg = 0
             # fc is the cause flags for going to Tier 2
             fc = np.zeros((14,), dtype=np.int)
+            fc_str = ''
             ib = np.where((alltic[j] == toiFedTic) & (allpn[j] == toiFedPN))[0]
             if len(ib)>0:
                 # Was it a direct match or not
@@ -368,43 +370,53 @@ if __name__ == '__main__':
             # and no odd/even sig
             tier1 = True
             hasSec = False
-            if allcentootsig[j] > centlims[1]:
+            if allcentootsig[j] > centlims[1] or allcentoote[j] < 0.0:
                 tier1 = False
                 fc[0] = 1
-            if allcentticsig[j] > centlims[1]:
+                fc_str = fc_str + 'CenOOT_'
+            if allcentticsig[j] > centlims[1] or allcenttice[j] < 0.0:
                 tier1 = False
                 fc[1] = 1
+                fc_str = fc_str + 'CenTIC_'
             if modUniqFlg[kidx] == 0:
                 tier1 = False
                 fc[2] = 1
+                fc_str = fc_str + 'UniqAlt_'
             if modUniqFlg2[kidx2] == 0:
                 tier1 = False
                 fc[3] = 1
+                fc_str = fc_str + 'UniqDV_'
             if modSecFlg[kidx] == 1:
                 if modSecOvrFlg[kidx] == 0:
                     tier1 = False
                     fc[4] = 1
                     hasSec = True
+                    fc_str = fc_str + 'HasSecAlt_'
                 else:
                     tier1 = False
                     fc[12] = 1
+                    fc_str = fc_str + 'HasSecAltPlanet?_'
             if modSecFlg2[kidx2] == 1:
                 if modSecOvrFlg2[kidx2] == 0:
                     tier1 = False
                     fc[5] = 1
                     hasSec = True
+                    fc_str = fc_str + 'HasSecDV_'
                 else:
                     tier1 = False
                     fc[13] = 1
+                    fc_str = fc_str + 'HasSecDVPlanet?_'
             OEThresh = 2.8
             if curSNR > 30.0:
                 OEThresh = 4.0
             if modOESig[kidx] > OEThresh:
                 tier1 = False
                 fc[6] = 1
+                fc_str = fc_str + 'OEAlt_'
             if modOESig2[kidx2] > OEThresh:
                 tier1 = False
                 fc[7] = 1
+                fc_str = fc_str + 'OEDV_'
             sweetFail = False
             if len(kswidx)>0:
                 # Look for sweet test results
@@ -412,20 +424,23 @@ if __name__ == '__main__':
                     tier1 = False
                     fc[8] = 1
                     sweetFail = True
+                    fc_str = fc_str + 'Sweet_'
             # Other TCE match
             if len(ksmidx)>0:
                 tier1 = False
                 fc[9] = 1
+                fc_str = fc_str + 'OthTCEMtch_'
             # PDC goodness stat
             if len(kpdcidx)>0:
                 if pdcNoi[kpdcidx] < 0.8:# and pdcCor[kpdcidx] <:
                     tier1 = False
                     fc[10] = 1
+                    fc_str = fc_str + 'PDCBad_'
             # Planet radius too big caution
             if curRp > 20.0:
                 tier1 = False
                 fc[11] = 1
-            
+                fc_str = fc_str +'RpBig_'
                 
 
             reportIt = False
@@ -436,19 +451,19 @@ if __name__ == '__main__':
             if (not tier1) and (not hasSec) and (not sweetFail):
                 curstr2 = ''.join(str(x) for x in fc)
                 if nWrk == 1:
-                    fout2.write('{} {}\n'.format(curstr[0:-1],curstr2))
+                    fout2.write('{} {} {}\n'.format(curstr[0:-1],curstr2, fc_str))
                 reportIt = True
             if (not tier1) and (not reportIt):
                 if nWrk == 1:
                     fout3.write('{} {} {}\n'.format(curstr[0:-1],hasSec,sweetFail))
                 reportIt = True
             if doPNGs and reportIt:
-                inputFile = os.path.join(summaryFolder,'{0}s{1:04d}-s{2:04d}-{3:016d}-{4:02d}{5}'.format(summaryPrefix,Sector1,Sector2,alltic[j],allpn[j],summaryPostfix))
+                inputFile = os.path.join(summaryFolder,'{0}s{1:04d}-s{2:04d}-{3:016d}-{4:02d}{5}'.format(summaryPrefix,SECTOR1,SECTOR2,alltic[j],allpn[j],summaryPostfix))
                 outputFile = os.path.join(pngFolder,'{0:04d}-{1:016d}-{2:02d}.png'.format(i, alltic[j], allpn[j]))
                 comstring = 'gs -dBATCH -dNOPAuSE -sDEVICE=png16m -r300 -o {0} {1}'.format(outputFile, inputFile)
                 tmp = call(comstring, shell=True)
             if doMergeSum and reportIt:
-                inputFile1 = os.path.join(summaryFolder,'{0}s{1:04d}-s{2:04d}-{3:016d}-{4:02d}{5}'.format(summaryPrefix,Sector1,Sector2,alltic[j],allpn[j],summaryPostfix))
+                inputFile1 = os.path.join(summaryFolder,'{0}s{1:04d}-s{2:04d}-{3:016d}-{4:02d}{5}'.format(summaryPrefix,SECTOR1,SECTOR2,alltic[j],allpn[j],summaryPostfix))
                 #inputFile1 = outputFile
                 curTic = alltic[j]
                 curPn = allpn[j]
@@ -457,7 +472,7 @@ if __name__ == '__main__':
     
                 inputFileList = []
                 if multiRun:
-                    for curSec in np.arange(Sector1,Sector2+1):
+                    for curSec in np.arange(SECTOR1,SECTOR2+1):
                         inputFile4 = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_diffImg_{0:016d}_{1:02d}_{2:02d}.pdf'.format(curTic,curPn,curSec))
                         if os.path.isfile(inputFile4):
                             inputFileList.append(inputFile4)
@@ -465,25 +480,30 @@ if __name__ == '__main__':
                     inputFile4 = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_diffImg_{0:016d}_{1:02d}_centsum.pdf'.format(curTic,curPn))
                     if os.path.isfile(inputFile4):
                         inputFileList.append(inputFile4)
-                    for curSec in np.arange(Sector1, Sector2+1):
+                    for curSec in np.arange(SECTOR1, SECTOR2+1):
                         inputFile4 = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_mods_diffImg_{0:016d}_{1:02d}_{2:02d}.pdf'.format(curTic,curPn,curSec))
                         if os.path.isfile(inputFile4):
                             inputFileList.append(inputFile4)
-                    for curSec in np.arange(Sector1, Sector2+1):
+                    for curSec in np.arange(SECTOR1, SECTOR2+1):
                         inputFile4 = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_bsc_diffImg_{0:016d}_{1:02d}_{2:02d}.pdf'.format(curTic,curPn,curSec))
                         if os.path.isfile(inputFile4):
                             inputFileList.append(inputFile4)
                 else:
-                    inputFile4 = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_diffImg_{0:016d}_{1:02d}_{2:02d}.pdf'.format(curTic,curPn,Sector1))
+                    inputFile4 = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_diffImg_{0:016d}_{1:02d}_{2:02d}.pdf'.format(curTic,curPn,SECTOR1))
                     inputFileList.append(inputFile4)
-                    inputFile5 = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_mods_diffImg_{0:016d}_{1:02d}_{2:02d}.pdf'.format(curTic,curPn,Sector1))
+                    inputFile5 = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_mods_diffImg_{0:016d}_{1:02d}_{2:02d}.pdf'.format(curTic,curPn,SECTOR1))
                     if os.path.isfile(inputFile5):
                         inputFileList.append(inputFile5)
-                    inputFile6 = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_bsc_diffImg_{0:016d}_{1:02d}_{2:02d}.pdf'.format(curTic,curPn,Sector1))
+                    inputFile6 = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_bsc_diffImg_{0:016d}_{1:02d}_{2:02d}.pdf'.format(curTic,curPn,SECTOR1))
                     if os.path.isfile(inputFile6):
                         inputFileList.append(inputFile6)
     
-                outputFile = os.path.join(pdfFolder,'tec-s{3:04d}-{1:016d}-{2:02d}.pdf'.format(i, alltic[j], allpn[j], Sector2))
+                # Look for Twexo page
+                inputFile7 = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'twexo_{0:016d}.pdf'.format(curTic))
+                if os.path.isfile(inputFile7):
+                    inputFileList.append(inputFile7)
+
+                outputFile = os.path.join(pdfFolder,'tec-s{3:04d}-{1:016d}-{2:02d}.pdf'.format(i, alltic[j], allpn[j], SECTOR2))
                 #comstring = 'convert {0} {1} {2}'.format(inputFile1, inputFile2, outputFile)
                 comstring = 'gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile={0} {1} {2} {3}'.format(outputFile, inputFile1, inputFile2, inputFile3)
                 for ifil in inputFileList:

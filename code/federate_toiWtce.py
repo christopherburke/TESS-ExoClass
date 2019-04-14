@@ -130,24 +130,51 @@ def query_othertics(ticWant, searchRad):
 
 
 if __name__ == '__main__':
-    fout = open('federate_toiWtce_sector6_20190222.txt', 'w')
-    dataSpan = 21.8
+    fout = open('federate_toiWtce_sector8_20190405.txt', 'w')
+    dataSpan = 25.0
 
     wideSearch = True
     searchRad = 180.0 # Arcsecond search radius for other TICs
     
     # load the TOI data
-    qlpfile = 'hlsp_tess-data-alerts_tess_phot_alert-summary-s01+s02+s03+s04_tess_v9_spoc.csv'
-    dtypeseq = ['i4','f8','U2']
-    dtypeseq.extend(['f8']*10)
+    #MAST Format
+#    qlpfile = 'hlsp_tess-data-alerts_tess_phot_alert-summary-s01+s02+s03+s04_tess_v9_spoc.csv'
+#    dtypeseq = ['i4','f8','U2']
+#    dtypeseq.extend(['f8']*10)
+#    dataBlock = np.genfromtxt(qlpfile, \
+#                              dtype=dtypeseq, delimiter=',',skip_header=1)
+#    gtTIC = dataBlock['f0']
+#    gtTOI = dataBlock['f1']
+#    gtDisp = dataBlock['f2']
+#    gtPer = dataBlock['f9']
+#    gtEpc = dataBlock['f7']
+#    gtDur = dataBlock['f11']
+#    # Need to fix single transit TOIs with nan for period
+#    idx = np.where(np.logical_not(np.isfinite(gtPer)))[0]
+#    gtPer[idx] = 1000.0
+    
+    # TEV version
+    # TEV csv has commas in strings
+    # Use this sed 's/,"\(.*\),\(.*\)",/,"\1;\2",/' toi-plus-2019-03-15.csv
+    # To fix string before reading in
+    qlpfile = 'toi-plus-2019-03-26-fixed.csv'
+    dtypeseq = ['U20','i4','f8','U2']
+    dtypeseq.extend(['f8']*12)
+    dtypeseq.extend(['U20','U80'])
+    dtypeseq.extend(['f8']*12)
+    dtypeseq.extend(['U20'])
+    dtypeseq.extend(['i4']*7)
+    dtypeseq.extend(['U40','U40'])
     dataBlock = np.genfromtxt(qlpfile, \
                               dtype=dtypeseq, delimiter=',',skip_header=1)
-    gtTIC = dataBlock['f0']
-    gtTOI = dataBlock['f1']
-    gtDisp = dataBlock['f2']
-    gtPer = dataBlock['f9']
-    gtEpc = dataBlock['f7']
-    gtDur = dataBlock['f11']
+    gtTIC = dataBlock['f1']
+    gtTOI = dataBlock['f2']
+    gtDisp = dataBlock['f3']
+    gtRA = dataBlock['f4']
+    gtDec = dataBlock['f5']
+    gtPer = dataBlock['f10']
+    gtEpc = dataBlock['f8']
+
     # Need to fix single transit TOIs with nan for period
     idx = np.where(np.logical_not(np.isfinite(gtPer)))[0]
     gtPer[idx] = 1000.0
@@ -158,7 +185,7 @@ if __name__ == '__main__':
 #                                gtTOI, gtDisp, gtPer, gtEpc, gtDur)
 
     # Load the tce data pickle    
-    tceSeedInFile = 'sector6_20190222_tce.pkl'
+    tceSeedInFile = 'sector8_20190405_tce.pkl'
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
     fin.close()

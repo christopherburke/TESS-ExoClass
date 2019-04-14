@@ -27,17 +27,17 @@ def make_data_dirs(prefix, sector, epic):
 
 
 if __name__ == '__main__':
-    summaryFolder = '/pdo/spoc-data/sector-06/dv-reports'
-    summaryPrefix = 'tess2018349182739-'
-    summaryPostfix = '-00144_dvr.pdf'
-    Sector1 = 6
-    Sector2 = 6
+    summaryFolder = '/pdo/spoc-data/sector-08/dv-reports'
+    summaryPrefix = 'tess2019008025936-'
+    summaryPostfix = '-00152_dvr.pdf'
+    Sector1 = 8
+    Sector2 = 8
     multiRun = False
     if Sector2 - Sector1 > 0:
         multiRun = True
-    tceSeedInFile = 'sector6_20190222_tce.pkl'
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector6'
-    SECTOR = 6
+    tceSeedInFile = 'sector8_20190405_tce.pkl'
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector8'
+    SECTOR = 8
     
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)

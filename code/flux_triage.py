@@ -55,12 +55,12 @@ if __name__ == '__main__':
     
     # Load the pickle file that contains TCE seed information
     # The pickle file is created by gather_tce_fromdvxml.py
-    tceSeedInFile = 'sector6_20190222_tce.pkl'
+    tceSeedInFile = 'sector8_20190405_tce.pkl'
 
     #  Directory storing the ses mes data
-    sesDataDir = '/pdo/users/cjburke/spocvet/sector6/S06'
-    fluxVetOut = 'spoc_sector6_fluxtriage_20190222.txt'
-#    fluxVetOut = 'junk2.txt'
+    sesDataDir = '/pdo/users/cjburke/spocvet/sector8/S08'
+    fluxVetOut = 'spoc_fluxtriage_sector8_20190405.txt'
+#    fluxVetOut = 'junk.txt'
 
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
@@ -69,13 +69,14 @@ if __name__ == '__main__':
     allepics, allpns, allpers, allepochs, alldurations = get_useable_ephems(all_tces)
     
     fout = open(fluxVetOut, 'w')
+    debug = False
     # Loop over tces and perform flux vetting
     # For a particular id
-    debug=False
-#    alltic = np.array([x.epicId for x in all_tces], dtype=np.int64)
-#    idxdebug = np.where(alltic == 287328866)[0]
+    #debug=True
+    #alltic = np.array([x.epicId for x in all_tces], dtype=np.int64)
+    #idxdebug = np.where(alltic == 123702439)[0]
     cnt = 0
-#    for td in [all_tces[idxdebug[0]],all_tces[idxdebug[0]]]:
+    #for td in [all_tces[idxdebug[0]],all_tces[idxdebug[0]]]:
     for td in all_tces:
         print(cnt)
         cnt = cnt+1
@@ -148,7 +149,7 @@ if __name__ == '__main__':
         # Check for new mes shrink fractionally too much
         if flux_pass:
             lgOrigMes = np.log10(origMes)
-            delMesCutLine = (lgOrigMes-1.0)*(0.76-0.5)/(2.0-1.0) + 0.5
+            delMesCutLine = (lgOrigMes-1.0)*(0.76-0.5)/(2.0-1.0) + 0.53
             delMes = (origMes - newMes) / origMes
             if delMes > delMesCutLine:
                 flux_pass = False
@@ -156,10 +157,13 @@ if __name__ == '__main__':
         # Check for ses2Mes
         if flux_pass:
             mnSes2mnMes = np.array(f['mnSes2mnMes'])[0]
+            mnSes2mnMes_r = np.array(f['mnSes2mnMes_r'])[0]
             nTran = np.array(f['newNTran'])[0]
+            #print(origMes, mnSes2mnMes, mnSes2mnMes_r, nTran)
             if (origMes<=13.0 and mnSes2mnMes>0.97) or (origMes>13.0 and mnSes2mnMes>0.85):
-                flux_pass = False
-                flux_str.append('ses2MesFail')
+                if (mnSes2mnMes>mnSes2mnMes_r*1.1):
+                    flux_pass = False
+                    flux_str.append('ses2MesFail')
         # Check for Chases
         if flux_pass:
             chasesSumry = np.array(f['chasesSumry'])[0]
@@ -185,7 +189,7 @@ if __name__ == '__main__':
                 for jj in range(len(tmppns)):
                     if (tmppns[jj] < pn) and (not haveMatch):
                         sigp = coughlin_sigmap(period, tmppers[jj])
-                        if sigp > 3.2:
+                        if sigp > 2.9:
                             haveMatch = True
                             flux_pass = False
                             flux_str.append('SecondaryOfPN_{:02d}'.format(tmppns[jj]))
@@ -193,6 +197,9 @@ if __name__ == '__main__':
             str = '{0:9d} {1:2d} {2:1d} PASS\n'.format(epicid, pn, int(flux_pass))
         else:
             str = '{0:9d} {1:2d} {2:1d} {3}\n'.format(epicid, pn, int(flux_pass), flux_str[1])
-        fout.write(str)
+        if debug:
+            print(str)
+        else:
+            fout.write(str)
         
     fout.close()
