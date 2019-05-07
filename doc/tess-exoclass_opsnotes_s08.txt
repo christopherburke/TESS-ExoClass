@@ -193,7 +193,7 @@ Complete all previous steps before continuing
    multiRun = False for single sector run; True for multiRun
    tceSeedInFile - tce_seed file from step1
    sesMesDir - head folder created in step Pre1.
-   SECTOR - sector number
+   SECTOR - sector number (-1) for multi-sector
    comment:  Lots of warnings and errors are generated but seems to work
    (runtime ~ 60 min)
 

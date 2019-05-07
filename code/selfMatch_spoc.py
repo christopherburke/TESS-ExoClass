@@ -29,6 +29,7 @@ except ImportError:  # Python 2.x
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 import pickle
+import os
 
 def mastQuery(request):
 
@@ -129,18 +130,29 @@ def genericFed(per, epc, tryper, tryepc, trydur, trypn, trytic, tStart, tEnd):
     bstPeriodRatio = federateResult[3]
     bstPeriodRatioFlag = federateResult[4]
     bstFederateFlag = federateResult[5]
+    nFed = federateResult[6]
     
-    return bstpn, bsttic, bstMatch, bstStat, bstPeriodRatio, bstPeriodRatioFlag, bstFederateFlag
+    return bstpn, bsttic, bstMatch, bstStat, bstPeriodRatio, bstPeriodRatioFlag, bstFederateFlag, nFed
 
 
 if __name__ == '__main__':
-    fout = open('selfMatch_sector8_20190405.txt', 'w')
+    fout = open('selfMatch_sector1-6_20190428.txt', 'w')
     dataSpan = 25.0
     # Load the tce data pickle    
-    tceSeedInFile = 'sector8_20190405_tce.pkl'
+    tceSeedInFile = 'sector1-6_20190428_tce.pkl'
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
     fin.close()
+    # Check to see if cadence to time mappting is available
+    hasCadTimeMap = False
+    if os.path.exists('cadnoVtimemap.txt'):
+        dataBlock = np.genfromtxt('cadnoVtimemap.txt', dtype=['i4','f8','i4','i4'])
+        cadmap = dataBlock['f0']
+        timemap = dataBlock['f1']
+        print('Cadence time map available')
+        hasCadTimeMap = True
+
+
     
     alltic = np.array([x.epicId for x in all_tces], dtype=np.int64)
     allpn = np.array([x.planetNum for x in all_tces], dtype=np.int)
@@ -155,6 +167,8 @@ if __name__ == '__main__':
     alltcedur = np.array([x.pulsedur for x in all_tces])
     alltceepc = np.array([x.tce_epoch for x in all_tces])
     alltceper = np.array([x.tce_period for x in all_tces])
+    alltceCadStrt = np.array([x.data_start for x in all_tces], dtype=np.int64)
+    alltceCadEnd = np.array([x.data_end for x in all_tces], dtype=np.int64)
     # Go through each tce and use valid fits from dv, trpzd, tce in that order for matching
     useper = np.zeros_like(allper)
     useepc = np.zeros_like(allper)
@@ -178,6 +192,8 @@ if __name__ == '__main__':
     gtDur = usedur
     gtPN = allpn
     gtTOI = allpn
+    gtCadStrt = alltceCadStrt
+    gtCadEnd = alltceCadEnd
 
 
     uowStart = np.min(useepc)-1.0
@@ -193,6 +209,8 @@ if __name__ == '__main__':
     pcPer = gtPer
     pcEpc = gtEpc
     pcDur = gtDur
+    pcCadStrt = gtCadStrt
+    pcCadEnd = gtCadEnd
     
     # Use this for debugging
 #    idx = np.where(pcTIC == 220432563)[0]
@@ -203,6 +221,21 @@ if __name__ == '__main__':
         curper = pcPer[i]
         curepc = pcEpc[i]
         curToi = pcTOI[i]
+        curCadStrt = pcCadStrt[i]
+        curCadEnd = pcCadEnd[i]
+        # Tailor unit of work to this TCE
+        if hasCadTimeMap:
+            minCadStrt = np.min(curCadStrt)
+            maxCadStrt = np.max(curCadEnd)
+            idxfnd = np.where(minCadStrt == cadmap)[0]
+            uowStartUse = timemap[idxfnd]
+            idxfnd = np.where(maxCadStrt == cadmap)[0]
+            uowEndUse = timemap[idxfnd]
+            print('Time: {0:f} {1:f}'.format(uowStartUse[0], uowEndUse[0]))
+        else:
+            uowStartUse = uowStart
+            uowEndUse = uowEnd
+        
         # Remove all signals on the current tic
         idx = np.where(np.logical_not((curTic == gtTIC)))[0]
         usePer = gtPer[idx]
@@ -221,16 +254,16 @@ if __name__ == '__main__':
             trypn = np.ones_like(idxSig)
             trydur = useDur[idxSig]
             trytic = useTic[idxSig]
-            bstpn, bsttic, bstMatch, bstStat, bstPeriodRatio, bstPeriodRatioFlag, bstFederateFlag = \
-                    genericFed(curper, curepc, tryper, tryepc, trydur, trypn, trytic, uowStart, uowEnd)
+            bstpn, bsttic, bstMatch, bstStat, bstPeriodRatio, bstPeriodRatioFlag, bstFederateFlag, nFed = \
+                    genericFed(curper, curepc, tryper, tryepc, trydur, trypn, trytic, uowStartUse, uowEndUse)
             # If federation found calculate spatial separation between TICs
             bstSep = -99.0
             if bstFederateFlag == 1:
                 bstSep = getTICSep(curTic, bsttic)
 
-            str = '{:12d} {:2d} {:12d} {:2d} {:2d} {:6.3f} {:2d} {:10.5f} {:2d} {:6.2f}\n'.format(curTic, \
+            str = '{:12d} {:2d} {:12d} {:2d} {:2d} {:6.3f} {:2d} {:10.5f} {:2d} {:6.2f} {:d}\n'.format(curTic, \
                    curToi, bsttic, bstpn, bstMatch, bstStat, bstPeriodRatioFlag, \
-                   bstPeriodRatio, bstFederateFlag, bstSep)
+                   bstPeriodRatio, bstFederateFlag, bstSep, nFed)
             fout.write(str)
             print(str)
         

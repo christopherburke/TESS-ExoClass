@@ -283,17 +283,21 @@ def pgmcmc_prior(ioblk):
 
 if __name__ == '__main__':
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector8'
-    SECTOR = 8
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-6'
+    SECTOR = -1
 
     doPNGs = True
 #    pngFolder = '/pdo/users/cjburke/spocvet/sector2/pngs'
-    medianInputFlux = False
-    fileOut = 'spoc_modshift_sector8_20190405.txt'
+    # Run twice once with alt detrend and once with DV median detrend
+#    medianInputFlux = False
+#    fileOut = 'spoc_modshift_sector1-6_20190428.txt'
+    medianInputFlux = True
+    fileOut = 'spoc_modshift_med_sector1-6_20190428.txt'
+    
     fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector8_20190405.txt'
+    vetFile = 'spoc_fluxtriage_sector1-6_20190428.txt'
     #vetFile = 'junk.txt'
-    tceSeedInFile = 'sector8_20190405_tce.pkl'
+    tceSeedInFile = 'sector1-6_20190428_tce.pkl'
 
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
@@ -333,12 +337,21 @@ if __name__ == '__main__':
     # and flux vetted pass
     idx = np.where((allatvalid == 1) & (alltrpvalid == 1) & (allsolarflux > 0.0) & \
                    (allvet == 1))[0]
+    
     alltic, allpn, allatvalid, allrp, allrstar, alllogg, allper, alltmags, \
             allmes, allsnr, alldur, allsolarflux, allatdep, allatepoch, \
             allatrpdrstar, allatrpdrstare, allatadrstar = idx_filter(idx, \
             alltic, allpn, allatvalid, allrp, allrstar, alllogg, allper, alltmags, \
             allmes, allsnr, alldur, allsolarflux, allatdep, allatepoch, \
             allatrpdrstar, allatrpdrstare, allatadrstar)
+    # These lines can be used for debugging
+    #idx = np.where((alltic == alltic[723]))[0]
+    #alltic, allpn, allatvalid, allrp, allrstar, alllogg, allper, alltmags, \
+    #        allmes, allsnr, alldur, allsolarflux, allatdep, allatepoch, \
+    #        allatrpdrstar, allatrpdrstare, allatadrstar = idx_filter(idx, \
+    #        alltic, allpn, allatvalid, allrp, allrstar, alllogg, allper, alltmags, \
+    #        allmes, allsnr, alldur, allsolarflux, allatdep, allatepoch, \
+    #        allatrpdrstar, allatrpdrstare, allatadrstar)
             
     # Calculate modshift over flux triage passing TCEs
     for i, curTic in enumerate(alltic):

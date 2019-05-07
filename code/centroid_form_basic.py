@@ -80,20 +80,20 @@ def assignEvents(t, epc, phi, per, phiDur):
 
 if __name__ == '__main__':
     # These are for parallel procoessing
-    wID = 5
+    wID = 3
     nWrk = 6
-    OVERWRITE = True
+    OVERWRITE = False
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector8'
-    SECTOR = 8
-    SECTOR1 = 8
-    SECTOR2 = 8
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-6'
+    SECTOR = -1
+    SECTOR1 = 1
+    SECTOR2 = 6
 #    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-2'
 #    SECTOR=-1
 
     #vetFile = 'spoc_sector1_early_fluxvet_20180904.txt'
-    vetFile = 'spoc_fluxtriage_sector8_20190405.txt'
-    tceSeedInFile = 'sector8_20190405_tce.pkl'
+    vetFile = 'spoc_fluxtriage_sector1-6_20190428.txt'
+    tceSeedInFile = 'sector1-6_20190428_tce.pkl'
 #    vetFile = 'spoc_sector1_2_fluxtriage_20181019.txt'
 #    tceSeedInFile = 'sector1_2_20181019_tce.pkl'
 
@@ -145,7 +145,7 @@ if __name__ == '__main__':
     #               (allvet == 1) )[0]
 # DEBUG SINGLE TIC
 #    idx = np.where((allatvalid == 1) & (alltrpvalid == 1) & (allsolarflux > 0.0) & \
-#                   (allvet == 1) & (alltic == 12862119 ) & (allpn==1))[0]
+#                   (allvet == 1) & (alltic == 30631330 ) & (allpn==3))[0]
     idx = np.where((allatvalid == 1) & (alltrpvalid == 1) & (allsolarflux > 0.0) & \
                    (allvet == 1) )[0]
     alltic, allpn, allatvalid, allrp, allrstar, alllogg, allper, alltmags, \
@@ -197,10 +197,12 @@ if __name__ == '__main__':
                         tpf_medimg = np.array(f['median_image'])
                         centRow0 = f['1CRV4P'][0]
                         centCol0 = f['2CRV4P'][0]
-                        ia, ib = cjb.intersect(cadNo, tpf_cad)
+                        ia, ibOvrLap = cjb.intersect(cadNo, tpf_cad)
                         useTime = time[ia]
                         useVD = validData[ia]
                         useTrpzdModel = tmpTrpzdModel[ia]
+                        tpf_vd = tpf_vd[ibOvrLap]
+                        
                         
                         hasCent = False
                         fileCentroid = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_flxwcent_{0:016d}_{1:02d}_{2:02d}.h5d'.format(curTic,curPn, k))
@@ -254,6 +256,7 @@ if __name__ == '__main__':
                             for ii in range(nr):
                                 for jj in range(nc):
                                     curFlx = tpf_array[:,ii,jj]
+                                    curFlx = curFlx[ibOvrLap]
                                     # Need to add a bias level 
                                     mnFlx = np.min(curFlx[useVD])
                                     print('MinFlux: {:f}'.format(mnFlx))

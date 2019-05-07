@@ -41,6 +41,7 @@ def dvts_resamp(file, dirOut, RESAMP, SECTOR=None, overwrite=True):
     hdulist = fits.open(file)
     prihdr = hdulist[0].header
     nTces = prihdr['NUMTCES']
+
     dataSpanMax = 0.0
     # Get header information that we should keep
     if not SECTOR is None:
@@ -75,7 +76,9 @@ def dvts_resamp(file, dirOut, RESAMP, SECTOR=None, overwrite=True):
             nImage = len(arr)
     
             cadenceNo = hdulist[extname].data['CADENCENO']
+            kpCadenceNo = cadenceNo
             timetbjd = hdulist[extname].data['TIME']
+            kpTimetbjd = timetbjd
             lc_init = hdulist[extname].data['LC_INIT']
             lc_init_err = hdulist[extname].data['LC_INIT_ERR']
             lc_white = hdulist[extname].data['LC_WHITE']
@@ -86,6 +89,7 @@ def dvts_resamp(file, dirOut, RESAMP, SECTOR=None, overwrite=True):
             pdc_flux = hdulist['statistics'].data['PDCSAP_FLUX']
             pdc_flux_err = hdulist['statistics'].data['PDCSAP_FLUX_ERR']
             deweights = hdulist['statistics'].data['DEWEIGHTS']
+            kpQuality = hdulist['statistics'].data['QUALITY']
 
     
             newNImage = int(np.floor(nImage / RESAMP))
@@ -118,6 +122,30 @@ def dvts_resamp(file, dirOut, RESAMP, SECTOR=None, overwrite=True):
             idx = np.where((np.isfinite(timetbjd)) & (np.isfinite(lc_init)) & (np.isfinite(pdc_flux)))[0]
             valid_data_flag = np.zeros((newNImage,), dtype=np.bool_)
             valid_data_flag[idx] = True
+            
+            # Trim all leading in-valid data
+            if not valid_data_flag[0]:
+                idx = np.where(valid_data_flag)[0]
+                if not len(idx) == 0:
+                    idx = idx[0]
+                    cadenceNoBeg = cadenceNoBeg[idx:]
+                    cadenceNoEnd = cadenceNoEnd[idx:]
+                    cadenceNo = cadenceNo[idx:]
+                    timetbjd = timetbjd[idx:]
+                    lc_init = lc_init[idx:]
+                    lc_init_err = lc_init_err[idx:]
+                    lc_white = lc_white[idx:]
+                    lc_med_detrend = lc_med_detrend[idx:]
+                    lc_model = lc_model[idx:]
+                    lc_white_model = lc_white_model[idx:]
+                    lc_phase = lc_phase[idx:]
+                    pdc_flux = pdc_flux[idx:]
+                    pdc_flux_err = pdc_flux_err[idx:]
+                    deweights = deweights[idx:]
+                    valid_data_flag = valid_data_flag[idx:]
+                else:
+                    print('No Valid data? {0:d} {1:d}'.format(ii,epic))
+            
             # Get the data span in days for use in federation steps
             idx = np.where(valid_data_flag == True)[0]
             if (len(idx)>0):
@@ -150,14 +178,14 @@ def dvts_resamp(file, dirOut, RESAMP, SECTOR=None, overwrite=True):
                     tmp = f.create_dataset(keepprihdr[i], data=np.array([-1], dtype=formatprihdr[i]))
                             
             f.close()
-    return dataSpanMax
+    return dataSpanMax, kpCadenceNo, kpTimetbjd, kpQuality
 
 if __name__ == "__main__":
 
-    dirInputs = '/pdo/spoc-data/sector-08/dv-time-series/'
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector8/'
+    dirInputs = '/pdo/spoc-data/sector-01-06/dv-time-series/'
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector1-6/'
     RESAMP = 5  ###  USE AN ODD NUMBER HELPS WITH CADENCE NO ###
-    SECTOR_OVRRIDE = None# -1 # If NOT multisector set this to None ###
+    SECTOR_OVRRIDE = -1 # If NOT multisector set this to None ###
     overwrite = True # Set False to keep old results and only do files that dont exist
 
     fileList = glob.glob(os.path.join(dirInputs, '*dvt.fits*'))
@@ -168,6 +196,13 @@ if __name__ == "__main__":
         cnt = cnt + 1
         if np.mod(cnt,10) == 0:
             print(cnt,' Data Span {0:f}'.format(dataSpanMax))
-        dataSpan = dvts_resamp(fil, dirOutputs, RESAMP, SECTOR=SECTOR_OVRRIDE, overwrite=overwrite)
+        dataSpan, cadno, timetjd, quality = dvts_resamp(fil, dirOutputs, RESAMP, SECTOR=SECTOR_OVRRIDE, overwrite=overwrite)
         if dataSpan > dataSpanMax:
             dataSpanMax = dataSpan
+            fout = open('cadnoVtimemap.txt','w')
+            for i, cad in enumerate(cadno):
+                momdump = int(0)
+                if quality[i] & 32:
+                    momdump = int(1)
+                fout.write('{0:d} {1:f} {2:d} {3:d}\n'.format(int(cad), timetjd[i], int(quality[i]), momdump))
+            fout.close()

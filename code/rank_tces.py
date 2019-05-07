@@ -81,35 +81,35 @@ if __name__ == '__main__':
     wID = 5
     nWrk = 6
     
-    summaryFolder = '/pdo/spoc-data/sector-08/dv-reports'
-    summaryPrefix = 'tess2019033200935-'
-    summaryPostfix = '-00182_dvs.pdf'
-    SECTOR1 = 8
-    SECTOR2 = 8
+    summaryFolder = '/pdo/spoc-data/sector-01-06/dv-reports'
+    summaryPrefix = 'tess2018206190142-'
+    summaryPostfix = '-00196_dvs.pdf'
+    SECTOR1 = 1
+    SECTOR2 = 6
     multiRun = False
     if SECTOR2 - SECTOR1 > 0:
         multiRun = True
 
-    doPNGs = True
-    pngFolder = '/pdo/users/cjburke/spocvet/sector8/pngs/'
+    doPNGs = False
+    pngFolder = '/pdo/users/cjburke/spocvet/sector1-6/pngs/'
     doMergeSum = True
-    pdfFolder = '/pdo/users/cjburke/spocvet/sector8/pdfs/'
-    SECTOR1 = 8
-    SECTOR2 = 8
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector8'
-    SECTOR = 8 # -1 for multi-sector
+    pdfFolder = '/pdo/users/cjburke/spocvet/sector1-6/pdfs/'
+    SECTOR1 = 1
+    SECTOR2 = 6
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-6'
+    SECTOR = -1 # -1 for multi-sector
 
-    fileOut1 = 'spoc_ranking_Tier1_sector8_20190405.txt'
-    fileOut2 = 'spoc_ranking_Tier2_sector8_20190405.txt'
-    fileOut3 = 'spoc_ranking_Tier3_sector8_20190405.txt'
-    vetFile = 'spoc_fluxtriage_sector8_20190405.txt'
-    tceSeedInFile = 'sector8_20190405_tce.pkl'
-    modshiftFile = 'spoc_modshift_sector8_20190405.txt'
-    modshiftFile2 = 'spoc_modshift_med_sector8_20190405.txt'
-    sweetFile = 'spoc_sweet_sector8_20190405.txt'
-    toiFederateFile = 'federate_toiWtce_sector8_20190405.txt'
-    knowPFederateFile = 'federate_knownP_sector8_20190405.txt'
-    selfMatchFile = 'selfMatch_sector8_20190405.txt'
+    fileOut1 = 'spoc_ranking_Tier1_sector1-6_20190428.txt'
+    fileOut2 = 'spoc_ranking_Tier2_sector1-6_20190428.txt'
+    fileOut3 = 'spoc_ranking_Tier3_sector1-6_20190428.txt'
+    vetFile = 'spoc_fluxtriage_sector1-6_20190428.txt'
+    tceSeedInFile = 'sector1-6_20190428_tce.pkl'
+    modshiftFile = 'spoc_modshift_sector1-6_20190428.txt'
+    modshiftFile2 = 'spoc_modshift_med_sector1-6_20190428.txt'
+    sweetFile = 'spoc_sweet_sector1-6_20190428.txt'
+    toiFederateFile = 'federate_toiWtce_sector1-6_20190428.txt'
+    knowPFederateFile = 'federate_knownP_sector1-6_20190428.txt'
+    selfMatchFile = 'selfMatch_sector1-6_20190428.txt'
 
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
@@ -231,7 +231,7 @@ if __name__ == '__main__':
     kpFedPN = dataBlock['f4']
     
     # load TCE vs TCE match file
-    dtypeseq=['i4','i4','i4','i4','i4','f8','i4','f8','i4','f8']
+    dtypeseq=['i4','i4','i4','i4','i4','f8','i4','f8','i4','f8','i4']
     dataBlock = np.genfromtxt(selfMatchFile, dtype=dtypeseq)
     smFedTic1 = dataBlock['f0']
     smFedPN1 = dataBlock['f1']
@@ -239,7 +239,12 @@ if __name__ == '__main__':
     smFedPN2 = dataBlock['f3']
     smFedSep = dataBlock['f9']
     smFedMatch = dataBlock['f8']
-    idx = np.where((smFedMatch == 1) & (smFedSep<1.3))[0]
+    smFedNFed = dataBlock['f10']
+# Pre MS1-6 criteria
+#    idx = np.where((smFedMatch == 1) & (smFedSep<1.3))[0]
+    idx1 = np.where((smFedNFed == 1) & (smFedSep<3.3))[0]
+    idx2 = np.where((smFedNFed > 1))[0]
+    idx = np.append(idx1, idx2)
     smFedTic1 = smFedTic1[idx]
     smFedPN1 = smFedPN1[idx]
 
@@ -250,13 +255,26 @@ if __name__ == '__main__':
     pdcCor = np.array([], dtype=np.float)
     for i, curTic in enumerate(alltic):
         curPn = allpn[i]
-        pdcResults = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_flxwcent_{0:016d}_{1:02d}_{2:02d}.h5d'.format(curTic,curPn, SECTOR))
-        f = h5py.File(pdcResults,'r')
-        pdcStats = np.array(f['pdc_stats'])
+        # For multisector run find minimum pdc added Noise
+        #  Also results were only valid for sector 4 onwards
+        firstSec = 4
+        if SECTOR1 > firstSec:
+            firstSec = SECTOR1
+        minPdcNoi = 1.0
+        maxPdcCor = 0.0
+        for jj in np.arange(firstSec,SECTOR2+1):
+            pdcResults = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_flxwcent_{0:016d}_{1:02d}_{2:02d}.h5d'.format(curTic,curPn, jj))
+            if os.path.isfile(pdcResults):
+                f = h5py.File(pdcResults,'r')
+                pdcStats = np.array(f['pdc_stats'])
+                if pdcStats[1] < minPdcNoi:
+                    minPdcNoi = pdcStats[1]
+                if pdcStats[2] > maxPdcCor:
+                    maxPdcCor = pdcStats[2]
         pdcTic = np.append(pdcTic, curTic)
         pdcPn = np.append(pdcPn, curPn)
-        pdcNoi = np.append(pdcNoi, pdcStats[1])
-        pdcCor = np.append(pdcCor, pdcStats[2])
+        pdcNoi = np.append(pdcNoi, minPdcNoi)
+        pdcCor = np.append(pdcCor, maxPdcCor)
 
                
     # calculate expected duration
@@ -447,13 +465,16 @@ if __name__ == '__main__':
             if tier1:
                 if nWrk == 1:
                     fout1.write(curstr)
+                mrkStr = 'Tier 1'
                 reportIt = True
             if (not tier1) and (not hasSec) and (not sweetFail):
                 curstr2 = ''.join(str(x) for x in fc)
+                mrkStr = 'Tier 2 {}'.format(fc_str)
                 if nWrk == 1:
                     fout2.write('{} {} {}\n'.format(curstr[0:-1],curstr2, fc_str))
                 reportIt = True
             if (not tier1) and (not reportIt):
+                mrkStr = 'Tier 3 {} {}'.format(hasSec, sweetFail)
                 if nWrk == 1:
                     fout3.write('{} {} {}\n'.format(curstr[0:-1],hasSec,sweetFail))
                 reportIt = True
@@ -463,7 +484,29 @@ if __name__ == '__main__':
                 comstring = 'gs -dBATCH -dNOPAuSE -sDEVICE=png16m -r300 -o {0} {1}'.format(outputFile, inputFile)
                 tmp = call(comstring, shell=True)
             if doMergeSum and reportIt:
+                # Make a temporary pdfmark file for adding Tier level and keywords to pdf
+                #mrkFile = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic),'pdfmarks_{0:016d}_{1:02d}.txt'.format(curTic,curPn))
+                #mrkOut = open(mrkFile,'w')
+                #mrkOut.write('/pdfmark where {pop}{userdict /pdfmark /cleartomark load put} ifelse\n')
+                #mrkOut.write('[ /Rect [ 15 735 500 785 ] /DA ([1 0 0] rg /Cour 20 Tf) /BS << /W 0 >> /Q 0 /Subtype /FreeText /SrcPg 1\n')
+                #mrkOut.write('/Contents ({}) /ANN pdfmark\n'.format(mrkStr))
+                #mrkOut.close()
+                # Make a ps file for adding Tier level and keywords to pdf
+                # via https://stackoverflow.com/questions/18769314/add-text-on-1st-page-of-a-pdf-file
+                mrkFile = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic),'tecres_{0:016d}_{1:02d}.ps'.format(curTic,curPn))
+                mrkOut = open(mrkFile,'w')
+                mrkOut.write('%!\n')
+                mrkOut.write('<< /EndPage {0 eq{0 eq{\n')
+                mrkOut.write('/Arial findfont 22 scalefont setfont newpath 15 770 moveto 1 0 0 setrgbcolor ({0}) show\n'.format(mrkStr))
+                mrkOut.write('} if true}{pop false} ifelse} >> setpagedevice\n')
+                mrkOut.close()
+                
                 inputFile1 = os.path.join(summaryFolder,'{0}s{1:04d}-s{2:04d}-{3:016d}-{4:02d}{5}'.format(summaryPrefix,SECTOR1,SECTOR2,alltic[j],allpn[j],summaryPostfix))
+                #outputFile = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic),'tecsummary_{0:016d}_{1:02d}.pdf'.format(curTic,curPn))
+                # Add TEC tier level and keywords to summary page with imagemagick convert
+                #comstring = "convert -density 500 {0} -pointsize 25 -draw \"text 20,150 '{1}'\"  {2}".format(inputFile1, mrkStr, outputFile)
+                #print(comstring)
+                #tmp = call(comstring, shell=True)
                 #inputFile1 = outputFile
                 curTic = alltic[j]
                 curPn = allpn[j]
@@ -504,11 +547,19 @@ if __name__ == '__main__':
                     inputFileList.append(inputFile7)
 
                 outputFile = os.path.join(pdfFolder,'tec-s{3:04d}-{1:016d}-{2:02d}.pdf'.format(i, alltic[j], allpn[j], SECTOR2))
+                outputFile2 = os.path.join(pdfFolder,'tec-s{3:04d}-{1:016d}-{2:02d}_mrg.pdf'.format(i, alltic[j], allpn[j], SECTOR2))
                 #comstring = 'convert {0} {1} {2}'.format(inputFile1, inputFile2, outputFile)
-                comstring = 'gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile={0} {1} {2} {3}'.format(outputFile, inputFile1, inputFile2, inputFile3)
+                comstring = 'gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile={0} -dPDFSETTINGS=/prepress {4} {1} {2} {3}'.format(outputFile, inputFile1, inputFile2, inputFile3, mrkFile)
+                #comstring = 'gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile={0} {1} {2} {3}'.format(outputFile, inputFile1, inputFile2, inputFile3)
                 for ifil in inputFileList:
                     comstring += ' {0} '.format(ifil)
+
                 tmp = call(comstring, shell=True)
+                # Add pdfmark text
+                #print(outputFile)
+                #comstring = 'gs -dBATCH -dNOPAUSE -sDEVICE=pdfwrite -sOutputFile={0} -dPDFSETTINGS=/prepress {1} {2}'.format(outputFile2, mrkFile, outputFile)
+                #print(comstring)
+                #tmp = call(comstring, shell=True)
             
     print("hello world")
     if nWrk == 1:

@@ -250,23 +250,23 @@ def get_ses_stats(corr, norm, corr_r, norm_r, phi, phiDur, events, origMes, debu
     
 if __name__ == "__main__":
     # These are for parallel procoessing
-    wID = 0
-    nWrk = 1
+    wID = 5
+    nWrk = 6
     # Load the pickle file that contains TCE seed information
     # The pickle file is created by gather_tce_fromdvxml.py
-    tceSeedInFile = 'sector8_20190405_tce.pkl'
+    tceSeedInFile = 'sector1-6_20190428_tce.pkl'
     #  Directory storing the resampled dv time series data
-    dvDataDir = '/pdo/users/cjburke/spocvet/sector8'
+    dvDataDir = '/pdo/users/cjburke/spocvet/sector1-6'
     # Directory of output hd5 files
     outputDir = dvDataDir
-    SECTOR = 8
+    SECTOR = -1
     # What fraction of data can be missing and still calculat ses_mes
     # In Sector 1 due to the 2 days of missing stuff it was 0.68
     validFrac = 0.52
-    overWrite = True
+    overWrite = False
 
     # Skyline data excises loud cadecnes
-    dataBlock = np.genfromtxt('skyline_data_sector8_20190405.txt', dtype=['f8'])
+    dataBlock = np.genfromtxt('skyline_data_sector1-6_20190428.txt', dtype=['f8'])
     badTimes = dataBlock['f0']
 
     # Search and filter parameters
@@ -281,7 +281,7 @@ if __name__ == "__main__":
     # These next few lines can be used to examine a single target    
     #all_epics = np.array([x.epicId for x in all_tces], dtype=np.int64)
     #all_pns = np.array([x.planetNum for x in all_tces], dtype=np.int)
-    #ia = np.where((all_epics == 260304296) & (all_pns == 1))[0]
+    #ia = np.where((all_epics == 300039094) & (all_pns == 5))[0]
     #doDebug = True
     # Loop over tces and perform various ses, mes, chases tests
     cnt = 0
@@ -367,7 +367,6 @@ if __name__ == "__main__":
                 # Determine empirical noise from flux time series
                 vdootIdx = np.where(vd & ootvd)[0]
                 flux_level = np.median(useFlux[vdootIdx])
-                print(flux_level)
                 flux_diff = np.diff(useFlux[vdootIdx]) / flux_level
                 emp_noise = robust.mad(flux_diff)/np.sqrt(2.0)
                 print('Empirical Noise [ppm]: {0:.1f}'.format(emp_noise*1.0e6))
@@ -390,8 +389,42 @@ if __name__ == "__main__":
                 # detrend data fixe edges
                 # Verify that there is enough data to do analysis
                 # Also do a period cut
-         
-                vdfrac = float(len(np.where(vd)[0]))/len(vd)
+                
+                # Need to update the valid data fraction for multi-sector
+                # For single sector this would catch data that was missing
+                # because previous planets detected removed too much data
+                #    avoid the 'swiss' cheese light curves
+                #  but for multi-sector the light curve can have long gaps
+                #  of missing sectors this is not the intent of the check
+                # Need to look for long gaps and remove these from the calculation
+                # Protect against no valid data
+                idxGd = np.where(vd)[0]
+                if not len(idxGd) == 0:
+                    # Time differences
+                    gdTime = time[idxGd]
+                    difftime = np.diff(gdTime)
+                    jumpidx = np.where(np.abs(difftime)>7.0)[0]
+                    vdFracUse = np.copy(vd)
+                    timeFracUse = np.copy(time)
+                    for jj in jumpidx:
+                        jumptimebeg = gdTime[jj]
+                        jumptimeend = gdTime[jj+1]
+                        itmp = np.where((timeFracUse >=jumptimebeg) & (timeFracUse<=jumptimeend))[0]
+                        ibeg = np.min(itmp)
+                        iend = np.max(itmp)
+                        vdFracUse = np.delete(vdFracUse, np.arange(ibeg,iend))
+                        timeFracUse = np.delete(timeFracUse, np.arange(ibeg,iend))
+                    # Also need to remove from last valid time
+                    tmpx = np.arange(len(vdFracUse))
+                    maxGdidx = np.max(tmpx[vdFracUse])
+                    itmp = np.where(timeFracUse>=timeFracUse[maxGdidx])[0]
+                    vdFracUse = vdFracUse[0:itmp[0]]
+                    if len(vdFracUse)>0:
+                        vdfrac = float(len(np.where(vdFracUse)[0]))/len(vdFracUse)
+                    else:
+                        vdfrac = 0.0
+                else:
+                    vdfrac = 0.0
                 if len(np.where(vd)[0]) > 200 and period > 0.3 and duration/24.0/period < 0.2 and vdfrac>validFrac:
                     print('Valid fraction: {:f}'.format(vdfrac))
                     # Look for large differences due to harmonic filter being applied.

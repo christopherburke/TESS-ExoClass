@@ -18,7 +18,7 @@ from gather_tce_fromdvxml import tce_seed
 import pickle
 import matplotlib.pyplot as plt
 from statsmodels import robust
-
+import os
 
 
 def genericFed(per, epc, tryper, tryepc, trydur, trypn, trytic, tStart, tEnd):
@@ -37,10 +37,10 @@ def genericFed(per, epc, tryper, tryepc, trydur, trypn, trytic, tStart, tEnd):
 
 
 if __name__ == '__main__':
-    fout = open('skyline_data_sector8_20190405.txt', 'w')
+    fout = open('skyline_data_sector1-6_20190428.txt', 'w')
     
     # Load the tce data pickle    
-    tceSeedInFile = 'sector8_20190405_tce.pkl'
+    tceSeedInFile = 'sector1-6_20190428_tce.pkl'
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
     fin.close()
@@ -77,6 +77,13 @@ if __name__ == '__main__':
 
     uowStart = np.min(useepc) - 1.0
     uowEnd = np.max(useepc) + 13.0
+    # Check if cadnoVtimemap.txt  cadence no to time mapping exists
+    # created by dvts_bulk_resamp.py use it if so
+    if os.path.exists('cadnoVtimemap.txt'):
+        dataBlock = np.genfromtxt('cadnoVtimemap.txt', dtype=['i4','f8','i4','i4'])
+        uowStart = np.min(dataBlock['f1'])
+        uowEnd = np.max(dataBlock['f1'])
+    print('Data Start: {0} Data End: {1}'.format(uowStart, uowEnd))
     # put an upper limit on duration
     idx = np.where(usedur>5.0)[0]
     usedur[idx] = 5.0

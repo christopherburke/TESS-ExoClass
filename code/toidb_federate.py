@@ -152,7 +152,18 @@ def federateFunction(period, epoch, ts, tcePeriods, tceEpochs, tceDurations):
         if (bstMatch >=1) and (bstMatch <=2) and (bstPeriodRatio>0.45):
             bstFederate = 1
 
-    return bstIdx, bstMatch, bstStat, bstPeriodRatio, bstPeriodRatioFlag, bstFederate
+    # Also return the number of inputs that have a federation
+    allPeriodRatio = period / allpers
+    allPeriodRatioFlag = np.zeros_like(allPeriodRatio, dtype=np.int)
+    idx = np.where(np.abs(1.0 - allPeriodRatio) < periodMatchTol)[0]
+    allPeriodRatioFlag[idx]
+    allFederate = np.zeros_like(allPeriodRatio, dtype=np.int)
+    idx = np.where((allPeriodRatioFlag == 1) & (matchres>=1) & (matchres<=4))[0]
+    allFederate[idx] = 1
+    idx = np.where((allPeriodRatioFlag == 0) & (matchres>=1) & (matchres<=2) & (allPeriodRatio>0.45))[0]
+    allFederate[idx] = 1
+    nFed = len(np.where(allFederate == 1)[0])
+    return bstIdx, bstMatch, bstStat, bstPeriodRatio, bstPeriodRatioFlag, bstFederate, nFed
     
 
 def federate2TOI(tce_data, db, sector, quiet=False, debugFigures=False):

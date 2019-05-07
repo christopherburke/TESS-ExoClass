@@ -91,12 +91,15 @@ class tce_seed(object):
         self.cent_tic_offset_e = 0.0
         # Odd/Even
         self.oe_signif = 0.0
+        # Unit of Work data star and and
+        self.data_start = 0
+        self.data_end = 0
         
         
         
 if __name__ == "__main__":
-    tceSeedOutFile = 'sector8_20190405_tce.pkl'
-    headXMLPath = '/pdo/spoc-data/sector-08/dv-results/'
+    tceSeedOutFile = 'sector1-6_20190428_tce.pkl'
+    headXMLPath = '/pdo/spoc-data/sector-01-06/dv-results/'
     # Namespace there is extra junk prepended to tags
     #  This is supposed to make it easier to use 
     ns = {'ns': 'http://www.nasa.gov/2018/TESS/DV'}
@@ -133,6 +136,8 @@ if __name__ == "__main__":
         # Fill in the target specific information
         targdata.epicId = ticId
         targdata.totPlanetNum = nCand
+        targdata.data_start = int(root.get('startCadence'))
+        targdata.data_end = int(root.get('endCadence'))
         targdata.sourceId = 'SPOC'
         targdata.decDeg = float(root.find('ns:decDegrees', ns).attrib['value'])
         targdata.raDeg = float(root.find('ns:raDegrees', ns).attrib['value'])

@@ -24,7 +24,8 @@ except ImportError:  # Python 2.x
 try: # Python 3.x
     import http.client as httplib 
 except ImportError:  # Python 2.x
-    import httplib  
+    import httplib
+import os
 
 def mastQuery(request):
 
@@ -71,8 +72,9 @@ def genericFed(per, epc, tryper, tryepc, trydur, trypn, trytic, tStart, tEnd):
     bstPeriodRatio = federateResult[3]
     bstPeriodRatioFlag = federateResult[4]
     bstFederateFlag = federateResult[5]
+    nFed = federateResult[6]
     
-    return bstpn, bsttic, bstMatch, bstStat, bstPeriodRatio, bstPeriodRatioFlag, bstFederateFlag
+    return bstpn, bsttic, bstMatch, bstStat, bstPeriodRatio, bstPeriodRatioFlag, bstFederateFlag, nFed
 
 # Do cone search around TIC
 def query_othertics(ticWant, searchRad):
@@ -130,11 +132,19 @@ def query_othertics(ticWant, searchRad):
 
 
 if __name__ == '__main__':
-    fout = open('federate_toiWtce_sector8_20190405.txt', 'w')
+    fout = open('federate_toiWtce_sector1-6_20190428.txt', 'w')
     dataSpan = 25.0
 
     wideSearch = True
     searchRad = 180.0 # Arcsecond search radius for other TICs
+    # Check to see if cadence to time mappting is available
+    hasCadTimeMap = False
+    if os.path.exists('cadnoVtimemap.txt'):
+        dataBlock = np.genfromtxt('cadnoVtimemap.txt', dtype=['i4','f8','i4','i4'])
+        cadmap = dataBlock['f0']
+        timemap = dataBlock['f1']
+        print('Cadence time map available')
+        hasCadTimeMap = True
     
     # load the TOI data
     #MAST Format
@@ -157,7 +167,7 @@ if __name__ == '__main__':
     # TEV csv has commas in strings
     # Use this sed 's/,"\(.*\),\(.*\)",/,"\1;\2",/' toi-plus-2019-03-15.csv
     # To fix string before reading in
-    qlpfile = 'toi-plus-2019-03-26-fixed.csv'
+    qlpfile = 'toi-plus-2019-04-30-fixed.csv'
     dtypeseq = ['U20','i4','f8','U2']
     dtypeseq.extend(['f8']*12)
     dtypeseq.extend(['U20','U80'])
@@ -185,7 +195,7 @@ if __name__ == '__main__':
 #                                gtTOI, gtDisp, gtPer, gtEpc, gtDur)
 
     # Load the tce data pickle    
-    tceSeedInFile = 'sector8_20190405_tce.pkl'
+    tceSeedInFile = 'sector1-6_20190428_tce.pkl'
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
     fin.close()
@@ -203,6 +213,8 @@ if __name__ == '__main__':
     alltcedur = np.array([x.pulsedur for x in all_tces])
     alltceepc = np.array([x.tce_epoch for x in all_tces])
     alltceper = np.array([x.tce_period for x in all_tces])
+    alltceCadStrt = np.array([x.data_start for x in all_tces], dtype=np.int64)
+    alltceCadEnd = np.array([x.data_end for x in all_tces], dtype=np.int64)
     # Go through each tce and use valid fits from dv, trpzd, tce in that order for matching
     useper = np.zeros_like(allper)
     useepc = np.zeros_like(allper)
@@ -255,7 +267,21 @@ if __name__ == '__main__':
             trypn = allpn[idx]
             trydur = usedur[idx]
             trytic = alltic[idx]
-            bstpn, bsttic, bstMatch, bstStat, bstPeriodRatio, bstPeriodRatioFlag, bstFederateFlag = \
+            tryCadStrt = alltceCadStrt[idx]
+            tryCadEnd = alltceCadEnd[idx]
+            # Tailor unit of work to longest duration among potential TCEs
+            if hasCadTimeMap:
+                minCadStrt = np.min(tryCadStrt)
+                maxCadStrt = np.max(tryCadEnd)
+                idxfnd = np.where(minCadStrt == cadmap)[0]
+                uowStartUse = timemap[idxfnd]
+                idxfnd = np.where(maxCadStrt == cadmap)[0]
+                uowEndUse = timemap[idxfnd]
+                print('Time: {0:f} {1:f}'.format(uowStartUse[0], uowEndUse[0]))
+            else:
+                uowStartUse = uowStart
+                uowEndUse = uowEnd
+            bstpn, bsttic, bstMatch, bstStat, bstPeriodRatio, bstPeriodRatioFlag, bstFederateFlag, nFed = \
                     genericFed(curper, curepc, tryper, tryepc, trydur, trypn, trytic, uowStart, uowEnd)
             
         else:
