@@ -81,35 +81,36 @@ if __name__ == '__main__':
     wID = 5
     nWrk = 6
     
-    summaryFolder = '/pdo/spoc-data/sector-01-06/dv-reports'
-    summaryPrefix = 'tess2018206190142-'
-    summaryPostfix = '-00196_dvs.pdf'
-    SECTOR1 = 1
-    SECTOR2 = 6
+    summaryFolder = '/pdo/spoc-data/sector-09/dv-reports'
+    summaryPrefix = 'tess2019059170935-'
+    summaryPostfix = '-00198_dvs.pdf'
+    SECTOR1 = 9
+    SECTOR2 = 9
     multiRun = False
     if SECTOR2 - SECTOR1 > 0:
         multiRun = True
 
     doPNGs = False
-    pngFolder = '/pdo/users/cjburke/spocvet/sector1-6/pngs/'
+    pngFolder = '/pdo/users/cjburke/spocvet/sector9/pngs/'
     doMergeSum = True
-    pdfFolder = '/pdo/users/cjburke/spocvet/sector1-6/pdfs/'
-    SECTOR1 = 1
-    SECTOR2 = 6
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-6'
-    SECTOR = -1 # -1 for multi-sector
+    pdfFolder = '/pdo/users/cjburke/spocvet/sector9/pdfs/'
+    SECTOR1 = 9
+    SECTOR2 = 9
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector9'
+    SECTOR = 9 # -1 for multi-sector
 
-    fileOut1 = 'spoc_ranking_Tier1_sector1-6_20190428.txt'
-    fileOut2 = 'spoc_ranking_Tier2_sector1-6_20190428.txt'
-    fileOut3 = 'spoc_ranking_Tier3_sector1-6_20190428.txt'
-    vetFile = 'spoc_fluxtriage_sector1-6_20190428.txt'
-    tceSeedInFile = 'sector1-6_20190428_tce.pkl'
-    modshiftFile = 'spoc_modshift_sector1-6_20190428.txt'
-    modshiftFile2 = 'spoc_modshift_med_sector1-6_20190428.txt'
-    sweetFile = 'spoc_sweet_sector1-6_20190428.txt'
-    toiFederateFile = 'federate_toiWtce_sector1-6_20190428.txt'
-    knowPFederateFile = 'federate_knownP_sector1-6_20190428.txt'
-    selfMatchFile = 'selfMatch_sector1-6_20190428.txt'
+    fileOut1 = 'spoc_ranking_Tier1_sector9_20190505.txt'
+    fileOut2 = 'spoc_ranking_Tier2_sector9_20190505.txt'
+    fileOut3 = 'spoc_ranking_Tier3_sector9_20190505.txt'
+    vetFile = 'spoc_fluxtriage_sector9_20190505.txt'
+    tceSeedInFile = 'sector9_20190505_tce.pkl'
+    modshiftFile = 'spoc_modshift_sector9_20190505.txt'
+    modshiftFile2 = 'spoc_modshift_med_sector9_20190505.txt'
+    sweetFile = 'spoc_sweet_sector9_20190505.txt'
+    toiFederateFile = 'federate_toiWtce_sector9_20190505.txt'
+    knowPFederateFile = 'federate_knownP_sector9_20190505.txt'
+    selfMatchFile = 'selfMatch_sector9_20190505.txt'
+    modumpFile = 'spoc_modump_sector9_20190505.txt'
 
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
@@ -276,6 +277,13 @@ if __name__ == '__main__':
         pdcNoi = np.append(pdcNoi, minPdcNoi)
         pdcCor = np.append(pdcCor, maxPdcCor)
 
+    # load the momentum dump transit fraction data
+    dtypeseq=['i4','i4','f8']
+    dataBlock = np.genfromtxt(modumpFile, dtype=dtypeseq)
+    mdTic = dataBlock['f0']
+    mdPN = dataBlock['f1']
+    mdFrac = dataBlock['f2']
+
                
     # calculate expected duration
     expdur = transit_duration(allrstar, alllogg, allper, 0.0)
@@ -354,7 +362,7 @@ if __name__ == '__main__':
             # Look for a TOI match
             matchFlg = 0
             # fc is the cause flags for going to Tier 2
-            fc = np.zeros((14,), dtype=np.int)
+            fc = np.zeros((15,), dtype=np.int)
             fc_str = ''
             ib = np.where((alltic[j] == toiFedTic) & (allpn[j] == toiFedPN))[0]
             if len(ib)>0:
@@ -380,6 +388,8 @@ if __name__ == '__main__':
             ksmidx = np.where((alltic[j] == smFedTic1) & (allpn[j] == smFedPN1))[0]
             # Find PDC Goodness stat data
             kpdcidx = np.where((alltic[j] == pdcTic) & (allpn[j] == pdcPn))[0]
+            # Find Momentum deump data
+            kmdidx = np.where((alltic[j] == mdTic) & (allpn[j] == mdPN))[0]
             # Find planet radius
             curRp = allrp[j]
             curSNR = allsnr[j]
@@ -459,6 +469,12 @@ if __name__ == '__main__':
                 tier1 = False
                 fc[11] = 1
                 fc_str = fc_str +'RpBig_'
+            # Momentum dump on events caution
+            if len(kmdidx)>0:
+                if mdFrac[kmdidx] > 0.9:
+                    tier1 = False
+                    fc[12] = 1
+                    fc_str = fc_str + 'MoDump_'
                 
 
             reportIt = False

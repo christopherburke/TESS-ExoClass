@@ -99,7 +99,7 @@ def trapezoid(t, depth, bigT, littleT):
                       1.0-depth + ((depth/((bigT-littleT)/2.0))*(t-littleT/2.0)), output)
     return output
 
-def get_ses_stats(corr, norm, corr_r, norm_r, phi, phiDur, events, origMes, debug=True):
+def get_ses_stats(corr, norm, corr_r, norm_r, phi, phiDur, events, time, oCadNo, origMes, debug=True):
     chasesWindowFac = 6
     chasesPeakFac = 0.7
     all_ses = np.array([])
@@ -110,6 +110,8 @@ def get_ses_stats(corr, norm, corr_r, norm_r, phi, phiDur, events, origMes, debu
     all_chases_r = np.array([])
     all_corr_r = np.array([])
     all_norm_r = np.array([])
+    all_time = np.array([])
+    all_cadNo = np.array([], dtype=np.int)
     runcad = np.arange(len(corr))
     idx1 = np.where(np.abs(phi) <= 1.0*phiDur)[0]
     wideLimit = np.min([chasesWindowFac*phiDur, 0.2])
@@ -129,13 +131,16 @@ def get_ses_stats(corr, norm, corr_r, norm_r, phi, phiDur, events, origMes, debu
             je = idxEnds[i]
             curcorr = corr[js:je]
             curnorm = norm[js:je]
-            curcad = runcad[js:je]
+            curcadNo = oCadNo[js:je]
+            curTime = time[js:je]
             curevents = events[js:je]
             curcorr_r = corr_r[js:je]
             curnorm_r = norm_r[js:je]
             ia = np.argmax(curcorr/curnorm)
             all_corr = np.append(all_corr, curcorr[ia])
             all_norm = np.append(all_norm, curnorm[ia])
+            all_time = np.append(all_time, curTime[ia])
+            all_cadNo = np.append(all_cadNo, curcadNo[ia])
             maxSes = curcorr[ia]/curnorm[ia]
             all_ses = np.append(all_ses, curcorr[ia]/curnorm[ia])
             ib = np.argmax(curcorr_r/curnorm_r)
@@ -165,11 +170,6 @@ def get_ses_stats(corr, norm, corr_r, norm_r, phi, phiDur, events, origMes, debu
                 useSes = useSes[idx3]
                 useSes_r = useSes_r[idx3]
                 closePhi = np.min(np.abs(usePhi))
-                if debug:
-                    plt.plot(xxx, oUseSes, '.')
-                    plt.plot(xxx[idx3], useSes, '.')
-                    plt.plot(xxx[idx3], useSes_r, '.')
-                    plt.show()
                 # Set threshold based upon reference sig
                 threshOld = chasesPeakFac*maxSes
                 threshNew = np.max(np.abs(useSes_r)*1.1)
@@ -179,13 +179,20 @@ def get_ses_stats(corr, norm, corr_r, norm_r, phi, phiDur, events, origMes, debu
                     useThresh = threshOld
                 chsThrSumOld = chsThrSumOld + threshOld
                 chsThrSumNew = chsThrSumNew + threshNew
-                #print('Chases Thresh Ref: {0:f} Old: {1:f}'.format(threshNew, threshOld))
 #                idx4 = np.where(np.abs(useSes) > chasesPeakFac*maxSes)[0]
                 idx4 = np.where(np.abs(useSes) > useThresh)[0]
                 chase_val = 1.0
                 if len(idx4) > 0:
                     nexPhi = np.min(np.abs(usePhi[idx4]))
                     chase_val = (nexPhi-closePhi)/wideLimit
+                if debug:
+                    print('Chases Thresh Ref: {0:f} Old: {1:f}'.format(threshNew, threshOld))
+                    print('Individual Chases Value: {0:f}'.format(chase_val))
+
+                    plt.plot(xxx, oUseSes, '.')
+                    plt.plot(xxx[idx3], useSes, '.')
+                    plt.plot(xxx[idx3], useSes_r, '.')
+                    plt.show()
             else:
                 chase_val = 0.0
             all_chases = np.append(all_chases, chase_val)
@@ -197,6 +204,8 @@ def get_ses_stats(corr, norm, corr_r, norm_r, phi, phiDur, events, origMes, debu
         all_chases = np.append(all_chases, 0.0)
         all_corr = np.append(all_corr, 0.0)
         all_norm = np.append(all_norm, 1.0)
+        all_time = np.append(all_time, 0.0)
+        all_cadNo = np.append(all_cadNo, 0)
         
     # Recalculate the mes
     sumNumer = np.sum(all_corr)
@@ -246,7 +255,9 @@ def get_ses_stats(corr, norm, corr_r, norm_r, phi, phiDur, events, origMes, debu
 
     print('new ', newMes, newMes_r, ses2Mes, ses2Mes_r, newNtran, chases_sum, newMes/np.sqrt(newNtran), newMnMes, newMnMes_r, mnSes2mnMes, mnSes2mnMes_r)
 
-    return newMes, newMes_r, ses2Mes, ses2Mes_r, newNtran, chases_sum, all_ses, all_chases, newMnMes, newMnMes_r, mnSes2mnMes, mnSes2mnMes_r
+    return newMes, newMes_r, ses2Mes, ses2Mes_r, newNtran, chases_sum, all_ses, \
+        all_chases, newMnMes, newMnMes_r, mnSes2mnMes, mnSes2mnMes_r, all_corr, \
+        all_norm, all_time, all_cadNo
     
 if __name__ == "__main__":
     # These are for parallel procoessing
@@ -254,19 +265,19 @@ if __name__ == "__main__":
     nWrk = 6
     # Load the pickle file that contains TCE seed information
     # The pickle file is created by gather_tce_fromdvxml.py
-    tceSeedInFile = 'sector1-6_20190428_tce.pkl'
+    tceSeedInFile = 'sector9_20190505_tce.pkl'
     #  Directory storing the resampled dv time series data
-    dvDataDir = '/pdo/users/cjburke/spocvet/sector1-6'
+    dvDataDir = '/pdo/users/cjburke/spocvet/sector9'
     # Directory of output hd5 files
     outputDir = dvDataDir
-    SECTOR = -1
+    SECTOR = 9
     # What fraction of data can be missing and still calculat ses_mes
     # In Sector 1 due to the 2 days of missing stuff it was 0.68
     validFrac = 0.52
-    overWrite = False
+    overWrite = True
 
     # Skyline data excises loud cadecnes
-    dataBlock = np.genfromtxt('skyline_data_sector1-6_20190428.txt', dtype=['f8'])
+    dataBlock = np.genfromtxt('skyline_data_sector9_20190505.txt', dtype=['f8'])
     badTimes = dataBlock['f0']
 
     # Search and filter parameters
@@ -281,7 +292,7 @@ if __name__ == "__main__":
     # These next few lines can be used to examine a single target    
     #all_epics = np.array([x.epicId for x in all_tces], dtype=np.int64)
     #all_pns = np.array([x.planetNum for x in all_tces], dtype=np.int)
-    #ia = np.where((all_epics == 300039094) & (all_pns == 5))[0]
+    #ia = np.where((all_epics == 101955023) & (all_pns == 1))[0]
     #doDebug = True
     # Loop over tces and perform various ses, mes, chases tests
     cnt = 0
@@ -360,7 +371,7 @@ if __name__ == "__main__":
                 
                 # Make a reference transit signal shape
                 ztmp = phi * period
-                ref_sig = trapezoid(ztmp, depth/1.0e6, duration/24.0, duration/24.0/3.0)
+                ref_sig = trapezoid(ztmp, depth/1.0e6, duration/24.0, duration/24.0/1.1)
 #                if doDebug:
 #                    plt.plot(ref_sig, '.')
 #                    plt.show()
@@ -509,13 +520,16 @@ if __name__ == "__main__":
                     usePhase = phaseData(time[vd], period, epoch)
                     phaseDur = duration / 24.0 / period
                     useEvents = assignEvents(time[vd], epoch, usePhase, period, phaseDur)
+                    useTime = time[vd]
+                    useCadNo = cadNo[vd]
                     #doDebug=False
                     newMes, newMes_r, ses2Mes, ses2Mes_r, newNTran, Chases_sumry, \
                     allSes, allChases, \
                             newMnMes,newMnMes_r, \
-                            mnSes2mnMes, mnSes2mnMes_r = get_ses_stats(useCorrTS, useNormTS,
+                            mnSes2mnMes, mnSes2mnMes_r, \
+                            allCorr, allNorm, allTime, allCadNo = get_ses_stats(useCorrTS, useNormTS,
                                                 useCorrTS_ref, useNormTS_ref, \
-                                                usePhase, phaseDur, useEvents, origMes, debug=doDebug)
+                                                usePhase, phaseDur, useEvents, useTime, useCadNo, origMes, debug=doDebug)
                     #doDebug = True
                     if newNTran > 1:
                         validSes = 1
@@ -524,6 +538,7 @@ if __name__ == "__main__":
                     validAltDet = 1
                 else:
                     print('Too little data for analysis epic: {0:d} pn: {1:d}'.format(epicid, pn))
+                    print('NDat: {0:d} P: {1:f} phaseCoverage: {2:f} validFraction {3:f}'.format(len(np.where(vd)[0]),period, duration/24.0/period,vdfrac))
                     validAltDet = 0
                     validSes = 0
                     newMes = 0.0
@@ -532,6 +547,10 @@ if __name__ == "__main__":
                     Chases_sumry = 0.0
                     allSes = np.array([0.0])
                     allChases = np.array([0.0])
+                    allCorr = np.array([0.0])
+                    allNorm = np.array([0.0])
+                    allTime = np.array([0.0])
+                    allCadNo = np.array([0], dtype=np.int)
                     final_smooth_flux = np.array([0.0])
                     bad_edge_flag = np.array([0.0])
                     vd_ext = np.array([0.0])
@@ -568,8 +587,13 @@ if __name__ == "__main__":
                 tmp = f.create_dataset('ses2Mes', data=np.array([ses2Mes], dtype=np.float))
                 tmp = f.create_dataset('newNTran', data=np.array([newNTran], dtype=np.int))
                 tmp = f.create_dataset('chasesSumry', data=np.array([Chases_sumry], dtype=np.float))
-                tmp = f.create_dataset('allSes', data=allSes)
-                tmp = f.create_dataset('allChases', data=allChases)
+                tmp = f.create_dataset('allSes', data=allSes, compression='gzip')
+                tmp = f.create_dataset('allChases', data=allChases, compression='gzip')
+                tmp = f.create_dataset('allCorr', data=allCorr, compression='gzip')
+                tmp = f.create_dataset('allNorm', data=allNorm, compression='gzip')
+                tmp = f.create_dataset('allTime', data=allTime, compression='gzip')
+                tmp = f.create_dataset('allCadNo', data=allCadNo, compression='gzip')
+                
                 tmp = f.create_dataset('newMnMes', data=np.array([newMnMes], dtype=np.float))
                 tmp = f.create_dataset('mnSes2mnMes', data=np.array([mnSes2mnMes], dtype=np.float))
                 tmp = f.create_dataset('phaseDur', data=np.array([phaseDur], dtype=np.float))

@@ -149,36 +149,36 @@ def tpf_resamp(file, fileOut, RESAMP, lcFile):
 
 if __name__ == "__main__":
     #  Directory list for Sector light curve files
-    fileInputPrefixList = ['/pdo/spoc-data/sector-01/sector_early_look/target-pixel/tess2018206045859-s0001-', \
-                          '/pdo/spoc-data/sector-02/target-pixel/tess2018234235059-s0002-', \
-                          '/pdo/spoc-data/sector-03/target-pixel/tess2018263035959-s0003-', \
-                          '/pdo/spoc-data/sector-04/target-pixel/tess2018292075959-s0004-', \
-                          '/pdo/spoc-data/sector-05/target-pixel/tess2018319095959-s0005-', \
-                          '/pdo/spoc-data/sector-06/target-pixel/tess2018349182459-s0006-']
-    fileInputSuffixList = ['-0120-s_tp.fits.gz', \
-                           '-0121-s_tp.fits.gz', \
-                           '-0123-s_tp.fits.gz', \
-                           '-0124-s_tp.fits.gz', \
-                           '-0125-s_tp.fits.gz', \
-                           '-0126-s_tp.fits.gz']
+#    fileInputPrefixList = ['/pdo/spoc-data/sector-01/sector_early_look/target-pixel/tess2018206045859-s0001-', \
+#                          '/pdo/spoc-data/sector-02/target-pixel/tess2018234235059-s0002-', \
+#                          '/pdo/spoc-data/sector-03/target-pixel/tess2018263035959-s0003-', \
+#                          '/pdo/spoc-data/sector-04/target-pixel/tess2018292075959-s0004-', \
+#                          '/pdo/spoc-data/sector-05/target-pixel/tess2018319095959-s0005-', \
+#                          '/pdo/spoc-data/sector-06/target-pixel/tess2018349182459-s0006-']
+#    fileInputSuffixList = ['-0120-s_tp.fits.gz', \
+#                           '-0121-s_tp.fits.gz', \
+#                           '-0123-s_tp.fits.gz', \
+#                           '-0124-s_tp.fits.gz', \
+#                           '-0125-s_tp.fits.gz', \
+#                           '-0126-s_tp.fits.gz']
 # In the case of a single sector One needs dummy entries for
 #  every sector
-#    fileInputPrefixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
-#                           '/f006',\
-#                           '/pdo/spoc-data/sector-01-06/target-pixel/tess2019032160000-s0008-']
-#    fileInputSuffixList = ['-foo1','-foo2','-foo3','-foo4','-foo5',\
-#                           '/f006',\
-#                           '-0136-s_tp.fits.gz']
+    fileInputPrefixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
+                           '/foo6','/foo7','/foo8',\
+                           '/pdo/spoc-data/sector-09/target-pixel/tess2019058134432-s0009-']
+    fileInputSuffixList = ['-foo1','-foo2','-foo3','-foo4','-foo5',\
+                           '/foo6','/foo7','foo8',\
+                           '-0139-s_tp.fits.gz']
 
     nSector = len(fileInputPrefixList)    
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector1-6/'
-    SECTOR = -1# =-1 if multi-sector
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector9/'
+    SECTOR = 9# =-1 if multi-sector
     RESAMP = 5  ###  USE AN ODD NUMBER HELPS WITH CADENCE NO ###
 
     # Only do tpfs for the targets with TCEs
     #  You can specify a multisector tce seed file because
     #   al that it uses is TIC.  If it exists it is made
-    tceSeedInFile = 'sector1-6_20190428_tce.pkl'
+    tceSeedInFile = 'sector9_20190505_tce.pkl'
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
     fin.close()

@@ -13,10 +13,10 @@ import math
 import os
 
 if __name__ == '__main__':
-    tic = 260304296
+    tic = 55092869
     pn = 1
-    sector = 8
-    sesDataDir = '/pdo/users/cjburke/spocvet/sector1-6/S08'
+    sector = 9
+    sesDataDir = '/pdo/users/cjburke/spocvet/sector9/S09'
 
     epcDir = '{0:04d}'.format(int(math.floor(tic/1000.0)))
     localDir = os.path.join(sesDataDir,epcDir)
