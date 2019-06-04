@@ -80,20 +80,20 @@ def assignEvents(t, epc, phi, per, phiDur):
 
 if __name__ == '__main__':
     # These are for parallel procoessing
-    wID = 5
-    nWrk = 6
+    wID = 9
+    nWrk = 10
     OVERWRITE = False
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector9'
-    SECTOR = 9
-    SECTOR1 = 9
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-9'
+    SECTOR = -1
+    SECTOR1 = 1
     SECTOR2 = 9
 #    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-2'
 #    SECTOR=-1
 
     #vetFile = 'spoc_sector1_early_fluxvet_20180904.txt'
-    vetFile = 'spoc_fluxtriage_sector9_20190505.txt'
-    tceSeedInFile = 'sector9_20190505_tce.pkl'
+    vetFile = 'spoc_fluxtriage_sector1-9_20190517.txt'
+    tceSeedInFile = 'sector1-9_20190517_tce.pkl'
 #    vetFile = 'spoc_sector1_2_fluxtriage_20181019.txt'
 #    tceSeedInFile = 'sector1_2_20181019_tce.pkl'
 

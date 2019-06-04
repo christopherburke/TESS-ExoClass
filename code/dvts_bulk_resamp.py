@@ -59,6 +59,10 @@ def dvts_resamp(file, dirOut, RESAMP, SECTOR=None, overwrite=True):
                         np.float,np.float,np.float,np.float,np.float, \
                         np.float,np.float,np.float,np.float,np.float]
 
+    # make empty arrays
+    kpCadenceNo = np.array([0], dtype=np.int)
+    kpTimetbjd = np.array([0.0], dtype=np.float)
+    kpQuality = np.array([0], dtype=np.int)
     for ii in range(nTces):
         # Check if already done
         epic = hdulist[0].header['TICID']
@@ -182,11 +186,11 @@ def dvts_resamp(file, dirOut, RESAMP, SECTOR=None, overwrite=True):
 
 if __name__ == "__main__":
 
-    dirInputs = '/pdo/spoc-data/sector-09/dv-time-series/'
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector9/'
+    dirInputs = '/pdo/spoc-data/sector-01-09/dv-time-series/'
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector1-9/'
     RESAMP = 5  ###  USE AN ODD NUMBER HELPS WITH CADENCE NO ###
-    SECTOR_OVRRIDE = None # If NOT multisector set this to None ###
-    overwrite = True # Set False to keep old results and only do files that dont exist
+    SECTOR_OVRRIDE = -1 # If NOT multisector set this to None ###
+    overwrite = False # Set False to keep old results and only do files that dont exist
 
     fileList = glob.glob(os.path.join(dirInputs, '*dvt.fits*'))
     cnt = 0

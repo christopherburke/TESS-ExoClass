@@ -116,7 +116,7 @@ def fill_noise(nW, preY, postY, SIG=3.0, orderAR=4, debug=False):
     
 def detrend_with_smoothn_edgefix(flux, vd, ootvd, durat, fixEdge=True, \
                                  medfiltScaleFac=10, gapThreshold=5, edgeExamWindow=8, \
-                                 edgeSig=6.0, edgeMinCad=50, debug=False):
+                                 edgeSig=6.0, edgeMinCad=50, debug=False, secNum=None):
     # Detrend light curve in pieces using the smoothn routine
     # vd is valid data True==valid ; False==bad
     # ootvd is out of transit data==True ; in transit data(protected from detrending) == False
@@ -129,6 +129,8 @@ def detrend_with_smoothn_edgefix(flux, vd, ootvd, durat, fixEdge=True, \
         # for strong positive outliers indicating 'wild' data at edges
     # edgeSig - significance of the outliers in the edge to trigger correction
     # edgeMinCad - how many cadences in data block required to attempt bad edge detection
+    # secNum if specified set each sector to have the same mean flux as all data combined before
+    #   starting detrending
     filterCircularShift = 20 
     bad_edge_flag = np.zeros_like(flux)
     runcad = np.arange(len(flux))
@@ -143,6 +145,29 @@ def detrend_with_smoothn_edgefix(flux, vd, ootvd, durat, fixEdge=True, \
     tmpfluxwt = useflux[vd]
     tmpbadedgewt = bad_edge_flag[vd]
     tmpootvd = ootvd[vd]
+    
+    # pre step to make all sectors have same flux level
+    if not secNum is None:
+        if debug:
+            plt.plot(tmpcadwt, tmpfluxwt, '.')
+        fluxmedian = np.median(tmpflux)
+        tmpsecnum = secNum[combvd]
+        tmpsecnumwt = secNum[vd]
+        uniqsec = np.unique(tmpsecnum)
+        # Make sure all cadences have a sector number assigned in the valid data
+        idxany = np.where(tmpsecnum == 0)[0]
+        if len(idxany)>0:
+            print('Valid data with no sector number!')
+            exit()
+        for cursec in uniqsec:
+            idxsec = np.where(tmpsecnum == cursec)[0]
+            tmpflxmedian = np.median(tmpflux[idxsec])
+            tmpflux[idxsec] = tmpflux[idxsec] / tmpflxmedian * fluxmedian
+            idxsecwt = np.where(tmpsecnumwt == cursec)[0]
+            tmpfluxwt[idxsecwt] = tmpfluxwt[idxsecwt] / tmpflxmedian * fluxmedian
+        if debug:
+            plt.plot(tmpcadwt, tmpfluxwt, '.')
+            plt.show()
     # First step is to linear fit to all data to make it somewhat
     #  more same and normalized
     linfit = st.linregress(tmpcad, tmpflux)
@@ -208,8 +233,18 @@ def detrend_with_smoothn_edgefix(flux, vd, ootvd, durat, fixEdge=True, \
         wght = np.ones_like(curflux)
         curootvd = tmpootvd[ist:ien]
         wght = np.where(np.logical_not(curootvd), 0.0, wght)
-        smthresult = smth.smoothn(curflux, wght, smthparm)
-        cursmoothflux = smthresult[0]
+        # Set flux to nan for in transit data so that the smoothn
+        #  function will know to linearly interpolate over these 
+        # cadences for its initial guess and ignore them for the
+        # smoothing solution.  At least that is what is supposed
+        #  to happen in principle.
+        ucurflux = np.where(np.logical_not(curootvd), np.nan, curflux)
+        # Check to make sure there is at least three valid data points in current chunk
+        if len(np.where(np.isfinite(ucurflux))[0])>3:
+            smthresult = smth.smoothn(ucurflux, wght, smthparm)
+            cursmoothflux = smthresult[0]
+        else:
+            cursmoothflux = np.ones_like(curflux)
         # Check for bad smoothing
         if not np.all(np.isfinite(cursmoothflux)):
             print("non finite smoothing detected")

@@ -94,12 +94,16 @@ class tce_seed(object):
         # Unit of Work data star and and
         self.data_start = 0
         self.data_end = 0
+        # list of all sectors and start and end cadences numbers 
+        self.all_sectors = np.array([], dtype=np.int)
+        self.all_cadstart = np.array([], dtype=np.int)
+        self.all_cadend = np.array([], dtype=np.int)
         
         
         
 if __name__ == "__main__":
-    tceSeedOutFile = 'sector9_20190505_tce.pkl'
-    headXMLPath = '/pdo/spoc-data/sector-09/dv-results/'
+    tceSeedOutFile = 'sector1-9_20190517_tce.pkl'
+    headXMLPath = '/pdo/spoc-data/sector-01-09/dv-results/'
     # Namespace there is extra junk prepended to tags
     #  This is supposed to make it easier to use 
     ns = {'ns': 'http://www.nasa.gov/2018/TESS/DV'}
@@ -164,6 +168,21 @@ if __name__ == "__main__":
         targdata.col = float(tmp2[1].get('value'))
         if np.isfinite(targdata.row) and np.isfinite(targdata.col) and (targdata.row > 0.0) and (targdata.col > 0.0):
             targdata.pixposvalid = 1
+            
+        # Get the cadence start and end for all sectors with data
+        tmpall = root.findall("ns:planetResults[@planetNumber='1']/ns:differenceImageResults", ns)
+        for itmp in tmpall:
+            targdata.all_sectors = np.append(targdata.all_sectors, int(itmp.get('sector')))
+            targdata.all_cadstart = np.append(targdata.all_cadstart, int(itmp.get('startCadence')))
+            targdata.all_cadend = np.append(targdata.all_cadend, int(itmp.get('endCadence')))
+        # Double check that the number of sectors agrees with sectorsObserved
+        secobs = root.get('sectorsObserved')
+        secsum = 0
+        for x in secobs:
+            secsum = secsum + int(x)
+        if not len(targdata.all_sectors) == secsum:
+            print('Sector avail mismatch! {0:d} {1:d}'.format(i, targdata.epicId))
+        
         
         for j in range(nCand):
             # Copy the target specific information to a new tce_seed class

@@ -172,7 +172,11 @@ def get_ses_stats(corr, norm, corr_r, norm_r, phi, phiDur, events, time, oCadNo,
                 closePhi = np.min(np.abs(usePhi))
                 # Set threshold based upon reference sig
                 threshOld = chasesPeakFac*maxSes
-                threshNew = np.max(np.abs(useSes_r)*1.1)
+                idxtmp = np.where(useSes_r<0.0)[0]
+                if len(idxtmp) > 0:
+                    threshNew = np.max(np.abs(useSes_r[idxtmp])*1.1)
+                else:
+                    threshNew = 0.0
                 useThresh = np.max([threshOld, threshNew])
                 # For low MES things just use original threshold
                 if (origMes<10.0):
@@ -261,23 +265,23 @@ def get_ses_stats(corr, norm, corr_r, norm_r, phi, phiDur, events, time, oCadNo,
     
 if __name__ == "__main__":
     # These are for parallel procoessing
-    wID = 5
-    nWrk = 6
+    wID = 12
+    nWrk = 13
     # Load the pickle file that contains TCE seed information
     # The pickle file is created by gather_tce_fromdvxml.py
-    tceSeedInFile = 'sector9_20190505_tce.pkl'
+    tceSeedInFile = 'sector1-9_20190517_tce.pkl'
     #  Directory storing the resampled dv time series data
-    dvDataDir = '/pdo/users/cjburke/spocvet/sector9'
+    dvDataDir = '/pdo/users/cjburke/spocvet/sector1-9'
     # Directory of output hd5 files
     outputDir = dvDataDir
-    SECTOR = 9
+    SECTOR = -1
     # What fraction of data can be missing and still calculat ses_mes
     # In Sector 1 due to the 2 days of missing stuff it was 0.68
     validFrac = 0.52
-    overWrite = True
+    overWrite = False
 
     # Skyline data excises loud cadecnes
-    dataBlock = np.genfromtxt('skyline_data_sector9_20190505.txt', dtype=['f8'])
+    dataBlock = np.genfromtxt('skyline_data_sector1-9_20190517.txt', dtype=['f8'])
     badTimes = dataBlock['f0']
 
     # Search and filter parameters
@@ -292,7 +296,7 @@ if __name__ == "__main__":
     # These next few lines can be used to examine a single target    
     #all_epics = np.array([x.epicId for x in all_tces], dtype=np.int64)
     #all_pns = np.array([x.planetNum for x in all_tces], dtype=np.int)
-    #ia = np.where((all_epics == 101955023) & (all_pns == 1))[0]
+    #ia = np.where((all_epics == 24843062) & (all_pns == 1))[0]
     #doDebug = True
     # Loop over tces and perform various ses, mes, chases tests
     cnt = 0
@@ -362,6 +366,14 @@ if __name__ == "__main__":
                     plt.plot(tmpx[vd], useFlux[vd], '.')
                     
                     plt.show()
+                    
+                # assign sector numbers to data
+                secnum = np.ones_like(cadNo, dtype=np.int)
+                nSec = len(td.all_sectors)
+                if len(td.all_sectors)>1:
+                    for kk in range(nSec):
+                        idx = np.where((cadNo >= td.all_cadstart[kk]) & (cadNo <= td.all_cadend[kk])  )[0]
+                        secnum[idx] = td.all_sectors[kk]
                 
                 # Mark data in transit as deweighted during detrending
                 ootvd = np.full_like(vd, True)
@@ -472,7 +484,7 @@ if __name__ == "__main__":
                     final_smooth_flux, bad_edge_flag = flux_cond.detrend_with_smoothn_edgefix(\
                                         useFlux, vd, ootvd, int(np.ceil(cadPerHr*searchDurationHours)), fixEdge=True, \
                                          medfiltScaleFac=10, gapThreshold=5, edgeExamWindow=8, \
-                                         edgeSig=6.0, edgeMinCad=50, debug=doDebug)
+                                         edgeSig=6.0, edgeMinCad=50, debug=doDebug, secNum=secnum)
                     #doDebug=True
                     # fill gaps and extend to power of two
                     fillWindow = int(np.ceil(cadPerHr*searchDurationHours*firstFilterScaleFac*3))

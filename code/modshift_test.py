@@ -283,21 +283,21 @@ def pgmcmc_prior(ioblk):
 
 if __name__ == '__main__':
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector9'
-    SECTOR = 9
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-9'
+    SECTOR = -1
 
     doPNGs = True
 #    pngFolder = '/pdo/users/cjburke/spocvet/sector2/pngs'
     # Run twice once with alt detrend and once with DV median detrend
-#    medianInputFlux = False
-#    fileOut = 'spoc_modshift_sector9_20190505.txt'
-    medianInputFlux = True
-    fileOut = 'spoc_modshift_med_sector9_20190505.txt'
+    medianInputFlux = False
+    fileOut = 'spoc_modshift_sector1-9_20190517.txt'
+#    medianInputFlux = True
+#    fileOut = 'spoc_modshift_med_sector1-9_20190517.txt'
     
     fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector9_20190505.txt'
+    vetFile = 'spoc_fluxtriage_sector1-9_20190517.txt'
     #vetFile = 'junk.txt'
-    tceSeedInFile = 'sector9_20190505_tce.pkl'
+    tceSeedInFile = 'sector1-9_20190517_tce.pkl'
 
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
@@ -345,7 +345,7 @@ if __name__ == '__main__':
             allmes, allsnr, alldur, allsolarflux, allatdep, allatepoch, \
             allatrpdrstar, allatrpdrstare, allatadrstar)
     # These lines can be used for debugging
-    #idx = np.where((alltic == alltic[723]))[0]
+    #idx = np.where((alltic == alltic[530]))[0]
     #alltic, allpn, allatvalid, allrp, allrstar, alllogg, allper, alltmags, \
     #        allmes, allsnr, alldur, allsolarflux, allatdep, allatepoch, \
     #        allatrpdrstar, allatrpdrstare, allatadrstar = idx_filter(idx, \
@@ -355,7 +355,7 @@ if __name__ == '__main__':
             
     # Calculate modshift over flux triage passing TCEs
     for i, curTic in enumerate(alltic):
-        print('{:d} of {:d}'.format(i, len(alltic)))
+        print('{:d} of {:d} - {:d}'.format(i, len(alltic), curTic))
         curPn = allpn[i]
     
         fileInput = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_sesmes_{0:016d}_{1:02d}.h5d'.format(curTic,curPn))
@@ -495,6 +495,11 @@ if __name__ == '__main__':
         # determine if primary is significant relative to the other detections
         primaryGd = True
         primaryBdRsn = 0
+        # Check for fred == 0.0 issue in really bad light curves
+        if fred == 0.0:
+            fred = 1.0
+            primaryGd = False
+            primaryBdRsn = 8
         if primsig/fred < threshany:
             primaryGd = False
             primaryBdRsn = 1

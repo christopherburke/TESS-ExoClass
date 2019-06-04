@@ -78,39 +78,39 @@ if __name__ == '__main__':
     # These are for parallel procoessing
     # if nWrk>1 then files with text output are not written out
     #  nWrk>1 should be used with doMergeSum = True for generating summary
-    wID = 5
-    nWrk = 6
+    wID = 12
+    nWrk = 13
     
-    summaryFolder = '/pdo/spoc-data/sector-09/dv-reports'
-    summaryPrefix = 'tess2019059170935-'
-    summaryPostfix = '-00198_dvs.pdf'
-    SECTOR1 = 9
+    summaryFolder = '/pdo/spoc-data/sector-01-09/dv-reports'
+    summaryPrefix = 'tess2018206190142-'
+    summaryPostfix = '-00205_dvs.pdf'
+    SECTOR1 = 1
     SECTOR2 = 9
     multiRun = False
     if SECTOR2 - SECTOR1 > 0:
         multiRun = True
 
     doPNGs = False
-    pngFolder = '/pdo/users/cjburke/spocvet/sector9/pngs/'
+    pngFolder = '/pdo/users/cjburke/spocvet/sector1-9/pngs/'
     doMergeSum = True
-    pdfFolder = '/pdo/users/cjburke/spocvet/sector9/pdfs/'
-    SECTOR1 = 9
+    pdfFolder = '/pdo/users/cjburke/spocvet/sector1-9/pdfs/'
+    SECTOR1 = 1
     SECTOR2 = 9
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector9'
-    SECTOR = 9 # -1 for multi-sector
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-9'
+    SECTOR = -1 # -1 for multi-sector
 
-    fileOut1 = 'spoc_ranking_Tier1_sector9_20190505.txt'
-    fileOut2 = 'spoc_ranking_Tier2_sector9_20190505.txt'
-    fileOut3 = 'spoc_ranking_Tier3_sector9_20190505.txt'
-    vetFile = 'spoc_fluxtriage_sector9_20190505.txt'
-    tceSeedInFile = 'sector9_20190505_tce.pkl'
-    modshiftFile = 'spoc_modshift_sector9_20190505.txt'
-    modshiftFile2 = 'spoc_modshift_med_sector9_20190505.txt'
-    sweetFile = 'spoc_sweet_sector9_20190505.txt'
-    toiFederateFile = 'federate_toiWtce_sector9_20190505.txt'
-    knowPFederateFile = 'federate_knownP_sector9_20190505.txt'
-    selfMatchFile = 'selfMatch_sector9_20190505.txt'
-    modumpFile = 'spoc_modump_sector9_20190505.txt'
+    fileOut1 = 'spoc_ranking_Tier1_sector1-9_20190517.txt'
+    fileOut2 = 'spoc_ranking_Tier2_sector1-9_20190517.txt'
+    fileOut3 = 'spoc_ranking_Tier3_sector1-9_20190517.txt'
+    vetFile = 'spoc_fluxtriage_sector1-9_20190517.txt'
+    tceSeedInFile = 'sector1-9_20190517_tce.pkl'
+    modshiftFile = 'spoc_modshift_sector1-9_20190517.txt'
+    modshiftFile2 = 'spoc_modshift_med_sector1-9_20190517.txt'
+    sweetFile = 'spoc_sweet_sector1-9_20190517.txt'
+    toiFederateFile = 'federate_toiWtce_sector1-9_20190517.txt'
+    knowPFederateFile = 'federate_knownP_sector1-9_20190517.txt'
+    selfMatchFile = 'selfMatch_sector1-9_20190517.txt'
+    modumpFile = 'spoc_modump_sector1-9_20190517.txt'
 
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
