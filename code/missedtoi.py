@@ -36,7 +36,7 @@ if __name__ == '__main__':
 #    idx = np.where(np.logical_not(np.isfinite(gtPer)))[0]
 #    gtPer[idx] = 1000.0
 
-    qlpfile = 'toi-plus-2019-05-17-fixed.csv'
+    qlpfile = 'toi-plus-2019-06-04-fixed.csv'
     dtypeseq = ['U20','i4','f8','U2']
     dtypeseq.extend(['f8']*12)
     dtypeseq.extend(['U20','U80'])
@@ -60,7 +60,7 @@ if __name__ == '__main__':
 
 
     # Load the tce data pickle    
-    tceSeedInFile = 'sector1-9_20190517_tce.pkl'
+    tceSeedInFile = 'sector10_20190604_tce.pkl'
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
     fin.close()
@@ -102,7 +102,7 @@ if __name__ == '__main__':
     uniqTic = np.unique(alltic)
     print('Total Targets {0:d}'.format(len(uniqTic)))
     
-    vetFile = 'spoc_fluxtriage_sector1-9_20190517.txt'
+    vetFile = 'spoc_fluxtriage_sector10_20190604.txt'
     # Load the  flux vetting
     dataBlock = np.genfromtxt(vetFile, dtype=[int,int,int,'S1'])
     fvtic = dataBlock['f0']
@@ -141,7 +141,7 @@ if __name__ == '__main__':
     print('On {0:d} targets'.format(len(triUniqTic)))
 
     # Read in Tier 1 list
-    dataBlock=np.genfromtxt('spoc_ranking_Tier1_sector1-9_20190517.txt', \
+    dataBlock=np.genfromtxt('spoc_ranking_Tier1_sector10_20190604.txt', \
                             dtype=['i4','i4','f8','i4'])
     t1Tic = dataBlock['f0']
     t1Pn = dataBlock['f1']
@@ -158,7 +158,7 @@ if __name__ == '__main__':
     print('Total Match Known Planet {0:d}'.format(len(idx2)))
     
     # Read in Tier 2 list
-    dataBlock=np.genfromtxt('spoc_ranking_Tier2_sector1-9_20190517.txt', \
+    dataBlock=np.genfromtxt('spoc_ranking_Tier2_sector10_20190604.txt', \
                             dtype=['i4','i4','f8','i4','U20'])
     t2Tic = dataBlock['f0']
     t2Pn = dataBlock['f1']
@@ -176,7 +176,7 @@ if __name__ == '__main__':
     print('Total Match Known Planet {0:d}'.format(len(idx2)))
     
     # Read in Tier 3 list
-    dataBlock=np.genfromtxt('spoc_ranking_Tier3_sector1-9_20190517.txt', \
+    dataBlock=np.genfromtxt('spoc_ranking_Tier3_sector10_20190604.txt', \
                             dtype=['i4','i4','f8','i4','U20', 'U20'])
     t3Tic = dataBlock['f0']
     t3Pn = dataBlock['f1']

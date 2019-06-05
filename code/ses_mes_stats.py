@@ -265,23 +265,23 @@ def get_ses_stats(corr, norm, corr_r, norm_r, phi, phiDur, events, time, oCadNo,
     
 if __name__ == "__main__":
     # These are for parallel procoessing
-    wID = 12
-    nWrk = 13
+    wID = 5
+    nWrk = 6
     # Load the pickle file that contains TCE seed information
     # The pickle file is created by gather_tce_fromdvxml.py
-    tceSeedInFile = 'sector1-9_20190517_tce.pkl'
+    tceSeedInFile = 'sector10_20190604_tce.pkl'
     #  Directory storing the resampled dv time series data
-    dvDataDir = '/pdo/users/cjburke/spocvet/sector1-9'
+    dvDataDir = '/pdo/users/cjburke/spocvet/sector10'
     # Directory of output hd5 files
     outputDir = dvDataDir
-    SECTOR = -1
+    SECTOR = 10
     # What fraction of data can be missing and still calculat ses_mes
     # In Sector 1 due to the 2 days of missing stuff it was 0.68
     validFrac = 0.52
     overWrite = False
 
     # Skyline data excises loud cadecnes
-    dataBlock = np.genfromtxt('skyline_data_sector1-9_20190517.txt', dtype=['f8'])
+    dataBlock = np.genfromtxt('skyline_data_sector10_20190604.txt', dtype=['f8'])
     badTimes = dataBlock['f0']
 
     # Search and filter parameters
