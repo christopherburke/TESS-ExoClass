@@ -61,22 +61,22 @@ if __name__ == '__main__':
 # In the case of a single sector One needs dummy entries for
 #  every sector
     fileInputPrefixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
-                           '/foo6','/foo7','/foo8','/foo9',\
-                           '/pdo/spoc-data/sector-10/light-curve/tess2019085135100-s0010-']
+                           '/foo6','/foo7','/foo8','/foo9','/foo10',\
+                           '/pdo/spoc-data/sector-11/light-curve/tess2019112060037-s0011-']
     fileInputSuffixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
-                           '/foo6','/foo7','/foo8','/foo9',\
-                           '-0140-s_lc.fits.gz']
+                           '/foo6','/foo7','/foo8','/foo9','/foo10',\
+                           '-0143-s_lc.fits.gz']
 
     nSector = len(fileInputPrefixList)    
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector10/'
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector11/'
     RESAMP = 31  ###  USE AN ODD NUMBER ###
-    SECTOR = 10# =-1 if multi-sector
+    SECTOR = 11# =-1 if multi-sector
 
-    fileOut = 'spoc_pdcstats_sector10_20190604.txt'
+    fileOut = 'spoc_pdcstats_sector11_20190615.txt'
     fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector10_20190604.txt'
+    vetFile = 'spoc_fluxtriage_sector11_20190615.txt'
     #vetFile = 'junk.txt'
-    tceSeedInFile = 'sector10_20190604_tce.pkl'
+    tceSeedInFile = 'sector11_20190615_tce.pkl'
 
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)

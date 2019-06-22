@@ -62,6 +62,7 @@ import astropy.units as u
 import sys
 import datetime
 import json
+import re
 try: # Python 3.x
     from urllib.parse import quote as urlencode
     from urllib.request import urlretrieve
@@ -262,6 +263,7 @@ if __name__ == '__main__':
         with urlopen(toiURL) as response:
             for line in response:
                 line = line.decode('utf-8')
+                line = re.sub(r'[^\x00-\x7F]+',' ', line)
                 for x in csv.reader([line]):
                     tmp.append("|".join(x))
 
@@ -504,6 +506,7 @@ if __name__ == '__main__':
         response = urlopen(toiURL)
         for line in response:
             line = line.decode('utf-8')
+            line = re.sub(r'[^\x00-\x7F]+',' ', line)
             for x in csv.reader([line]):
                 tmp.append("|".join(x))
 

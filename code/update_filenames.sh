@@ -1,22 +1,22 @@
 #!/bin/bash
 
-OLD_NAME="sector1-9_20190517"
-NEW_NAME="sector10_20190604"
+OLD_NAME="sector10_20190604"
+NEW_NAME="sector11_20190615"
 
-OLD1="SECTOR = -1"
-NEW1="SECTOR = 10"
+OLD1="SECTOR = 10"
+NEW1="SECTOR = 11"
 
-OLD2="SECTOR1 = 1"
-NEW2="SECTOR1 = 10"
+OLD2="SECTOR1 = 10"
+NEW2="SECTOR1 = 11"
 
-OLD3="SECTOR2 = 9"
-NEW3="SECTOR2 = 10"
+OLD3="SECTOR2 = 10"
+NEW3="SECTOR2 = 11"
 
-OLD4="sector1-9"
-NEW4="sector10"
+OLD4="sector10"
+NEW4="sector11"
 
-OLD5="sector-01-09"
-NEW5="sector-10"
+OLD5="sector-10"
+NEW5="sector-11"
 
 
 for name in `ls *py`; do

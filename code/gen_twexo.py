@@ -28,11 +28,11 @@ def idx_filter(idx, *array_list):
 
 if __name__ == '__main__':
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector10'
-    SECTOR = 10
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector11'
+    SECTOR = 11
 
     doPDFs = True
-    vetFile = 'spoc_fluxtriage_sector10_20190604.txt'
+    vetFile = 'spoc_fluxtriage_sector11_20190615.txt'
     overwrite = False
 
     # Load the  flux vetting
@@ -47,16 +47,21 @@ if __name__ == '__main__':
     
     for curTic in useTic:        
         htmlOutput = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'twexo_{0:016d}'.format(curTic))
-        if not os.path.isfile(htmlOutput) or overwrite:
+        if not os.path.isfile(htmlOutput + '.pdf') or overwrite:
             # Build argument list
             syscall = 'python twexo.py -t {0:d} -of {1} -nw'.format(\
                                 curTic, htmlOutput)
             print(syscall)
             p = Popen(syscall.split(), stdin=None, stdout=PIPE, stderr=PIPE)
             sysreturn, err = p.communicate()
-            syscall = 'wkhtmltopdf {0}.html {0}.pdf'.format(htmlOutput)
-            print(syscall)
-            p = Popen(syscall.split(), stdin=None, stdout=PIPE, stderr=PIPE)
-            sysreturn, err = p.communicate()
+            if os.path.isfile(htmlOutput + '.html'):
+                syscall = 'wkhtmltopdf {0}.html {0}.pdf'.format(htmlOutput)
+                print(syscall)
+                p = Popen(syscall.split(), stdin=None, stdout=PIPE, stderr=PIPE)
+                sysreturn, err = p.communicate()
+            else:
+                print(syscall + ' failed to produce output')
+                print(sysreturn)
+                print(err)
             #rc = p.returncode
             #print('alpha')

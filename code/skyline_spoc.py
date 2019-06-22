@@ -37,10 +37,10 @@ def genericFed(per, epc, tryper, tryepc, trydur, trypn, trytic, tStart, tEnd):
 
 
 if __name__ == '__main__':
-    fout = open('skyline_data_sector10_20190604.txt', 'w')
+    fout = open('skyline_data_sector11_20190615.txt', 'w')
     
     # Load the tce data pickle    
-    tceSeedInFile = 'sector10_20190604_tce.pkl'
+    tceSeedInFile = 'sector11_20190615_tce.pkl'
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
     fin.close()
