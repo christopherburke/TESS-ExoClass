@@ -136,10 +136,10 @@ def genericFed(per, epc, tryper, tryepc, trydur, trypn, trytic, tStart, tEnd):
 
 
 if __name__ == '__main__':
-    fout = open('selfMatch_sector11_20190615.txt', 'w')
-    dataSpan = 25.0
+    fout = open('selfMatch_sector12_20190712.txt', 'w')
+    dataSpan = 25.5
     # Load the tce data pickle    
-    tceSeedInFile = 'sector11_20190615_tce.pkl'
+    tceSeedInFile = 'sector12_20190712_tce.pkl'
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
     fin.close()

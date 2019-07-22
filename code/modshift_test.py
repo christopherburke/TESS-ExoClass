@@ -283,21 +283,21 @@ def pgmcmc_prior(ioblk):
 
 if __name__ == '__main__':
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector11'
-    SECTOR = 11
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector12'
+    SECTOR = 12
 
     doPNGs = True
 #    pngFolder = '/pdo/users/cjburke/spocvet/sector2/pngs'
     # Run twice once with alt detrend and once with DV median detrend
-    medianInputFlux = False
-    fileOut = 'spoc_modshift_sector11_20190615.txt'
-    #medianInputFlux = True
-    #fileOut = 'spoc_modshift_med_sector11_20190615.txt'
+    #medianInputFlux = False
+    #fileOut = 'spoc_modshift_sector12_20190712.txt'
+    medianInputFlux = True
+    fileOut = 'spoc_modshift_med_sector12_20190712.txt'
     
     fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector11_20190615.txt'
+    vetFile = 'spoc_fluxtriage_sector12_20190712.txt'
     #vetFile = 'junk.txt'
-    tceSeedInFile = 'sector11_20190615_tce.pkl'
+    tceSeedInFile = 'sector12_20190712_tce.pkl'
 
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
