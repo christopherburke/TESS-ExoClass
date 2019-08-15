@@ -171,22 +171,22 @@ if __name__ == "__main__":
 #  every sector
     fileInputPrefixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
                            '/foo6','/foo7','/foo8','/foo9','/foo10',\
-                           '/foo11', \
-                           '/pdo/spoc-data/sector-12/target-pixel/tess2019140104343-s0012-']
+                           '/foo11', '/foo12', \
+                           '/pdo/spoc-data/sector-13/target-pixel/tess2019169103026-s0013-']
     fileInputSuffixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
                            '/foo6','/foo7','/foo8','/foo9','/foo10',\
-                           '/foo11', \
-                           '-0144-s_tp.fits.gz']
+                           '/foo11', '/foo12', \
+                           '-0146-s_tp.fits.gz']
 
     nSector = len(fileInputPrefixList)    
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector12/'
-    SECTOR = 12# =-1 if multi-sector
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector13/'
+    SECTOR = 13# =-1 if multi-sector
     RESAMP = 5  ###  USE AN ODD NUMBER HELPS WITH CADENCE NO ###
 
     # Only do tpfs for the targets with TCEs
     #  You can specify a multisector tce seed file because
     #   al that it uses is TIC.  If it exists it is made
-    tceSeedInFile = 'sector12_20190712_tce.pkl'
+    tceSeedInFile = 'sector13_20190812_tce.pkl'
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
     fin.close()
