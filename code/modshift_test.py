@@ -283,21 +283,21 @@ def pgmcmc_prior(ioblk):
 
 if __name__ == '__main__':
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector13'
-    SECTOR = 13
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-13'
+    SECTOR = -1
 
     doPNGs = True
 #    pngFolder = '/pdo/users/cjburke/spocvet/sector2/pngs'
     # Run twice once with alt detrend and once with DV median detrend
-    medianInputFlux = False
-    fileOut = 'spoc_modshift_sector13_20190812.txt'
-#    medianInputFlux = True
-#    fileOut = 'spoc_modshift_med_sector13_20190812.txt'
+#    medianInputFlux = False
+#    fileOut = 'spoc_modshift_sector1-13_20190812.txt'
+    medianInputFlux = True
+    fileOut = 'spoc_modshift_med_sector1-13_20190812.txt'
     
     fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector13_20190812.txt'
+    vetFile = 'spoc_fluxtriage_sector1-13_20190812.txt'
     #vetFile = 'junk.txt'
-    tceSeedInFile = 'sector13_20190812_tce.pkl'
+    tceSeedInFile = 'sector1-13_20190812_tce.pkl'
 
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
@@ -363,11 +363,13 @@ if __name__ == '__main__':
         altDetrend = np.array(f['altDetrend'])
         validData = np.array(f['validData'])
         time = np.array(f['time'])
+        f.close()
         if medianInputFlux:
             fileInput = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_dvts_{0:016d}_{1:02d}.h5d'.format(curTic,curPn))
             f = h5py.File(fileInput,'r')
             altDetrend = np.array(f['lc_med_detrend'])+1.0
             print('hello')
+            f.close()
             
             
         # Prepare for trapezoid minimization fitting

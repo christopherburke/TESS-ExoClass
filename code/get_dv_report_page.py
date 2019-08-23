@@ -27,17 +27,21 @@ def make_data_dirs(prefix, sector, epic):
 
 
 if __name__ == '__main__':
-    summaryFolder = '/pdo/spoc-data/sector-13/dv-reports'
-    summaryPrefix = 'tess2019170095531-'
-    summaryPostfix = '-00223_dvr.pdf'
-    SECTOR1 = 13
+    # These are for parallel procoessing
+    wID = 12
+    nWrk = 13
+    
+    summaryFolder = '/pdo/spoc-data/sector-01-13/dv-reports'
+    summaryPrefix = 'tess2018206190142-'
+    summaryPostfix = '-00226_dvr.pdf'
+    SECTOR1 = 1
     SECTOR2 = 13
     multiRun = False
     if SECTOR2 - SECTOR1 > 0:
         multiRun = True
-    tceSeedInFile = 'sector13_20190812_tce.pkl'
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector13'
-    SECTOR = 13
+    tceSeedInFile = 'sector1-13_20190812_tce.pkl'
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-13'
+    SECTOR = -1
     overwrite = False
     
     fin = open(tceSeedInFile, 'rb')
@@ -51,74 +55,75 @@ if __name__ == '__main__':
     #alltic = alltic[idx[0]:]
     #allpn = allpn[idx[0]:]
     for i in range(len(alltic)):
-        curTic = alltic[i]
-        print(curTic, i, len(alltic))
-        curPN = allpn[i]
-        dvReportFile = os.path.join(summaryFolder,'{0}s{1:04d}-s{2:04d}-{3:016d}{4}'.format(summaryPrefix,SECTOR1,SECTOR2,curTic,summaryPostfix))
-#        comstring = 'pdftotext -layout {0} - | grep -A 12 \"Difference image for target {1:d}, planet candidate {2:d}\" | tail -n 1'.format(dvReportFile, curTic, curPN)
-
-        # Need to also determine number of contents pages before page 1
-        pdftotext_com = 'pdftotext -layout {0} - '.format(dvReportFile)
-        grep_com = ['grep', '-B', '1', 'SUMMARY']
-        p1 = Popen(pdftotext_com.split(), stdout=PIPE)
-        p2 = Popen(grep_com, stdin=p1.stdout, stdout=PIPE)
-        p1.stdout.close()
-        sysreturn, err = p2.communicate()
-        rc = p2.returncode
-        retlist = sysreturn.split('\n')
-        pgistr = retlist[0].strip(' ')
-        if pgistr == 'ii':
-            prePages = 2
-        if pgistr == 'iii':
-            prePages = 3
-        if pgistr == 'iv':
-            prePages = 4
-        if pgistr == 'v':
-            prePages = 5
-        if pgistr == 'vi':
-            prePages = 6
-        if pgistr == 'vii':
-            prePages = 7
-        if pgistr == 'viii':
-            prePages = 8
-        #prePages = len(retlist[0].split('i'))-1
-        if multiRun: # There is a summary centroid plot get its page and save it out
-            grep_com = ['grep','-A','5','planet-{0:02d}/difference-image/{1:016d}-{0:02d}-difference-image-centroid-offsets.fig'.format(curPN,curTic)]
-            p1 = Popen(pdftotext_com.split(), stdout=PIPE)
-            p2 = Popen(grep_com, stdin=p1.stdout, stdout=PIPE)
-            p1.stdout.close()      
-            sysreturn, err = p2.communicate()
-            rc = p2.returncode
-            retlist = sysreturn.split('\n')
-            pageWant = -1
-            if len(retlist) > 1: # If has difference image
-    #            print(retlist)
-                pageWant = int(retlist[-2])
-                pageWant = prePages + pageWant
-                
-                dvDiffFile = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_diffImg_{0:016d}_{1:02d}_centsum.pdf'.format(curTic,curPN))
-                if (not os.path.isfile(dvDiffFile)) and (not overwrite):
-                    gs_com = 'gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dFirstPage={0:d} -dLastPage={0:d} -sOutputFile={2} {1}'.format(pageWant, dvReportFile, dvDiffFile)
-                    p1 = Popen(gs_com.split(), stdout=PIPE)
-                    sysreturn, err = p1.communicate()
-                    rc = p1.returncode
-        for curSector in np.arange(SECTOR1, SECTOR2+1):
-            grep_com = ['grep','-A','5','planet-{0:02d}/difference-image/{1:016d}-{0:02d}-difference-image-{2:02d}'.format(curPN,curTic,curSector)]
+        if np.mod(i, nWrk) == wID:
+            curTic = alltic[i]
+            print(curTic, i, len(alltic))
+            curPN = allpn[i]
+            dvReportFile = os.path.join(summaryFolder,'{0}s{1:04d}-s{2:04d}-{3:016d}{4}'.format(summaryPrefix,SECTOR1,SECTOR2,curTic,summaryPostfix))
+    #        comstring = 'pdftotext -layout {0} - | grep -A 12 \"Difference image for target {1:d}, planet candidate {2:d}\" | tail -n 1'.format(dvReportFile, curTic, curPN)
+    
+            # Need to also determine number of contents pages before page 1
+            pdftotext_com = 'pdftotext -layout {0} - '.format(dvReportFile)
+            grep_com = ['grep', '-B', '1', 'SUMMARY']
             p1 = Popen(pdftotext_com.split(), stdout=PIPE)
             p2 = Popen(grep_com, stdin=p1.stdout, stdout=PIPE)
             p1.stdout.close()
             sysreturn, err = p2.communicate()
             rc = p2.returncode
             retlist = sysreturn.split('\n')
-            pageWant = -1
-            if len(retlist) > 1: # If has difference image
-                pageWant = int(retlist[-2])
-                pageWant = prePages + pageWant
-                
-                dvDiffFile = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_diffImg_{0:016d}_{1:02d}_{2:02d}.pdf'.format(curTic,curPN,curSector))
-                if (not os.path.isfile(dvDiffFile)) and (not overwrite):
-                    gs_com = 'gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dFirstPage={0:d} -dLastPage={0:d} -sOutputFile={2} {1}'.format(pageWant, dvReportFile, dvDiffFile)
-                    p1 = Popen(gs_com.split(), stdout=PIPE)
-                    sysreturn, err = p1.communicate()
-                    rc = p1.returncode
-
+            pgistr = retlist[0].strip(' ')
+            if pgistr == 'ii':
+                prePages = 2
+            if pgistr == 'iii':
+                prePages = 3
+            if pgistr == 'iv':
+                prePages = 4
+            if pgistr == 'v':
+                prePages = 5
+            if pgistr == 'vi':
+                prePages = 6
+            if pgistr == 'vii':
+                prePages = 7
+            if pgistr == 'viii':
+                prePages = 8
+            #prePages = len(retlist[0].split('i'))-1
+            if multiRun: # There is a summary centroid plot get its page and save it out
+                grep_com = ['grep','-A','5','planet-{0:02d}/difference-image/{1:016d}-{0:02d}-difference-image-centroid-offsets.fig'.format(curPN,curTic)]
+                p1 = Popen(pdftotext_com.split(), stdout=PIPE)
+                p2 = Popen(grep_com, stdin=p1.stdout, stdout=PIPE)
+                p1.stdout.close()      
+                sysreturn, err = p2.communicate()
+                rc = p2.returncode
+                retlist = sysreturn.split('\n')
+                pageWant = -1
+                if len(retlist) > 1: # If has difference image
+        #            print(retlist)
+                    pageWant = int(retlist[-2])
+                    pageWant = prePages + pageWant
+                    
+                    dvDiffFile = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_diffImg_{0:016d}_{1:02d}_centsum.pdf'.format(curTic,curPN))
+                    if (not os.path.isfile(dvDiffFile)) and (not overwrite):
+                        gs_com = 'gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dFirstPage={0:d} -dLastPage={0:d} -sOutputFile={2} {1}'.format(pageWant, dvReportFile, dvDiffFile)
+                        p1 = Popen(gs_com.split(), stdout=PIPE)
+                        sysreturn, err = p1.communicate()
+                        rc = p1.returncode
+            for curSector in np.arange(SECTOR1, SECTOR2+1):
+                grep_com = ['grep','-A','5','planet-{0:02d}/difference-image/{1:016d}-{0:02d}-difference-image-{2:02d}'.format(curPN,curTic,curSector)]
+                p1 = Popen(pdftotext_com.split(), stdout=PIPE)
+                p2 = Popen(grep_com, stdin=p1.stdout, stdout=PIPE)
+                p1.stdout.close()
+                sysreturn, err = p2.communicate()
+                rc = p2.returncode
+                retlist = sysreturn.split('\n')
+                pageWant = -1
+                if len(retlist) > 1: # If has difference image
+                    pageWant = int(retlist[-2])
+                    pageWant = prePages + pageWant
+                    
+                    dvDiffFile = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_diffImg_{0:016d}_{1:02d}_{2:02d}.pdf'.format(curTic,curPN,curSector))
+                    if (not os.path.isfile(dvDiffFile)) and (not overwrite):
+                        gs_com = 'gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dFirstPage={0:d} -dLastPage={0:d} -sOutputFile={2} {1}'.format(pageWant, dvReportFile, dvDiffFile)
+                        p1 = Popen(gs_com.split(), stdout=PIPE)
+                        sysreturn, err = p1.communicate()
+                        rc = p1.returncode
+    

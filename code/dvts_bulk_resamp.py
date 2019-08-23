@@ -186,10 +186,10 @@ def dvts_resamp(file, dirOut, RESAMP, SECTOR=None, overwrite=True):
 
 if __name__ == "__main__":
 
-    dirInputs = '/pdo/spoc-data/sector-13/dv-time-series/'
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector13/'
+    dirInputs = '/pdo/spoc-data/sector-01-13/dv-time-series/'
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector1-13/'
     RESAMP = 5  ###  USE AN ODD NUMBER HELPS WITH CADENCE NO ###
-    SECTOR_OVRRIDE = None # If NOT multisector set this to None ###
+    SECTOR_OVRRIDE = -1 # If NOT multisector set this to None ###
     overwrite = False # Set False to keep old results and only do files that dont exist
 
     fileList = glob.glob(os.path.join(dirInputs, '*dvt.fits*'))

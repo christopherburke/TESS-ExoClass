@@ -218,13 +218,13 @@ if __name__ == '__main__':
     MAXPER = 5.0
     
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector13'
-    SECTOR = 13
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-13'
+    SECTOR = -1
 
-    fileOut = 'spoc_sweet_sector13_20190812.txt'
+    fileOut = 'spoc_sweet_sector1-13_20190812.txt'
     fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector13_20190812.txt'
-    tceSeedInFile = 'sector13_20190812_tce.pkl'
+    vetFile = 'spoc_fluxtriage_sector1-13_20190812.txt'
+    tceSeedInFile = 'sector1-13_20190812_tce.pkl'
 
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
@@ -280,6 +280,7 @@ if __name__ == '__main__':
         flx = np.array(f['initFlux'])
         validData = np.array(f['validData'])
         time = np.array(f['time'])
+        f.close()
             
         # Prepare for sin curve fitting
         # Instantiate pgmcmc_ioblk class and fill in values

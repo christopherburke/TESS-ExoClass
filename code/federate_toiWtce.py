@@ -132,7 +132,7 @@ def query_othertics(ticWant, searchRad):
 
 
 if __name__ == '__main__':
-    fout = open('federate_toiWtce_sector13_20190812.txt', 'w')
+    fout = open('federate_toiWtce_sector1-13_20190812.txt', 'w')
     dataSpan = 25.5
 
     wideSearch = True
@@ -195,7 +195,7 @@ if __name__ == '__main__':
 #                                gtTOI, gtDisp, gtPer, gtEpc, gtDur)
 
     # Load the tce data pickle    
-    tceSeedInFile = 'sector13_20190812_tce.pkl'
+    tceSeedInFile = 'sector1-13_20190812_tce.pkl'
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
     fin.close()

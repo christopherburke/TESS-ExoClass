@@ -40,45 +40,53 @@ def idx_filter(idx, *array_list):
 
 if __name__ == '__main__':
     #  Directory list for Sector light curve files
-#    fileInputPrefixList = ['/pdo/spoc-data/sector-01/sector_early_look/light-curve/tess2018206045859-s0001-', \
-#                          '/pdo/spoc-data/sector-02/light-curve/tess2018234235059-s0002-', \
-#                          '/pdo/spoc-data/sector-03/light-curve/tess2018263035959-s0003-', \
-#                          '/pdo/spoc-data/sector-04/light-curve/tess2018292075959-s0004-', \
-#                          '/pdo/spoc-data/sector-05/light-curve/tess2018319095959-s0005-', \
-#                          '/pdo/spoc-data/sector-06/light-curve/tess2018349182459-s0006-', \
-#                          '/pdo/spoc-data/sector-07/light-curve/tess2019006130736-s0007-', \
-#                          '/pdo/spoc-data/sector-08/light-curve/tess2019032160000-s0008-', \
-#                          '/pdo/spoc-data/sector-09/light-curve/tess2019058134432-s0009-']
-#    fileInputSuffixList = ['-0120-s_lc.fits.gz', \
-#                           '-0121-s_lc.fits.gz', \
-#                           '-0123-s_lc.fits.gz', \
-#                           '-0124-s_lc.fits.gz',\
-#                           '-0125-s_lc.fits.gz',\
-#                           '-0126-s_lc.fits.gz', \
-#                           '-0131-s_lc.fits.gz', \
-#                           '-0136-s_lc.fits.gz', \
-#                           '-0139-s_lc.fits.gz']
+    fileInputPrefixList = ['/pdo/spoc-data/sector-01/sector_early_look/light-curve/tess2018206045859-s0001-', \
+                          '/pdo/spoc-data/sector-02/light-curve/tess2018234235059-s0002-', \
+                          '/pdo/spoc-data/sector-03/light-curve/tess2018263035959-s0003-', \
+                          '/pdo/spoc-data/sector-04/light-curve/tess2018292075959-s0004-', \
+                          '/pdo/spoc-data/sector-05/light-curve/tess2018319095959-s0005-', \
+                          '/pdo/spoc-data/sector-06/light-curve/tess2018349182459-s0006-', \
+                          '/pdo/spoc-data/sector-07/light-curve/tess2019006130736-s0007-', \
+                          '/pdo/spoc-data/sector-08/light-curve/tess2019032160000-s0008-', \
+                          '/pdo/spoc-data/sector-09/light-curve/tess2019058134432-s0009-', \
+                          '/pdo/spoc-data/sector-10/light-curve/tess2019085135100-s0010-', \
+                          '/pdo/spoc-data/sector-11/light-curve/tess2019112060037-s0011-', \
+                          '/pdo/spoc-data/sector-12/light-curve/tess2019140104343-s0012-', \
+                          '/pdo/spoc-data/sector-13/light-curve/tess2019169103026-s0013-']
+    fileInputSuffixList = ['-0120-s_lc.fits.gz', \
+                           '-0121-s_lc.fits.gz', \
+                           '-0123-s_lc.fits.gz', \
+                           '-0124-s_lc.fits.gz', \
+                           '-0125-s_lc.fits.gz', \
+                           '-0126-s_lc.fits.gz', \
+                           '-0131-s_lc.fits.gz', \
+                           '-0136-s_lc.fits.gz', \
+                           '-0139-s_lc.fits.gz', \
+                           '-0140-s_lc.fits.gz', \
+                           '-0143-s_lc.fits.gz', \
+                           '-0144-s_lc.fits.gz', \
+                           '-0146-s_lc.fits.gz']
 # In the case of a single sector One needs dummy entries for
 #  every sector
-    fileInputPrefixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
-                           '/foo6','/foo7','/foo8','/foo9','/foo10',\
-                           '/foo11','/foo12', \
-                           '/pdo/spoc-data/sector-13/light-curve/tess2019169103026-s0013-']
-    fileInputSuffixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
-                           '/foo6','/foo7','/foo8','/foo9','/foo10',\
-                           '/foo11','/foo12', \
-                           '-0146-s_lc.fits.gz']
+#    fileInputPrefixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
+#                           '/foo6','/foo7','/foo8','/foo9','/foo10',\
+#                           '/foo11','/foo12', \
+#                           '/pdo/spoc-data/sector-01-13/light-curve/tess2019169103026-s0013-']
+#    fileInputSuffixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
+#                           '/foo6','/foo7','/foo8','/foo9','/foo10',\
+#                           '/foo11','/foo12', \
+#                           '-0146-s_lc.fits.gz']
 
     nSector = len(fileInputPrefixList)    
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector13/'
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector1-13/'
     RESAMP = 31  ###  USE AN ODD NUMBER ###
-    SECTOR = 13# =-1 if multi-sector
+    SECTOR = -1# =-1 if multi-sector
 
-    fileOut = 'spoc_pdcstats_sector13_20190812.txt'
+    fileOut = 'spoc_pdcstats_sector1-13_20190812.txt'
     fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector13_20190812.txt'
+    vetFile = 'spoc_fluxtriage_sector1-13_20190812.txt'
     #vetFile = 'junk.txt'
-    tceSeedInFile = 'sector13_20190812_tce.pkl'
+    tceSeedInFile = 'sector1-13_20190812_tce.pkl'
 
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
