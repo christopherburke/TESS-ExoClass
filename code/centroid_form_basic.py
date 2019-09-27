@@ -21,6 +21,7 @@ import fluxts_conditioning as flux_cond
 import glob
 import cjb_utils as cjb
 import statsmodels.robust as sm
+import argparse
 
 def idx_filter(idx, *array_list):
     new_array_list = []
@@ -79,21 +80,35 @@ def assignEvents(t, epc, phi, per, phiDur):
 
 
 if __name__ == '__main__':
+    # Parse the command line arguments for multiprocessing
+    # With Gnu parallel with 13 cores
+    # seq 0 12 | parallel --results centroid_basic_results python centroid_form_basic.py -w {} -n 13
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-w", type=int,\
+                        default = 0, \
+                        help="Worker ID Number 0 through nWrk-1")
+    parser.add_argument("-n", type=int,\
+                        default = 1, \
+                        help="Number of Workers")
+    
+
+    args = parser.parse_args() 
     # These are for parallel procoessing
-    wID = 9
-    nWrk = 10
+    wID = int(args.w)
+    nWrk = int(args.n)
+
     OVERWRITE = False
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-13'
-    SECTOR = -1
-    SECTOR1 = 1
-    SECTOR2 = 13
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector14'
+    SECTOR = 14
+    SECTOR1 = 14
+    SECTOR2 = 14
 #    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-2'
 #    SECTOR=-1
 
     #vetFile = 'spoc_sector1_early_fluxvet_20180904.txt'
-    vetFile = 'spoc_fluxtriage_sector1-13_20190812.txt'
-    tceSeedInFile = 'sector1-13_20190812_tce.pkl'
+    vetFile = 'spoc_fluxtriage_sector14_20190918.txt'
+    tceSeedInFile = 'sector14_20190918_tce.pkl'
 #    vetFile = 'spoc_sector1_2_fluxtriage_20181019.txt'
 #    tceSeedInFile = 'sector1_2_20181019_tce.pkl'
 

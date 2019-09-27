@@ -26,6 +26,7 @@ import kep_wavelets as kw
 from gather_tce_fromdvxml import tce_seed
 import scipy.stats as st
 from statsmodels import robust
+import argparse
 
 def make_data_dirs(prefix, sector, epic):
     secDir = 'S{0:02d}'.format(sector)
@@ -264,24 +265,37 @@ def get_ses_stats(corr, norm, corr_r, norm_r, phi, phiDur, events, time, oCadNo,
         all_norm, all_time, all_cadNo
     
 if __name__ == "__main__":
+    # Parse the command line arguments for multiprocessing
+    # With Gnu parallel with 13 cores
+    # seq 0 12 | parallel --results ses_mes_results python ses_mes_stats.py -w {} -n 13
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-w", type=int,\
+                        default = 0, \
+                        help="Worker ID Number 0 through nWrk-1")
+    parser.add_argument("-n", type=int,\
+                        default = 1, \
+                        help="Number of Workers")
+    
+
+    args = parser.parse_args() 
     # These are for parallel procoessing
-    wID = 12
-    nWrk = 13
+    wID = int(args.w)
+    nWrk = int(args.n)
     # Load the pickle file that contains TCE seed information
     # The pickle file is created by gather_tce_fromdvxml.py
-    tceSeedInFile = 'sector1-13_20190812_tce.pkl'
+    tceSeedInFile = 'sector14_20190918_tce.pkl'
     #  Directory storing the resampled dv time series data
-    dvDataDir = '/pdo/users/cjburke/spocvet/sector1-13'
+    dvDataDir = '/pdo/users/cjburke/spocvet/sector14'
     # Directory of output hd5 files
     outputDir = dvDataDir
-    SECTOR = -1
+    SECTOR = 14
     # What fraction of data can be missing and still calculat ses_mes
     # In Sector 1 due to the 2 days of missing stuff it was 0.68
     validFrac = 0.52
     overWrite = False
 
     # Skyline data excises loud cadecnes
-    dataBlock = np.genfromtxt('skyline_data_sector1-13_20190812.txt', dtype=['f8'])
+    dataBlock = np.genfromtxt('skyline_data_sector14_20190918.txt', dtype=['f8'])
     badTimes = dataBlock['f0']
 
     # Search and filter parameters

@@ -32,6 +32,7 @@ except ImportError:  # Python 2.x
 import urllib
 import urllib2
 import os
+import ssl
 
 def mastQuery(request):
 
@@ -126,8 +127,8 @@ def coughlin_sigmap(p1,p2):
 
 
 if __name__ == '__main__':
-    fout = open('federate_knownP_sector1-13_20190812.txt', 'w')
-    dataSpan = 25.5
+    fout = open('federate_knownP_sector14_20190918.txt', 'w')
+    dataSpan = 27.0
     wideSearch = True
     searchRad = 180.0 # Arcsecond search radius for other TICs
     # Check to see if cadence to time mappting is available
@@ -141,16 +142,17 @@ if __name__ == '__main__':
 
 
     # Load known transiting planet table from NEXSCI   
-    whereString = 'pl_tranflag = 1 and st_elat<0.0'
+    whereString = 'pl_tranflag = 1 and st_elat>0.0'
     url = 'https://exoplanetarchive.ipac.caltech.edu/cgi-bin/nstedAPI/nph-nstedAPI?'
     data = {'table':'planets', \
             'select':'pl_name,pl_orbper,pl_tranmid,pl_trandur,ra,dec', \
             'format':'csv', \
             'where':whereString}
     url_values = urllib.urlencode(data)
-    #print url_values
+    print url_values
+    
     queryData = urllib2.urlopen(url + url_values)
-
+ 
 
 #    url_values = urllib.parse.urlencode(data)
     #print url_values
@@ -216,7 +218,7 @@ if __name__ == '__main__':
 
 
     # Load the tce data pickle    
-    tceSeedInFile = 'sector1-13_20190812_tce.pkl'
+    tceSeedInFile = 'sector14_20190918_tce.pkl'
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
     fin.close()
