@@ -1,24 +1,24 @@
 #!/bin/bash
 
-OLD_NAME="sector1-13_20190812"
-NEW_NAME="sector14_20190918"
+OLD_NAME="sector14_20190918"
+NEW_NAME="sector15_20190927"
 
-OLD1="SECTOR = 13"
-NEW1="SECTOR = 14"
+OLD1="SECTOR = 14"
+NEW1="SECTOR = 15"
 
-OLD2="SECTOR1 = 1"
-NEW2="SECTOR1 = 14"
+OLD2="SECTOR1 = 14"
+NEW2="SECTOR1 = 15"
 
-OLD3="SECTOR2 = 13"
-NEW3="SECTOR2 = 14"
+OLD3="SECTOR2 = 14"
+NEW3="SECTOR2 = 15"
 
 # This replaces my local directory
-OLD4="sector1-13"
-NEW4="sector14"
+OLD4="sector14"
+NEW4="sector15"
 
 # This replaces SPOC data directory
-OLD5="sector-01-13"
-NEW5="sector-14"
+OLD5="sector-14"
+NEW5="sector-15"
 
 
 for name in `ls *py`; do

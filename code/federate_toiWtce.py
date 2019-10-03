@@ -132,7 +132,7 @@ def query_othertics(ticWant, searchRad):
 
 
 if __name__ == '__main__':
-    fout = open('federate_toiWtce_sector14_20190918.txt', 'w')
+    fout = open('federate_toiWtce_sector15_20190927.txt', 'w')
     dataSpan = 27.0
 
     wideSearch = True
@@ -167,7 +167,7 @@ if __name__ == '__main__':
     # TEV csv has commas in strings
     # Use this sed 's/,"\(.*\),\(.*\)",/,"\1;\2",/' toi-plus-2019-03-15.csv
     # To fix string before reading in
-    qlpfile = 'toi-plus-2019-09-18-fixed.csv'
+    qlpfile = 'toi-plus-2019-09-27-fixed.csv'
     dtypeseq = ['U20','i4','f8','U2']
     dtypeseq.extend(['f8']*12)
     dtypeseq.extend(['U20','U80'])
@@ -195,7 +195,7 @@ if __name__ == '__main__':
 #                                gtTOI, gtDisp, gtPer, gtEpc, gtDur)
 
     # Load the tce data pickle    
-    tceSeedInFile = 'sector14_20190918_tce.pkl'
+    tceSeedInFile = 'sector15_20190927_tce.pkl'
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
     fin.close()
