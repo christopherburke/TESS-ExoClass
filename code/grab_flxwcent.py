@@ -70,24 +70,24 @@ if __name__ == '__main__':
 #  every sector
     fileInputPrefixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
                            '/foo6','/foo7','/foo8','/foo9','/foo10',\
-                           '/foo11','/foo12','/foo13','/foo14', \
-                           '/pdo/spoc-data/sector-15/light-curve/tess2019226182529-s0015-']
+                           '/foo11','/foo12','/foo13','/foo14','/foo15', \
+                           '/pdo/spoc-data/sector-16/light-curve/tess2019253231442-s0016-']
     fileInputSuffixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
                            '/foo6','/foo7','/foo8','/foo9','/foo10',\
-                           '/foo11','/foo12','/foo13','/foo14', \
-                           '-0151-s_lc.fits.gz']
+                           '/foo11','/foo12','/foo13','/foo14','/foo15', \
+                           '-0152-s_lc.fits.gz']
 
 
     nSector = len(fileInputPrefixList)    
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector15/'
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector16/'
     RESAMP = 31  ###  USE AN ODD NUMBER ###
-    SECTOR = 15# =-1 if multi-sector
+    SECTOR = 16# =-1 if multi-sector
 
-    fileOut = 'spoc_pdcstats_sector15_20190927.txt'
+    fileOut = 'spoc_pdcstats_sector16_20191029.txt'
     fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector15_20190927.txt'
+    vetFile = 'spoc_fluxtriage_sector16_20191029.txt'
     #vetFile = 'junk.txt'
-    tceSeedInFile = 'sector15_20190927_tce.pkl'
+    tceSeedInFile = 'sector16_20191029_tce.pkl'
 
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)

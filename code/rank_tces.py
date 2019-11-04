@@ -93,38 +93,38 @@ if __name__ == '__main__':
     wID = int(args.w)
     nWrk = int(args.n)
     
-    summaryFolder = '/pdo/spoc-data/sector-15/dv-reports'
-    summaryPrefix = 'tess2019227203528-'
-    summaryPostfix = '-00245_dvs.pdf'
-    SECTOR1 = 15
-    SECTOR2 = 15
+    summaryFolder = '/pdo/spoc-data/sector-16/dv-reports'
+    summaryPrefix = 'tess2019255032927-'
+    summaryPostfix = '-00250_dvs.pdf'
+    SECTOR1 = 16
+    SECTOR2 = 16
     multiRun = False
     if SECTOR2 - SECTOR1 > 0:
         multiRun = True
 
     doPNGs = False
-    pngFolder = '/pdo/users/cjburke/spocvet/sector15/pngs/'
+    pngFolder = '/pdo/users/cjburke/spocvet/sector16/pngs/'
     doMergeSum = True
     if nWrk == 1:
         doMergeSum = False
-    pdfFolder = '/pdo/users/cjburke/spocvet/sector15/pdfs/'
-    SECTOR1 = 15
-    SECTOR2 = 15
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector15'
-    SECTOR = 15# -1 for multi-sector
+    pdfFolder = '/pdo/users/cjburke/spocvet/sector16/pdfs/'
+    SECTOR1 = 16
+    SECTOR2 = 16
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector16'
+    SECTOR = 16# -1 for multi-sector
 
-    fileOut1 = 'spoc_ranking_Tier1_sector15_20190927.txt'
-    fileOut2 = 'spoc_ranking_Tier2_sector15_20190927.txt'
-    fileOut3 = 'spoc_ranking_Tier3_sector15_20190927.txt'
-    vetFile = 'spoc_fluxtriage_sector15_20190927.txt'
-    tceSeedInFile = 'sector15_20190927_tce.pkl'
-    modshiftFile = 'spoc_modshift_sector15_20190927.txt'
-    modshiftFile2 = 'spoc_modshift_med_sector15_20190927.txt'
-    sweetFile = 'spoc_sweet_sector15_20190927.txt'
-    toiFederateFile = 'federate_toiWtce_sector15_20190927.txt'
-    knowPFederateFile = 'federate_knownP_sector15_20190927.txt'
-    selfMatchFile = 'selfMatch_sector15_20190927.txt'
-    modumpFile = 'spoc_modump_sector15_20190927.txt'
+    fileOut1 = 'spoc_ranking_Tier1_sector16_20191029.txt'
+    fileOut2 = 'spoc_ranking_Tier2_sector16_20191029.txt'
+    fileOut3 = 'spoc_ranking_Tier3_sector16_20191029.txt'
+    vetFile = 'spoc_fluxtriage_sector16_20191029.txt'
+    tceSeedInFile = 'sector16_20191029_tce.pkl'
+    modshiftFile = 'spoc_modshift_sector16_20191029.txt'
+    modshiftFile2 = 'spoc_modshift_med_sector16_20191029.txt'
+    sweetFile = 'spoc_sweet_sector16_20191029.txt'
+    toiFederateFile = 'federate_toiWtce_sector16_20191029.txt'
+    knowPFederateFile = 'federate_knownP_sector16_20191029.txt'
+    selfMatchFile = 'selfMatch_sector16_20191029.txt'
+    modumpFile = 'spoc_modump_sector16_20191029.txt'
 
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
@@ -514,6 +514,9 @@ if __name__ == '__main__':
                 comstring = 'gs -dBATCH -dNOPAuSE -sDEVICE=png16m -r300 -o {0} {1}'.format(outputFile, inputFile)
                 tmp = call(comstring, shell=True)
             if doMergeSum and reportIt:
+                curTic = alltic[j]
+                curPn = allpn[j]
+
                 # Make a temporary pdfmark file for adding Tier level and keywords to pdf
                 #mrkFile = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic),'pdfmarks_{0:016d}_{1:02d}.txt'.format(curTic,curPn))
                 #mrkOut = open(mrkFile,'w')
@@ -538,8 +541,6 @@ if __name__ == '__main__':
                 #print(comstring)
                 #tmp = call(comstring, shell=True)
                 #inputFile1 = outputFile
-                curTic = alltic[j]
-                curPn = allpn[j]
                 inputFile2 = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_{0:016d}_{1:02d}-modshift.pdf'.format(curTic,curPn))
                 inputFile3 = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_{0:016d}_{1:02d}_med-modshift.pdf'.format(curTic,curPn))
     

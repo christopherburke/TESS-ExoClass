@@ -132,7 +132,7 @@ def query_othertics(ticWant, searchRad):
 
 
 if __name__ == '__main__':
-    fout = open('federate_toiWtce_sector15_20190927.txt', 'w')
+    fout = open('federate_toiWtce_sector16_20191029.txt', 'w')
     dataSpan = 27.0
 
     wideSearch = True
@@ -167,7 +167,9 @@ if __name__ == '__main__':
     # TEV csv has commas in strings
     # Use this sed 's/,"\(.*\),\(.*\)",/,"\1;\2",/' toi-plus-2019-03-15.csv
     # To fix string before reading in
-    qlpfile = 'toi-plus-2019-09-27-fixed.csv'
+    # As of Oct. 2019 I needed to use this to fix commas in strings
+    # sed -e 's/""//g' -e 's/,"[^"]*/,"NOCOMMENT/g' csv-file-2019-10-29.csv > toi-plus-2019-10-29-fixed.csv
+    qlpfile = 'toi-plus-2019-10-29-fixed.csv'
     dtypeseq = ['U20','i4','f8','U2']
     dtypeseq.extend(['f8']*12)
     dtypeseq.extend(['U20','U80'])
@@ -176,7 +178,7 @@ if __name__ == '__main__':
     dtypeseq.extend(['i4']*7)
     dtypeseq.extend(['U40','U40'])
     dataBlock = np.genfromtxt(qlpfile, \
-                              dtype=dtypeseq, delimiter=',',skip_header=1)
+                              dtype=dtypeseq, delimiter=',',skip_header=5)
     gtTIC = dataBlock['f1']
     gtTOI = dataBlock['f2']
     gtDisp = dataBlock['f3']
@@ -184,7 +186,7 @@ if __name__ == '__main__':
     gtDec = dataBlock['f5']
     gtPer = dataBlock['f10']
     gtEpc = dataBlock['f8']
-
+    print('Last TOI {0}'.format(np.max(gtTOI)))
     # Need to fix single transit TOIs with nan for period
     idx = np.where(np.logical_not(np.isfinite(gtPer)))[0]
     gtPer[idx] = 1000.0
@@ -195,7 +197,7 @@ if __name__ == '__main__':
 #                                gtTOI, gtDisp, gtPer, gtEpc, gtDur)
 
     # Load the tce data pickle    
-    tceSeedInFile = 'sector15_20190927_tce.pkl'
+    tceSeedInFile = 'sector16_20191029_tce.pkl'
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
     fin.close()
