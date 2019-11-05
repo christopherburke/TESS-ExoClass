@@ -31,17 +31,17 @@ if __name__ == '__main__':
     wID = 0
     nWrk = 1
     
-    summaryFolder = '/pdo/spoc-data/sector-16/dv-reports'
-    summaryPrefix = 'tess2019255032927-'
-    summaryPostfix = '-00250_dvr.pdf'
-    SECTOR1 = 16
+    summaryFolder = '/pdo/spoc-data/sector-14-16/dv-reports'
+    summaryPrefix = 'tess2019199201929-'
+    summaryPostfix = '-00253_dvr.pdf'
+    SECTOR1 = 14
     SECTOR2 = 16
     multiRun = False
     if SECTOR2 - SECTOR1 > 0:
         multiRun = True
-    tceSeedInFile = 'sector16_20191029_tce.pkl'
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector16'
-    SECTOR = 16
+    tceSeedInFile = 'sector14-16_20191104_tce.pkl'
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector14-16'
+    SECTOR = -1
     overwrite = False
     
     fin = open(tceSeedInFile, 'rb')

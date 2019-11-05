@@ -55,12 +55,12 @@ if __name__ == '__main__':
     
     # Load the pickle file that contains TCE seed information
     # The pickle file is created by gather_tce_fromdvxml.py
-    tceSeedInFile = 'sector16_20191029_tce.pkl'
+    tceSeedInFile = 'sector14-16_20191104_tce.pkl'
 
     #  Directory storing the ses mes data
-    sesDataDir = '/pdo/users/cjburke/spocvet/sector16'
-    SECTOR = 16
-    fluxVetOut = 'spoc_fluxtriage_sector16_20191029.txt'
+    sesDataDir = '/pdo/users/cjburke/spocvet/sector14-16'
+    SECTOR = -1
+    fluxVetOut = 'spoc_fluxtriage_sector14-16_20191104.txt'
 #    fluxVetOut = 'junk.txt'
 
     fin = open(tceSeedInFile, 'rb')
