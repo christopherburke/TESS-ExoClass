@@ -283,19 +283,19 @@ if __name__ == "__main__":
     nWrk = int(args.n)
     # Load the pickle file that contains TCE seed information
     # The pickle file is created by gather_tce_fromdvxml.py
-    tceSeedInFile = 'sector14-16_20191104_tce.pkl'
+    tceSeedInFile = 'sector17_20191127_tce.pkl'
     #  Directory storing the resampled dv time series data
-    dvDataDir = '/pdo/users/cjburke/spocvet/sector14-16'
+    dvDataDir = '/pdo/users/cjburke/spocvet/sector17'
     # Directory of output hd5 files
     outputDir = dvDataDir
-    SECTOR = -1
+    SECTOR = 17
     # What fraction of data can be missing and still calculat ses_mes
     # In Sector 1 due to the 2 days of missing stuff it was 0.68
     validFrac = 0.52
     overWrite = False
 
     # Skyline data excises loud cadecnes
-    dataBlock = np.genfromtxt('skyline_data_sector14-16_20191104.txt', dtype=['f8'])
+    dataBlock = np.genfromtxt('skyline_data_sector17_20191127.txt', dtype=['f8'])
     badTimes = dataBlock['f0']
 
     # Search and filter parameters

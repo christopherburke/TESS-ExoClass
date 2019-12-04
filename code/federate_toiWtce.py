@@ -132,7 +132,7 @@ def query_othertics(ticWant, searchRad):
 
 
 if __name__ == '__main__':
-    fout = open('federate_toiWtce_sector14-16_20191104.txt', 'w')
+    fout = open('federate_toiWtce_sector17_20191127.txt', 'w')
     dataSpan = 27.0
 
     wideSearch = True
@@ -169,7 +169,7 @@ if __name__ == '__main__':
     # To fix string before reading in
     # As of Oct. 2019 I needed to use this to fix commas in strings
     # sed -e 's/""//g' -e 's/,"[^"]*/,"NOCOMMENT/g' csv-file-2019-10-29.csv > toi-plus-2019-10-29-fixed.csv
-    qlpfile = 'csv-file-2019-11-04-fixed.csv'
+    qlpfile = 'csv-file-toi-catalog-2019-11-27-fixed.csv'
     dtypeseq = ['U20','i4','f8','U2']
     dtypeseq.extend(['f8']*12)
     dtypeseq.extend(['U20','U80'])
@@ -197,7 +197,7 @@ if __name__ == '__main__':
 #                                gtTOI, gtDisp, gtPer, gtEpc, gtDur)
 
     # Load the tce data pickle    
-    tceSeedInFile = 'sector14-16_20191104_tce.pkl'
+    tceSeedInFile = 'sector17_20191127_tce.pkl'
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
     fin.close()

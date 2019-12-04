@@ -2,8 +2,9 @@
 """
 tess_stars2px.py - High precision TESS pointing tool.
 Convert target coordinates given in Right Ascension and Declination to
-TESS detector pixel coordinates for the first 13 TESS observing sectors (Year 1)
-focused on the southern ecliptic plane.  Can also query MAST to obtain detector
+TESS detector pixel coordinates for the prime mission TESS observing 
+sectors (Year 1 & 2) focused on the southern and northern ecliptic plane.
+Can also query MAST to obtain detector
 pixel coordinates for a star by TIC ID only (must be online for this option).
 
 USAGE to display command line arguments:
@@ -18,17 +19,18 @@ AUTHORS: Original programming in C and focal plane geometry solutions
          Jessica Roberts (Univ. of Colorado)
  Sesame queries by Brett Morris (UW)
 
-VERSION: 0.3.2
+VERSION: 0.3.7
 
 WHAT'S NEW:
-    -Query by name using Sesame by Brett Morris
-    -Wrapper function implemented tess_stars2px_function_entry()
-     With an example in the readme for using tess_stars2px in a python program
-     rather than on the command line.
+    -Single sector only argument range needed updating to allow for North pointings
+    -Comment shenanigans fixed
+    -Updated Sector 16 pointing to higher ecliptic scattered light avoidance position
     
 
 NOTES:
-    -Pointing table is only for TESS Year 1 (Sectors 1-13) in Southern Ecliptic
+    -Pointing table is for TESS Year 1 & 2 (Sectors 1-26) in Southern Ecliptic
+    -Pointing table is unofficial, and the pointings may change.
+    -See https://tess.mit.edu/observations/ for latest TESS pointing table
     -Pointing prediction algorithm is same as employed internally at MIT for
         target management.  However, hard coded focal plane geometry is not
         up to date and may contain inaccurate results.
@@ -40,8 +42,6 @@ NOTES:
         warranted.
     -The output pixel coordinates assume the ds9 convention with
         1,1 being the middle of the lower left corner.
-    -Pointing table is unofficial, and the pointings may change.
-    -See https://tess.mit.edu/observations/ for latest TESS pointing table
     -No corrections for velocity aberration are calculated.
        Potentially more accurate
         results can be obtained if the target RA and Declination coordinates
@@ -63,7 +63,9 @@ NOTES:
      -Hard coded focal plane geometry parameters from rfpg5_c1kb.txt
 
 NOTES OLDER VERSIONS:
-    0.2.0
+    -Wrapper function implemented tess_stars2px_function_entry()
+     With an example in the readme for using tess_stars2px in a python program
+     rather than on the command line.
     -Pre filter step previously depended on the current mission profile of 
         pointings aligned with ecliptic coordinates to work.  The pre filter
         step was rewritten in order to support mission planning not tied 
@@ -90,7 +92,6 @@ TODOS:
         provide a wrapper function such that the module can
         be more readily used with external python codes
     -Include approximate or detailed velocity aberration corrections
-    -Provide estimated pointing table for TESS Year 2
     -Time dependent Focal plane geometry
     -Do the reverse transormation go from pixel to RA and Dec in a direct
         reverse transform manner rather than the current implementation
@@ -727,20 +728,42 @@ class Levine_FPG():
         
 class TESS_Spacecraft_Pointing_Data:
     #Hard coded spacecraft pointings by Sector
-    sectors = np.arange(1,14, dtype=np.int)
+    sectors = np.arange(1,27, dtype=np.int)
+
+    # Arrays are borken up into the following sectors:
+    # Line 1: Sectors 1-5
+    # Line 2: Secotrs 6-9
+    # Line 3: Sectors 10-13
+    # Line 4: Sectors 14-17
+    # Line 5: Sectors 18-22
+    # Line 6: Sectors 23-26
     ras = np.array([352.6844,16.5571,36.3138,55.0070,73.5382, \
                     92.0096,110.2559,128.1156,145.9071,\
-                    165.0475,189.1247,229.5885,298.6671], dtype=np.float)
-    decs = np.array([ -64.8531,-54.0160,-44.2590,-36.6420, -31.9349, \
-                     -30.5839,-32.6344,-37.7370,-45.3044, \
-                     -54.8165,-65.5369,-75.1256,-76.3281], dtype=np.float)
+                    165.0475,189.1247,229.5885,298.6671, \
+                    276.7169,280.3985,282.4427,351.2381,\
+                    16.1103,60.2026,129.3867,171.7951,197.1008,\
+                    217.2879,235.7118,253.3515,270.4993], dtype=np.float)
+            
+    decs = np.array([-64.8531,-54.0160,-44.2590,-36.6420,-31.9349, \
+                     -30.5839,-32.6344,-37.7370,-45.3044,\
+                     -54.8165,-65.5369,-75.1256,-76.3281,\
+                     62.4756,64.0671,66.1422,57.8456, \
+                     67.9575,76.2343,75.2520,65.1924,53.7434, \
+                     43.8074,36.4059,31.9659,30.5646], dtype=np.float) 
+
     rolls = np.array([-137.8468,-139.5665,-146.9616,-157.1698,-168.9483, \
-                      178.6367, 166.4476,155.3091,145.9163,\
-                      139.1724,138.0761,153.9773,-161.0622], dtype=np.float)
+                      178.6367,166.4476,155.3091,145.9163,\
+                      139.1724,138.0761,153.9773,-161.0622,\
+                      32.2329,55.4277,79.4699,41.9686,\
+                      40.5453,19.6463,-25.4311,-42.0505,-40.3008, \
+                      -32.5754,-22.4117,-11.1820,0.3339], dtype=np.float) 
+
     # Which hemisphere is pointing; +1==South ; -1==North
-    hemis = np.array([1,1,1,1,1,1,1,1,1,1,1,1,1], dtype=np.int)
+    hemis = np.array([1,1,1,1,1,1,1,1,1,1,1,1,1,\
+                      -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1], dtype=np.int)
     # Actual observed pointings versus TBD/predicted pointings
-    obsPoint = np.array([1,1,1,0,0,0,0,0,0,0,0,0,0], dtype=np.int)
+    obsPoint = np.array([1,1,1,0,0,0,0,0,0,0,0,0,0, \
+                         0,0,0,0,0,0,0,0,0,0,0,0,0], dtype=np.int)
     camSeps = np.array([36.0, 12.0, 12.0, 36.0], dtype=np.float)
 
     def __init__(self, trySector=None, fpgParmFileList=None):
@@ -1010,7 +1033,7 @@ if __name__ == '__main__':
                         help="Filename for input Target TIC [int]; RA[deg]; Dec[dec]; in white space delimited text file Column 1, 2, and 3 respectively")
     parser.add_argument("-o", "--outputFile", type=argparse.FileType('w'), \
                         help="Optional filename for output.  Default is output to stdout ")
-    parser.add_argument("-s", "--sector", type=int, choices=range(1,14),\
+    parser.add_argument("-s", "--sector", type=int, choices=range(1,26),\
                         help="Search a single sector Number [int]")
     parser.add_argument("-x", "--combinedFits", action='store_true', \
                         help="Output detector pixel coordinates for the 'Big' multi-detector combined fits file format")
@@ -1030,12 +1053,15 @@ if __name__ == '__main__':
 #            #self.ticId = 281541555
 #            self.ticId = None
 #            self.coord = None
+#            self.name = ['KIC 6443093']
+#            self.coord = [330.6803807390524, 42.27777178]
 #            self.inputFile = None
 #            self.sector = None
 #            self.fpgParameterFiles = None
 #            self.outputFile = None
 #            self.combinedFits = False
 #            self.noCollateral = False
+#            self.reverse = None
 #            self.reverse = [2,1,2,2092.0,1.0]
 #    args = test_arg()
     
@@ -1135,7 +1161,8 @@ if __name__ == '__main__':
                         xUse = starCcdXs[jj] + 45.0
                         yUse = starCcdYs[jj] + 1.0
                         xMin = 44.0
-                        maxCoord = 2049
+                        ymaxCoord = 2049
+                        xmaxCoord = 2093
                         if args.combinedFits:
                             xUse = starFitsXs[jj]
                             yUse = starFitsYs[jj]
@@ -1145,7 +1172,7 @@ if __name__ == '__main__':
                             xUse = starCcdXs[jj]
                             yUse = starCcdYs[jj]
                             xMin = 0.0
-                        if xUse>xMin and yUse>0 and xUse<maxCoord and yUse<maxCoord:
+                        if xUse>xMin and yUse>0 and xUse<xmaxCoord and yUse<ymaxCoord:
                             findAny=True
                             strout = '{:09d} | {:10.6f} | {:10.6f} | {:10.6f} | {:10.6f} | {:2d} | {:1d} | {:1d} | {:8.3f} | {:8.3f}'.format(\
                                curTarg.ticid, curTarg.ra, curTarg.dec, curTarg.eclipLong,\
