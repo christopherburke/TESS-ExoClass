@@ -53,19 +53,18 @@ def get_useable_ephems(all_tces):
 
 if __name__ == '__main__':
     
-    # Load the pickle file that contains TCE seed information
-    # The pickle file is created by gather_tce_fromdvxml.py
-    tceSeedInFile = 'sector17_20191127_tce.pkl'
+    # Load the h5 file that contains TCE seed information
+    # The h5 file is created by gather_tce_fromdvxml.py
+    tceSeedInFile = 'sector18_20191227_tce.h5'
 
     #  Directory storing the ses mes data
-    sesDataDir = '/pdo/users/cjburke/spocvet/sector17'
-    SECTOR = 17
-    fluxVetOut = 'spoc_fluxtriage_sector17_20191127.txt'
+    sesDataDir = '/pdo/users/cjburke/spocvet/sector18'
+    SECTOR = 18
+    fluxVetOut = 'spoc_fluxtriage_sector18_20191227.txt'
 #    fluxVetOut = 'junk.txt'
 
-    fin = open(tceSeedInFile, 'rb')
-    all_tces = pickle.load(fin)
-    fin.close()
+    tcedata = tce_seed()
+    all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
     allepics, allpns, allpers, allepochs, alldurations = get_useable_ephems(all_tces)
     

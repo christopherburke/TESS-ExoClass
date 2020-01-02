@@ -8,7 +8,6 @@ AUTHOR: Christopher J. Burke
 
 import numpy as np
 from gather_tce_fromdvxml import tce_seed
-import pickle
 import os
 from subprocess import Popen, PIPE
 import math
@@ -28,25 +27,25 @@ def make_data_dirs(prefix, sector, epic):
 
 
 if __name__ == '__main__':
-    SECTOR1 = 17
-    SECTOR2 = 17
+    SECTOR1 = 18
+    SECTOR2 = 18
     multiRun = False
     if SECTOR2 - SECTOR1 > 0:
         multiRun = True
-    tceSeedInFile = 'sector17_20191127_tce.pkl'
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector17'
-    SECTOR = 17
-    skyline_out = 'skyline_data_sector17_20191127.txt'
-    fed_knownP_out = 'federate_knownP_sector17_20191127.txt'
-    fed_toi_out = 'federate_toiWtce_sector17_20191127.txt'
-    fed_self_out = 'selfMatch_sector17_20191127.txt'
-    fluxVetOut = 'spoc_fluxtriage_sector17_20191127.txt'
+    tceSeedInFile = 'sector18_20191227_tce.h5'
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector18'
+    SECTOR = 18
+    skyline_out = 'skyline_data_sector18_20191227.txt'
+    fed_knownP_out = 'federate_knownP_sector18_20191227.txt'
+    fed_toi_out = 'federate_toiWtce_sector18_20191227.txt'
+    fed_self_out = 'selfMatch_sector18_20191227.txt'
+    fluxVetOut = 'spoc_fluxtriage_sector18_20191227.txt'
     SWEETMAXPER = 5.0
-    sweet_out = 'spoc_sweet_sector17_20191127.txt'
-    modump_out = 'spoc_modump_sector17_20191127.txt'    
-    fileOut1 = 'spoc_ranking_Tier1_sector17_20191127.txt'
-    fileOut2 = 'spoc_ranking_Tier2_sector17_20191127.txt'
-    fileOut3 = 'spoc_ranking_Tier3_sector17_20191127.txt'
+    sweet_out = 'spoc_sweet_sector18_20191227.txt'
+    modump_out = 'spoc_modump_sector18_20191227.txt'    
+    fileOut1 = 'spoc_ranking_Tier1_sector18_20191227.txt'
+    fileOut2 = 'spoc_ranking_Tier2_sector18_20191227.txt'
+    fileOut3 = 'spoc_ranking_Tier3_sector18_20191227.txt'
     if multiRun:
         useSector = 1000+SECTOR2
     else:
@@ -56,9 +55,9 @@ if __name__ == '__main__':
     # Check that TCE Seed File exists
     prereq = 0
     if (os.path.isfile(tceSeedInFile)):
-        fin = open(tceSeedInFile, 'rb')
-        all_tces = pickle.load(fin)
-        fin.close()
+        # Load the tce data h5
+        tcedata = tce_seed()
+        all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
         alltic = np.array([x.epicId for x in all_tces], dtype=np.int64)
         all_pns = np.array([x.planetNum for x in all_tces], dtype=np.int)
         allsolarflux = np.array([x.at_effflux for x in all_tces])
@@ -262,13 +261,15 @@ if __name__ == '__main__':
         curPns = all_pns[idx]
         NLCExp = len(curTics)
         # Read in Sweet test results
-        dtypeseq=['i4','i4']
-        dtypeseq.extend(['f8']*17)
-        dataBlock = np.genfromtxt(sweet_out, dtype=dtypeseq)
-        swTic = dataBlock['f0']
-        NLC = len(swTic)
-        print('{0:d} of {1:d} sweet test results found'.format(NLC, NLCExp))
-        
+        if os.path.isfile(sweet_out):
+            dtypeseq=['i4','i4']
+            dtypeseq.extend(['f8']*17)
+            dataBlock = np.genfromtxt(sweet_out, dtype=dtypeseq)
+            swTic = dataBlock['f0']
+            NLC = len(swTic)
+            print('{0:d} of {1:d} sweet test results found'.format(NLC, NLCExp))
+        else:
+            print('No Sweet test results found')
     # Check that the flux pdc statistics were gathered exists
     NLC = 0
     missing = []
@@ -329,12 +330,14 @@ if __name__ == '__main__':
         curPns = all_pns[idx]
         NLCExp = len(curTics)
         # load the momentum dump transit fraction data
-        dtypeseq=['i4','i4','f8']
-        dataBlock = np.genfromtxt(modump_out, dtype=dtypeseq)
-        mdTic = dataBlock['f0']
-        NLC = len(mdTic)
-        print('{0:d} of {1:d} momentum dump results found'.format(NLC, NLCExp))
-
+        if os.path.isfile(modump_out):
+            dtypeseq=['i4','i4','f8']
+            dataBlock = np.genfromtxt(modump_out, dtype=dtypeseq)
+            mdTic = dataBlock['f0']
+            NLC = len(mdTic)
+            print('{0:d} of {1:d} momentum dump results found'.format(NLC, NLCExp))
+        else:
+            print('No momentum dump file available')
     # Check that basic centroidingexists
     NLC = 0
     missing = []

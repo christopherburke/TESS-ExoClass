@@ -8,7 +8,6 @@ AUTHOR: Christopher J. Burke
 
 import numpy as np
 from gather_tce_fromdvxml import tce_seed
-import pickle
 import os
 from subprocess import Popen, PIPE
 import math
@@ -31,23 +30,22 @@ if __name__ == '__main__':
     wID = 0
     nWrk = 1
     
-    summaryFolder = '/pdo/spoc-data/sector-17/dv-reports'
-    summaryPrefix = 'tess2019281041526-'
-    summaryPostfix = '-00259_dvr.pdf'
-    SECTOR1 = 17
-    SECTOR2 = 17
+    summaryFolder = '/pdo/spoc-data/sector-18/dv-reports'
+    summaryPrefix = 'tess2019307033525-'
+    summaryPostfix = '-00267_dvr.pdf'
+    SECTOR1 = 18
+    SECTOR2 = 18
     multiRun = False
     if SECTOR2 - SECTOR1 > 0:
         multiRun = True
-    tceSeedInFile = 'sector17_20191127_tce.pkl'
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector17'
-    SECTOR = 17
+    tceSeedInFile = 'sector18_20191227_tce.h5'
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector18'
+    SECTOR = 18
     overwrite = False
     
-    fin = open(tceSeedInFile, 'rb')
-    all_tces = pickle.load(fin)
-    fin.close()
-    
+    # Load the tce data h5
+    tcedata = tce_seed()
+    all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)    
 
     alltic = np.array([x.epicId for x in all_tces], dtype=np.int64)
     allpn = np.array([x.planetNum for x in all_tces], dtype=np.int)

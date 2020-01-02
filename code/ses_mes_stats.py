@@ -18,7 +18,6 @@ here and the CHASES test.
 import numpy as np
 import h5py
 import matplotlib.pyplot as plt
-import pickle
 import os
 import math
 import fluxts_conditioning as flux_cond
@@ -281,31 +280,38 @@ if __name__ == "__main__":
     # These are for parallel procoessing
     wID = int(args.w)
     nWrk = int(args.n)
-    # Load the pickle file that contains TCE seed information
-    # The pickle file is created by gather_tce_fromdvxml.py
-    tceSeedInFile = 'sector17_20191127_tce.pkl'
+    # Load the h5 file that contains TCE seed information
+    # The h5 file is created by gather_tce_fromdvxml.py
+    tceSeedInFile = 'sector18_20191227_tce.h5'
     #  Directory storing the resampled dv time series data
-    dvDataDir = '/pdo/users/cjburke/spocvet/sector17'
+    dvDataDir = '/pdo/users/cjburke/spocvet/sector18'
     # Directory of output hd5 files
     outputDir = dvDataDir
-    SECTOR = 17
+    SECTOR = 18
     # What fraction of data can be missing and still calculat ses_mes
     # In Sector 1 due to the 2 days of missing stuff it was 0.68
     validFrac = 0.52
     overWrite = False
 
     # Skyline data excises loud cadecnes
-    dataBlock = np.genfromtxt('skyline_data_sector17_20191127.txt', dtype=['f8'])
-    badTimes = dataBlock['f0']
+    skyline_file = 'skyline_data_sector18_20191227.txt'
+    if os.path.isfile(skyline_file):
+        dataBlock = np.genfromtxt('skyline_data_sector18_20191227.txt', dtype=['f8'])
+        badTimes = dataBlock['f0']
+        if len(badTimes) < 2:
+            badTimes = np.array([0.0])
+    else:
+        print('No skyline data found')
+        badTimes = np.array([0.0])
 
     # Search and filter parameters
     cadPerHr = 6
     firstFilterScaleFac = 10 # low frequency median filter will be
                             # firstFilterScaleFac*searchDurationHours medfilt window
 
-    fin = open(tceSeedInFile, 'rb')
-    all_tces = pickle.load(fin)
-    fin.close()
+    # Load the tce data h5
+    tcedata = tce_seed()
+    all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
 
     # These next few lines can be used to examine a single target    
     #all_epics = np.array([x.epicId for x in all_tces], dtype=np.int64)
@@ -383,6 +389,10 @@ if __name__ == "__main__":
                     
                 # assign sector numbers to data
                 secnum = np.ones_like(cadNo, dtype=np.int)
+                idxSec = np.where(td.all_sectors>=0)[0]
+                td.all_sectors = td.all_sectors[idxSec]
+                td.all_cadstart = td.all_cadstart[idxSec]
+                td.all_cadend = td.all_cadend[idxSec]
                 nSec = len(td.all_sectors)
                 if len(td.all_sectors)>1:
                     for kk in range(nSec):

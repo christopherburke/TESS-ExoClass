@@ -14,7 +14,6 @@ from statsmodels import robust
 import glob
 import os
 import math
-import pickle
 from gather_tce_fromdvxml import tce_seed
 import cjb_utils as cjb
 
@@ -180,29 +179,29 @@ if __name__ == "__main__":
     fileInputPrefixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
                            '/foo6','/foo7','/foo8','/foo9','/foo10',\
                            '/foo11','/foo12','/foo13','/foo14','/foo15',\
-                           '/foo16',\
-                           '/pdo/spoc-data/sector-17/target-pixel/tess2019279210107-s0017-']
+                           '/foo16','/foo17',\
+                           '/pdo/spoc-data/sector-18/target-pixel/tess2019306063752-s0018-']
     fileInputSuffixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
                            '/foo6','/foo7','/foo8','/foo9','/foo10',\
                            '/foo11', '/foo12', '/foo13','/foo14','/foo15',\
-                           '/foo16',\
-                           '-0161-s_tp.fits.gz']
+                           '/foo16', '/foo17', \
+                           '-0162-s_tp.fits.gz']
 
     nSector = len(fileInputPrefixList)    
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector17/'
-    SECTOR = 17# =-1 if multi-sector
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector18/'
+    SECTOR = 18# =-1 if multi-sector
     RESAMP = 5  ###  USE AN ODD NUMBER HELPS WITH CADENCE NO ###
     overwrite = False
 
     # Only do tpfs for the targets with TCEs
     #  You can specify a multisector tce seed file because
     #   al that it uses is TIC.  If it exists it is made
-    tceSeedInFile = 'sector17_20191127_tce.pkl'
-    fin = open(tceSeedInFile, 'rb')
-    all_tces = pickle.load(fin)
-    fin.close()
-    alltic = np.unique(np.array([x.epicId for x in all_tces], dtype=np.int64))
+    # Load the tce data h5
+    tceSeedInFile = 'sector18_20191227_tce.h5'
+    tcedata = tce_seed()
+    all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
 
+    alltic = np.unique(np.array([x.epicId for x in all_tces], dtype=np.int64))
 
     cnt=0
     for curTic in alltic:

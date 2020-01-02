@@ -99,16 +99,16 @@ if __name__ == '__main__':
 
     OVERWRITE = False
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector17'
-    SECTOR = 17
-    SECTOR1 = 17
-    SECTOR2 = 17
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector18'
+    SECTOR = 18
+    SECTOR1 = 18
+    SECTOR2 = 18
 #    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-2'
 #    SECTOR=-1
 
     #vetFile = 'spoc_sector1_early_fluxvet_20180904.txt'
-    vetFile = 'spoc_fluxtriage_sector17_20191127.txt'
-    tceSeedInFile = 'sector17_20191127_tce.pkl'
+    vetFile = 'spoc_fluxtriage_sector18_20191227.txt'
+    tceSeedInFile = 'sector18_20191227_tce.h5'
 #    vetFile = 'spoc_sector1_2_fluxtriage_20181019.txt'
 #    tceSeedInFile = 'sector1_2_20181019_tce.pkl'
 
@@ -120,9 +120,10 @@ if __name__ == '__main__':
                             # firstFilterScaleFac*searchDurationHours medfilt window
 
 
-    fin = open(tceSeedInFile, 'rb')
-    all_tces = pickle.load(fin)
-    fin.close()
+    # Load the tce data h5
+    tceSeedInFile = 'sector18_20191227_tce.h5'
+    tcedata = tce_seed()
+    all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
     alltic = np.array([x.epicId for x in all_tces], dtype=np.int64)
     allpn = np.array([x.planetNum for x in all_tces], dtype=np.int)

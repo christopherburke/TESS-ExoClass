@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DATA_DIR='/pdo/spoc-data/sector-17'
+DATA_DIR='/pdo/spoc-data/sector-18'
 
 ls ${DATA_DIR}/dv-reports | head -4
 ls ${DATA_DIR}/dv-reports/*dvm.pdf | head -2

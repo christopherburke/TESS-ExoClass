@@ -15,7 +15,6 @@ import cjb_utils as cjb
 import scipy.special as spec
 import toidb_federate as fed
 from gather_tce_fromdvxml import tce_seed
-import pickle
 import matplotlib.pyplot as plt
 from statsmodels import robust
 import os
@@ -37,13 +36,12 @@ def genericFed(per, epc, tryper, tryepc, trydur, trypn, trytic, tStart, tEnd):
 
 
 if __name__ == '__main__':
-    fout = open('skyline_data_sector17_20191127.txt', 'w')
+    fout = open('skyline_data_sector18_20191227.txt', 'w')
     
-    # Load the tce data pickle    
-    tceSeedInFile = 'sector17_20191127_tce.pkl'
-    fin = open(tceSeedInFile, 'rb')
-    all_tces = pickle.load(fin)
-    fin.close()
+    # Load the tce data h5
+    tceSeedInFile = 'sector18_20191227_tce.h5'
+    tcedata = tce_seed()
+    all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
     alltic = np.array([x.epicId for x in all_tces], dtype=np.int64)
     allpn = np.array([x.planetNum for x in all_tces], dtype=np.int)
@@ -80,7 +78,7 @@ if __name__ == '__main__':
     # Check if cadnoVtimemap.txt  cadence no to time mapping exists
     # created by dvts_bulk_resamp.py use it if so
     if os.path.exists('cadnoVtimemap.txt'):
-        dataBlock = np.genfromtxt('cadnoVtimemap.txt', dtype=['i4','f8','i4','i4'])
+        dataBlock = np.genfromtxt('cadnoVtimemap.txt', dtype=['i4','f8','i4','i4','i4'])
         uowStart = np.min(dataBlock['f1'])
         uowEnd = np.max(dataBlock['f1'])
     print('Data Start: {0} Data End: {1}'.format(uowStart, uowEnd))

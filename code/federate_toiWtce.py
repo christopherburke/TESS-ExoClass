@@ -6,7 +6,6 @@ Created on Wed Feb 28 11:51:04 2018
 @author: cjburke
 """
 
-import pickle
 import numpy as np
 import toidb_federate as fed
 from gather_tce_fromdvxml import tce_seed
@@ -132,7 +131,7 @@ def query_othertics(ticWant, searchRad):
 
 
 if __name__ == '__main__':
-    fout = open('federate_toiWtce_sector17_20191127.txt', 'w')
+    fout = open('federate_toiWtce_sector18_20191227.txt', 'w')
     dataSpan = 27.0
 
     wideSearch = True
@@ -140,7 +139,7 @@ if __name__ == '__main__':
     # Check to see if cadence to time mappting is available
     hasCadTimeMap = False
     if os.path.exists('cadnoVtimemap.txt'):
-        dataBlock = np.genfromtxt('cadnoVtimemap.txt', dtype=['i4','f8','i4','i4'])
+        dataBlock = np.genfromtxt('cadnoVtimemap.txt', dtype=['i4','f8','i4','i4','i4'])
         cadmap = dataBlock['f0']
         timemap = dataBlock['f1']
         print('Cadence time map available')
@@ -169,7 +168,7 @@ if __name__ == '__main__':
     # To fix string before reading in
     # As of Oct. 2019 I needed to use this to fix commas in strings
     # sed -e 's/""//g' -e 's/,"[^"]*/,"NOCOMMENT/g' csv-file-2019-10-29.csv > toi-plus-2019-10-29-fixed.csv
-    qlpfile = 'csv-file-toi-catalog-2019-11-27-fixed.csv'
+    qlpfile = 'csv-file-toi-catalog-2020-01-01-fixed.csv'
     dtypeseq = ['U20','i4','f8','U2']
     dtypeseq.extend(['f8']*12)
     dtypeseq.extend(['U20','U80'])
@@ -196,11 +195,10 @@ if __name__ == '__main__':
 #    gtTIC, gtTOI, gtDisp, gtPer, gtEpc, gtDur = cjb.idx_filter(idx, gtTIC, \
 #                                gtTOI, gtDisp, gtPer, gtEpc, gtDur)
 
-    # Load the tce data pickle    
-    tceSeedInFile = 'sector17_20191127_tce.pkl'
-    fin = open(tceSeedInFile, 'rb')
-    all_tces = pickle.load(fin)
-    fin.close()
+    # Load the tce data h5
+    tceSeedInFile = 'sector18_20191227_tce.h5'
+    tcedata = tce_seed()
+    all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
     alltic = np.array([x.epicId for x in all_tces], dtype=np.int64)
     allpn = np.array([x.planetNum for x in all_tces], dtype=np.int)

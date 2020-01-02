@@ -71,28 +71,29 @@ if __name__ == '__main__':
     fileInputPrefixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
                            '/foo6','/foo7','/foo8','/foo9','/foo10',\
                            '/foo11','/foo12','/foo13','/foo14','/foo15',
-                           '/foo16',\
-                           '/pdo/spoc-data/sector-17/light-curve/tess2019279210107-s0017-']
+                           '/foo16','/foo17',\
+                           '/pdo/spoc-data/sector-18/light-curve/tess2019306063752-s0018-']
     fileInputSuffixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
                            '/foo6','/foo7','/foo8','/foo9','/foo10',\
                            '/foo11','/foo12','/foo13','/foo14','/foo15',
-                           '/foo16',\
-                           '-0161-s_lc.fits.gz']
+                           '/foo16','/foo17',\
+                           '-0162-s_lc.fits.gz']
 
     nSector = len(fileInputPrefixList)    
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector17/'
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector18/'
     RESAMP = 31  ###  USE AN ODD NUMBER ###
-    SECTOR = 17# =-1 if multi-sector
+    SECTOR = 18# =-1 if multi-sector
 
-    fileOut = 'spoc_pdcstats_sector17_20191127.txt'
+    fileOut = 'spoc_pdcstats_sector18_20191227.txt'
     fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector17_20191127.txt'
+    vetFile = 'spoc_fluxtriage_sector18_20191227.txt'
     #vetFile = 'junk.txt'
-    tceSeedInFile = 'sector17_20191127_tce.pkl'
+    tceSeedInFile = 'sector18_20191227_tce.h5'
 
-    fin = open(tceSeedInFile, 'rb')
-    all_tces = pickle.load(fin)
-    fin.close()
+    # Load the tce data h5
+    tceSeedInFile = 'sector18_20191227_tce.h5'
+    tcedata = tce_seed()
+    all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
     alltic = np.array([x.epicId for x in all_tces], dtype=np.int64)
     allpn = np.array([x.planetNum for x in all_tces], dtype=np.int)

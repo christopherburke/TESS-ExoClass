@@ -17,18 +17,16 @@ here and the CHASES test.
 
 import numpy as np
 from gather_tce_fromdvxml import tce_seed
-import pickle
+
 
 if __name__ == "__main__":
-    # Load the pickle file that contains TCE seed information
-    # The pickle file is created by gather_tce_fromdvxml.py
-    tceSeedInFile = 'sector17_20191127_tce.pkl'
-    outFile = 'sector17_20191127_tce.txt'
+    # Load the h5 file that contains TCE seed information
+    # The h5 file is created by gather_tce_fromdvxml.py
+    tceSeedInFile = 'sector18_20191227_tce.h5'
+    outFile = 'sector18_20191227_tce.txt'
     delim = ' | '
-    fin = open(tceSeedInFile, 'rb')
-    all_tces = pickle.load(fin)
-    fin.close()
-
+    tcedata = tce_seed()
+    all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
     # Loop over tces and write their info out
     cnt = 0

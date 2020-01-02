@@ -28,7 +28,6 @@ except ImportError:  # Python 2.x
 
 from astropy import units as u
 from astropy.coordinates import SkyCoord
-import pickle
 import os
 
 def mastQuery(request):
@@ -136,17 +135,16 @@ def genericFed(per, epc, tryper, tryepc, trydur, trypn, trytic, tStart, tEnd):
 
 
 if __name__ == '__main__':
-    fout = open('selfMatch_sector17_20191127.txt', 'w')
+    fout = open('selfMatch_sector18_20191227.txt', 'w')
     dataSpan = 27.0
-    # Load the tce data pickle    
-    tceSeedInFile = 'sector17_20191127_tce.pkl'
-    fin = open(tceSeedInFile, 'rb')
-    all_tces = pickle.load(fin)
-    fin.close()
+    # Load the tce data h5
+    tceSeedInFile = 'sector18_20191227_tce.h5'
+    tcedata = tce_seed()
+    all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     # Check to see if cadence to time mappting is available
     hasCadTimeMap = False
     if os.path.exists('cadnoVtimemap.txt'):
-        dataBlock = np.genfromtxt('cadnoVtimemap.txt', dtype=['i4','f8','i4','i4'])
+        dataBlock = np.genfromtxt('cadnoVtimemap.txt', dtype=['i4','f8','i4','i4','i4'])
         cadmap = dataBlock['f0']
         timemap = dataBlock['f1']
         print('Cadence time map available')

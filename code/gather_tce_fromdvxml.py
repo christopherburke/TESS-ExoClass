@@ -12,7 +12,7 @@ import gzip
 #from xml.dom.minidom import parse, parseString
 import xml.etree.cElementTree as ET
 import copy
-import pickle
+import h5py
 
 
 
@@ -20,6 +20,72 @@ class tce_seed(object):
     """ Define a storage class that keeps all the info
         we want to keep for a TCE to propagate forward to vetting
     """
+    # explictly state the name, datatype and shape for every
+    #  class variable
+    #  The names MUST exactly match the class variable names in the __init__
+    store_names = ['epicId', 'planetNum', 'totPlanetNum', 'sourceId', \
+                   'decDeg', 'raDeg', 'teff', 'teff_e', 'limbc', \
+                   'feh', 'logg', 'rstar', 'rstar_e', \
+                   'sector', 'ccd', 'camera', 'pixposvalid', \
+                   'row', 'col', 'pmra', 'pmdec', \
+                   'tmag', 'at_valid', 'at_snr', 'at_epochbtjd', \
+                   'at_epochbtjd_e', 'at_rp', 'at_rp_e', 'at_imp', \
+                   'at_dur', 'at_depth', 'at_depth_e', 'at_period', \
+                   'at_period_e', 'at_rpDrstar', 'at_rpDrstar_e', 'at_aDrstar', \
+                   'at_eqtemp', 'at_effflux', 'ghostcoreval', 'ghostcoresig', \
+                   'ghosthalosig', 'ghosthaloval', 'modchi2', 'gof', \
+                   'ntran', 'chi2', 'tce_epoch', 'mes', \
+                   'maxsesinmes', 'tce_period', 'robstat', 'pulsedur', \
+                   'trp_valid', 'trp_snr', 'trp_epochbtjd', 'trp_dur', \
+                   'trp_depth', 'cent_oot_offset', 'cent_oot_offset_e', 'cent_tic_offset', \
+                   'cent_tic_offset_e', 'oe_signif', 'data_start', 'data_end', \
+                   'all_sectors', 'all_cadstart', 'all_cadend']
+    store_types = ['i8', 'i4', 'i4', 'S80', \
+                   'f8', 'f8', 'f8', 'f8', 'f8', \
+                   'f8', 'f8', 'f8', 'f8', \
+                   'i4', 'i4', 'i4', 'i4', \
+                   'f8', 'f8', 'f8', 'f8', \
+                   'f8', 'i4', 'f8', 'f8', \
+                   'f8', 'f8', 'f8', 'f8', \
+                   'f8', 'f8', 'f8', 'f8', \
+                   'f8', 'f8', 'f8', 'f8', \
+                   'f8', 'f8', 'f8', 'f8', \
+                   'f8', 'f8', 'f8', 'f8', \
+                   'i4', 'f8', 'f8', 'f8', \
+                   'f8', 'f8', 'f8', 'f8', \
+                   'i4', 'f8', 'f8', 'f8', \
+                   'f8', 'f8', 'f8', 'f8', \
+                   'f8', 'f8', 'i4', 'i4', \
+                   'i4', 'i8', 'i8']
+    store_shapes = [None, None, None, None, \
+                    None, None, None, None, [4], \
+                    None, None, None, None, \
+                    None, None, None, None, \
+                    None, None, None, None, \
+                    None, None, None, None, \
+                    None, None, None, None, \
+                    None, None, None, None, \
+                    None, None, None, None, \
+                    None, None, None, None, \
+                    None, None, None, None, \
+                    None, None, None, None, \
+                    None, None, None, None, \
+                    None, None, None, None, \
+                    None, None, None, None, \
+                    None, None, None, None, \
+                    [100], [100], [100]]                    
+    # Make the tuples that will define the numpy structured array
+    # https://docs.scipy.org/doc/numpy/user/basics.rec.html
+    sz = len(store_names)
+    store_def_tuples = []
+    for i in range(sz):
+        if store_shapes[i] is not None:
+            store_def_tuples.append((store_names[i], store_types[i], store_shapes[i]))
+        else:
+            store_def_tuples.append((store_names[i], store_types[i]))
+    # Actually define the numpy structured/compound data type
+    store_struct_numpy_dtype = np.dtype(store_def_tuples)
+
     def __init__(self):
         self.epicId = 0
         self.planetNum = 0
@@ -30,7 +96,7 @@ class tce_seed(object):
         self.raDeg = 0.0
         self.teff = 0.0
         self.teff_e = 0.0
-        self.limbc = [0.0, 0.0, 0.0, 0.0]
+        self.limbc = np.array([0.0, 0.0, 0.0, 0.0], dtype=np.float)
         self.feh = 0.0
         self.logg = 0.0
         self.rstar = 0.0
@@ -95,15 +161,43 @@ class tce_seed(object):
         self.data_start = 0
         self.data_end = 0
         # list of all sectors and start and end cadences numbers 
-        self.all_sectors = np.array([], dtype=np.int)
-        self.all_cadstart = np.array([], dtype=np.int)
-        self.all_cadend = np.array([], dtype=np.int)
+        self.all_sectors = np.array([-1]*100, dtype=np.int)
+        self.all_cadstart = np.array([-1]*100, dtype=np.int)
+        self.all_cadend = np.array([-1]*100, dtype=np.int)
         
+    def store_objlist_as_hd5f(self, objlist, fileName):
+        # save the class structure into hd5
+        # objlist is a list of the tce_seed objects
+        # First create the array of numpy structered arrays
+        np_dset = np.ndarray(len(objlist), dtype=self.store_struct_numpy_dtype)
+        # Convert the class variables into the numpy structured dtype
+        for i, curobj in enumerate(objlist):
+            for j in range(len(self.store_names)):
+                np_dset[i][self.store_names[j]] = getattr(curobj, self.store_names[j])
+        # Data set should be all loaded ready to write out
+        fp = h5py.File(fileName, 'w')
+        h5f_dset = fp.create_dataset('dset', shape=(len(objlist),), dtype=self.store_struct_numpy_dtype)
+        h5f_dset[:] = np_dset
+        fp.close()
+        
+    def fill_objlist_from_hd5f(self, fileName):
+        fp = h5py.File(fileName, 'r')
+        np_dset = np.array(fp['dset'])
+        # Start with empty list
+        all_objs = []
+        # iterate through the numpy structured array and save to objects
+        for i in range(len(np_dset)):
+            tmp = tce_seed()
+            for j in range(len(self.store_names)):
+                setattr(tmp, self.store_names[j], np_dset[i][self.store_names[j]])
+            # Append object to list
+            all_objs.append(tmp)
+        return all_objs
         
         
 if __name__ == "__main__":
-    tceSeedOutFile = 'sector17_20191127_tce.pkl'
-    headXMLPath = '/pdo/spoc-data/sector-17/dv-results/'
+    tceSeedOutFile = 'sector18_20191227_tce.h5'
+    headXMLPath = '/pdo/spoc-data/sector-18/dv-results/'
     # Namespace there is extra junk prepended to tags
     #  This is supposed to make it easier to use 
     ns = {'ns': 'http://www.nasa.gov/2018/TESS/DV'}
@@ -171,16 +265,16 @@ if __name__ == "__main__":
             
         # Get the cadence start and end for all sectors with data
         tmpall = root.findall("ns:planetResults[@planetNumber='1']/ns:differenceImageResults", ns)
-        for itmp in tmpall:
-            targdata.all_sectors = np.append(targdata.all_sectors, int(itmp.get('sector')))
-            targdata.all_cadstart = np.append(targdata.all_cadstart, int(itmp.get('startCadence')))
-            targdata.all_cadend = np.append(targdata.all_cadend, int(itmp.get('endCadence')))
+        for idx, itmp in enumerate(tmpall):
+            targdata.all_sectors[idx] =  int(itmp.get('sector'))
+            targdata.all_cadstart[idx] = int(itmp.get('startCadence'))
+            targdata.all_cadend[idx] = int(itmp.get('endCadence'))
         # Double check that the number of sectors agrees with sectorsObserved
         secobs = root.get('sectorsObserved')
         secsum = 0
         for x in secobs:
             secsum = secsum + int(x)
-        if not len(targdata.all_sectors) == secsum:
+        if not len(np.where(targdata.all_sectors>=0)[0]) == secsum:
             print('Sector avail mismatch! {0:d} {1:d}'.format(i, targdata.epicId))
         
         
@@ -245,6 +339,7 @@ if __name__ == "__main__":
 #            print("hello World")
 
     print("Found {0:d} TCEs".format(len(all_tces)))
-    pickle.dump(all_tces, open(tceSeedOutFile, 'wb'))
+        # Write out hd5 file
+    targdata.store_objlist_as_hd5f(all_tces, tceSeedOutFile)
 
     print("Wrote {0}".format(tceSeedOutFile))

@@ -94,6 +94,7 @@ def dvts_resamp(file, dirOut, RESAMP, SECTOR=None, overwrite=True):
             pdc_flux_err = hdulist['statistics'].data['PDCSAP_FLUX_ERR']
             deweights = hdulist['statistics'].data['DEWEIGHTS']
             kpQuality = hdulist['statistics'].data['QUALITY']
+            kpPDC = hdulist['statistics'].data['PDCSAP_FLUX']
 
     
             newNImage = int(np.floor(nImage / RESAMP))
@@ -182,15 +183,15 @@ def dvts_resamp(file, dirOut, RESAMP, SECTOR=None, overwrite=True):
                     tmp = f.create_dataset(keepprihdr[i], data=np.array([-1], dtype=formatprihdr[i]))
                             
             f.close()
-    return dataSpanMax, kpCadenceNo, kpTimetbjd, kpQuality
+    return dataSpanMax, kpCadenceNo, kpTimetbjd, kpQuality, kpPDC
 
 if __name__ == "__main__":
 
-    dirInputs = '/pdo/spoc-data/sector-17/dv-time-series/'
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector17/'
+    dirInputs = '/pdo/spoc-data/sector-18/dv-time-series/'
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector18/'
     RESAMP = 5  ###  USE AN ODD NUMBER HELPS WITH CADENCE NO ###
     SECTOR_OVRRIDE = None # If NOT multisector set this to None ###
-    overwrite = False # Set False to keep old results and only do files that dont exist
+    overwrite = True # Set False to keep old results and only do files that dont exist
 
     fileList = glob.glob(os.path.join(dirInputs, '*dvt.fits*'))
     cnt = 0
@@ -200,13 +201,16 @@ if __name__ == "__main__":
         cnt = cnt + 1
         if np.mod(cnt,10) == 0:
             print(cnt,' Data Span {0:f}'.format(dataSpanMax))
-        dataSpan, cadno, timetjd, quality = dvts_resamp(fil, dirOutputs, RESAMP, SECTOR=SECTOR_OVRRIDE, overwrite=overwrite)
+        dataSpan, cadno, timetjd, quality, pdc = dvts_resamp(fil, dirOutputs, RESAMP, SECTOR=SECTOR_OVRRIDE, overwrite=overwrite)
         if dataSpan > dataSpanMax:
             dataSpanMax = dataSpan
             fout = open('cadnoVtimemap.txt','w')
             for i, cad in enumerate(cadno):
                 momdump = int(0)
+                pdcfinite = int(0)
                 if quality[i] & 32:
                     momdump = int(1)
-                fout.write('{0:d} {1:f} {2:d} {3:d}\n'.format(int(cad), timetjd[i], int(quality[i]), momdump))
+                if np.isfinite(pdc[i]):
+                    pdcfinite = int(1)
+                fout.write('{0:d} {1:f} {2:d} {3:d} {4:d}\n'.format(int(cad), timetjd[i], int(quality[i]), momdump, pdcfinite))
             fout.close()

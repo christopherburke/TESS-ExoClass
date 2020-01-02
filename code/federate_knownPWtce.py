@@ -9,7 +9,6 @@ work.  Also queries MAST for TIC's that may be near.
 @author: Christopher J. Burke
 """
 
-import pickle
 import numpy as np
 import toidb_federate as fed
 from gather_tce_fromdvxml import tce_seed
@@ -127,14 +126,14 @@ def coughlin_sigmap(p1,p2):
 
 
 if __name__ == '__main__':
-    fout = open('federate_knownP_sector17_20191127.txt', 'w')
+    fout = open('federate_knownP_sector18_20191227.txt', 'w')
     dataSpan = 27.0
     wideSearch = True
     searchRad = 180.0 # Arcsecond search radius for other TICs
     # Check to see if cadence to time mappting is available
     hasCadTimeMap = False
     if os.path.exists('cadnoVtimemap.txt'):
-        dataBlock = np.genfromtxt('cadnoVtimemap.txt', dtype=['i4','f8','i4','i4'])
+        dataBlock = np.genfromtxt('cadnoVtimemap.txt', dtype=['i4','f8','i4','i4','i4'])
         cadmap = dataBlock['f0']
         timemap = dataBlock['f1']
         print('Cadence time map available')
@@ -217,11 +216,10 @@ if __name__ == '__main__':
     print("Tot # PCs: {0:d}".format(len(gtName)))
 
 
-    # Load the tce data pickle    
-    tceSeedInFile = 'sector17_20191127_tce.pkl'
-    fin = open(tceSeedInFile, 'rb')
-    all_tces = pickle.load(fin)
-    fin.close()
+    # Load the tce data h5
+    tceSeedInFile = 'sector18_20191227_tce.h5'
+    tcedata = tce_seed()
+    all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
     alltic = np.array([x.epicId for x in all_tces], dtype=np.int64)
     allpn = np.array([x.planetNum for x in all_tces], dtype=np.int)

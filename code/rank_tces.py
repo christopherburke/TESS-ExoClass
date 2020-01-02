@@ -93,42 +93,43 @@ if __name__ == '__main__':
     wID = int(args.w)
     nWrk = int(args.n)
     
-    summaryFolder = '/pdo/spoc-data/sector-17/dv-reports'
-    summaryPrefix = 'tess2019281041526-'
-    summaryPostfix = '-00259_dvs.pdf'
-    SECTOR1 = 17
-    SECTOR2 = 17
+    summaryFolder = '/pdo/spoc-data/sector-18/dv-reports'
+    summaryPrefix = 'tess2019307033525-'
+    summaryPostfix = '-00267_dvs.pdf'
+    SECTOR1 = 18
+    SECTOR2 = 18
     multiRun = False
     if SECTOR2 - SECTOR1 > 0:
         multiRun = True
 
     doPNGs = False
-    pngFolder = '/pdo/users/cjburke/spocvet/sector17/pngs/'
+    pngFolder = '/pdo/users/cjburke/spocvet/sector18/pngs/'
     doMergeSum = True
     if nWrk == 1:
         doMergeSum = False
-    pdfFolder = '/pdo/users/cjburke/spocvet/sector17/pdfs/'
-    SECTOR1 = 17
-    SECTOR2 = 17
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector17'
-    SECTOR = 17# -1 for multi-sector
+    pdfFolder = '/pdo/users/cjburke/spocvet/sector18/pdfs/'
+    SECTOR1 = 18
+    SECTOR2 = 18
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector18'
+    SECTOR = 18# -1 for multi-sector
 
-    fileOut1 = 'spoc_ranking_Tier1_sector17_20191127.txt'
-    fileOut2 = 'spoc_ranking_Tier2_sector17_20191127.txt'
-    fileOut3 = 'spoc_ranking_Tier3_sector17_20191127.txt'
-    vetFile = 'spoc_fluxtriage_sector17_20191127.txt'
-    tceSeedInFile = 'sector17_20191127_tce.pkl'
-    modshiftFile = 'spoc_modshift_sector17_20191127.txt'
-    modshiftFile2 = 'spoc_modshift_med_sector17_20191127.txt'
-    sweetFile = 'spoc_sweet_sector17_20191127.txt'
-    toiFederateFile = 'federate_toiWtce_sector17_20191127.txt'
-    knowPFederateFile = 'federate_knownP_sector17_20191127.txt'
-    selfMatchFile = 'selfMatch_sector17_20191127.txt'
-    modumpFile = 'spoc_modump_sector17_20191127.txt'
+    fileOut1 = 'spoc_ranking_Tier1_sector18_20191227.txt'
+    fileOut2 = 'spoc_ranking_Tier2_sector18_20191227.txt'
+    fileOut3 = 'spoc_ranking_Tier3_sector18_20191227.txt'
+    vetFile = 'spoc_fluxtriage_sector18_20191227.txt'
+    tceSeedInFile = 'sector18_20191227_tce.h5'
+    modshiftFile = 'spoc_modshift_sector18_20191227.txt'
+    modshiftFile2 = 'spoc_modshift_med_sector18_20191227.txt'
+    sweetFile = 'spoc_sweet_sector18_20191227.txt'
+    toiFederateFile = 'federate_toiWtce_sector18_20191227.txt'
+    knowPFederateFile = 'federate_knownP_sector18_20191227.txt'
+    selfMatchFile = 'selfMatch_sector18_20191227.txt'
+    modumpFile = 'spoc_modump_sector18_20191227.txt'
 
-    fin = open(tceSeedInFile, 'rb')
-    all_tces = pickle.load(fin)
-    fin.close()
+    # Load the tce data h5
+    tceSeedInFile = 'sector18_20191227_tce.h5'
+    tcedata = tce_seed()
+    all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
     # Define rank ramp limits
     rplims = [2.0, 6.0]

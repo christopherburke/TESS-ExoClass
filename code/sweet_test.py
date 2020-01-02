@@ -218,17 +218,18 @@ if __name__ == '__main__':
     MAXPER = 5.0
     
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector17'
-    SECTOR = 17
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector18'
+    SECTOR = 18
 
-    fileOut = 'spoc_sweet_sector17_20191127.txt'
+    fileOut = 'spoc_sweet_sector18_20191227.txt'
     fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector17_20191127.txt'
-    tceSeedInFile = 'sector17_20191127_tce.pkl'
+    vetFile = 'spoc_fluxtriage_sector18_20191227.txt'
+    tceSeedInFile = 'sector18_20191227_tce.h5'
 
-    fin = open(tceSeedInFile, 'rb')
-    all_tces = pickle.load(fin)
-    fin.close()
+    # Load the tce data h5
+    tceSeedInFile = 'sector18_20191227_tce.h5'
+    tcedata = tce_seed()
+    all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
     alltic = np.array([x.epicId for x in all_tces], dtype=np.int64)
     allpn = np.array([x.planetNum for x in all_tces], dtype=np.int)
