@@ -83,16 +83,16 @@ if __name__ == '__main__':
     nWrk = 6
     OVERWRITE = True
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector19'
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector21'
     SECTOR = 6
-    SECTOR1 = 194
-    SECTOR2 = 19
+    SECTOR1 = 214
+    SECTOR2 = 21
 #    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-2'
 #    SECTOR=-1
 
     #vetFile = 'spoc_sector1_early_fluxvet_20180904.txt'
-    vetFile = 'spoc_fluxtriage_sector19_20200124.txt'
-    tceSeedInFile = 'sector19_20200124_tce.pkl'
+    vetFile = 'spoc_fluxtriage_sector21_20200309.txt'
+    tceSeedInFile = 'sector21_20200309_tce.pkl'
 #    vetFile = 'spoc_sector1_2_fluxtriage_20181019.txt'
 #    tceSeedInFile = 'sector1_2_20181019_tce.pkl'
 

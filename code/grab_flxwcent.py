@@ -71,27 +71,27 @@ if __name__ == '__main__':
     fileInputPrefixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
                            '/foo6','/foo7','/foo8','/foo9','/foo10',\
                            '/foo11','/foo12','/foo13','/foo14','/foo15',
-                           '/foo16','/foo17','/foo18',\
-                           '/pdo/spoc-data/sector-19/light-curve/tess2019331140908-s0019-']
+                           '/foo16','/foo17','/foo18','/foo19','/foo20',\
+                           '/pdo/spoc-data/sector-21/light-curve/tess2020020091053-s0021-']
     fileInputSuffixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
                            '/foo6','/foo7','/foo8','/foo9','/foo10',\
                            '/foo11','/foo12','/foo13','/foo14','/foo15',
-                           '/foo16','/foo17','/foo18',\
-                           '-0164-s_lc.fits.gz']
+                           '/foo16','/foo17','/foo18','/foo19','/foo20',\
+                           '-0167-s_lc.fits.gz']
 
     nSector = len(fileInputPrefixList)    
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector19/'
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector21/'
     RESAMP = 31  ###  USE AN ODD NUMBER ###
-    SECTOR = 19# =-1 if multi-sector
+    SECTOR = 21# =-1 if multi-sector
 
-    fileOut = 'spoc_pdcstats_sector19_20200124.txt'
+    fileOut = 'spoc_pdcstats_sector21_20200309.txt'
     fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector19_20200124.txt'
+    vetFile = 'spoc_fluxtriage_sector21_20200309.txt'
     #vetFile = 'junk.txt'
-    tceSeedInFile = 'sector19_20200124_tce.h5'
+    tceSeedInFile = 'sector21_20200309_tce.h5'
 
     # Load the tce data h5
-    tceSeedInFile = 'sector19_20200124_tce.h5'
+    tceSeedInFile = 'sector21_20200309_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
