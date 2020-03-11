@@ -35,6 +35,9 @@ Sector Number | Detection Source | Result Tables | Summary PDFs
 17 | NASA Ames SPOC TCE | [Tables](https://www.dropbox.com/sh/jdq9aivncccu422/AAAjuWd1cw4pIG1aBFOGF4iDa?dl=0) | [PDFs](https://www.dropbox.com/sh/j3qoe1xqlli3m5i/AADUFzUsMFz8OYkRr0Uwho0ka?dl=0)
 18 | NASA Ames SPOC TCE | [Tables](https://www.dropbox.com/sh/v8078hvjultba40/AAB5u1wdN-Ic19Zm1brZDSaBa?dl=0) | [PDFs](https://www.dropbox.com/sh/370p2yrdpj1own3/AACDXx_xoPaOP7qgBkTGpz_Ca?dl=0)
 19 | NASA Ames SPOC TCE | [Tables](https://www.dropbox.com/sh/9wxe4udds78i87z/AAAUnurk-6dz3wpO8gT-Mmdqa?dl=0) | [PDFs](https://www.dropbox.com/sh/5q42m43enqhphb3/AAColzHkdtPEw01t3sPj1nzta?dl=0)
+14-19 | NASA Ames SPOC TCE | [Tables](https://www.dropbox.com/sh/bhkof532xwq10jb/AAALhx1qSycK6oZQUKx6f83ja?dl=0) | [PDFs](https://www.dropbox.com/sh/fcpth31emw24yb7/AADJ6FIGjRYjyTLqkx9a16ZJa?dl=0)
+20 | NASA Ames SPOC TCE | [Tables](https://www.dropbox.com/sh/dwkpepofu6cipb3/AAAG2XBJwIf3mihsXfgOyMsSa?dl=0) | [PDFs](https://www.dropbox.com/sh/rdxzgkq73c2gy94/AADPGUpy7X6EOzQIdMpvHlk5a?dl=0)
+21 | NASA Ames SPOC TCE | [Tables](https://www.dropbox.com/sh/f1cwcmu7j9ri6t8/AAAx_DzQ2U8Ay3zSkHCbx6sQa?dl=0) | [PDFs](https://www.dropbox.com/sh/l82fhsl6fw0s8fp/AACNK-U2y0Vsmz-dfngn1uIha?dl=0)
 
 
 ### Description:
