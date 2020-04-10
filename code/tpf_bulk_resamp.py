@@ -180,16 +180,18 @@ if __name__ == "__main__":
                            '/foo6','/foo7','/foo8','/foo9','/foo10',\
                            '/foo11','/foo12','/foo13','/foo14','/foo15',\
                            '/foo16','/foo17','/foo18','/foo19','/foo20',\
-                           '/pdo/spoc-data/sector-21/target-pixel/tess2020020091053-s0021-']
+                           '/foo21',\
+                           '/pdo/spoc-data/sector-22/target-pixel/tess2020049080258-s0022-']
     fileInputSuffixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
                            '/foo6','/foo7','/foo8','/foo9','/foo10',\
                            '/foo11', '/foo12', '/foo13','/foo14','/foo15',\
                            '/foo16', '/foo17','/foo18','/foo19','/foo20',\
-                           '-0167-s_tp.fits.gz']
+                           '/foo21',\
+                           '-0174-s_tp.fits.gz']
 
     nSector = len(fileInputPrefixList)    
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector21/'
-    SECTOR = 21# =-1 if multi-sector
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector22/'
+    SECTOR = 22# =-1 if multi-sector
     RESAMP = 5  ###  USE AN ODD NUMBER HELPS WITH CADENCE NO ###
     overwrite = False
 
@@ -197,7 +199,7 @@ if __name__ == "__main__":
     #  You can specify a multisector tce seed file because
     #   al that it uses is TIC.  If it exists it is made
     # Load the tce data h5
-    tceSeedInFile = 'sector21_20200309_tce.h5'
+    tceSeedInFile = 'sector22_20200403_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
 
