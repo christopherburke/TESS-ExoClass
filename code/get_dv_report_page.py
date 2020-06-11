@@ -30,17 +30,17 @@ if __name__ == '__main__':
     wID = 0
     nWrk = 1
     
-    summaryFolder = '/pdo/spoc-data/sector-22/dv-reports'
-    summaryPrefix = 'tess2020050191121-'
-    summaryPostfix = '-00309_dvr.pdf'
-    SECTOR1 = 22
-    SECTOR2 = 22
+    summaryFolder = '/pdo/spoc-data/sector-024/dv-reports'
+    summaryPrefix = 'tess2020107065519-'
+    summaryPostfix = '-00333_dvr.pdf'
+    SECTOR1 = 24
+    SECTOR2 = 24
     multiRun = False
     if SECTOR2 - SECTOR1 > 0:
         multiRun = True
-    tceSeedInFile = 'sector22_20200403_tce.h5'
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector22'
-    SECTOR = 22
+    tceSeedInFile = 'sector24_20200604_tce.h5'
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector24'
+    SECTOR = 24
     overwrite = False
     
     # Load the tce data h5
