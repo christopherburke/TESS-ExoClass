@@ -109,7 +109,7 @@ def coughlin_sigmap(p1,p2):
 
 
 if __name__ == '__main__':
-    fout = open('spatialmatch_otherP_sector24_20200604.txt', 'w')
+    fout = open('spatialmatch_otherP_sector25_20200717.txt', 'w')
     
     wideSearch = True
     searchRad = 30.0 # Arcsecond search radius for other TICs
@@ -179,7 +179,7 @@ if __name__ == '__main__':
 
 
     # Load the tce data pickle    
-    tceSeedInFile = 'sector24_20200604_tce.pkl'
+    tceSeedInFile = 'sector25_20200717_tce.pkl'
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
     fin.close()

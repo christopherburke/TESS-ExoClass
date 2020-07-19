@@ -53,15 +53,15 @@ def idx_filter(idx, *array_list):
 
 if __name__ == '__main__':
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector24'
-    SECTOR = 24
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector25'
+    SECTOR = 25
 
     
-    fileOut = 'spoc_modump_sector24_20200604.txt'    
+    fileOut = 'spoc_modump_sector25_20200717.txt'    
     fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector24_20200604.txt'
+    vetFile = 'spoc_fluxtriage_sector25_20200717.txt'
     #vetFile = 'junk.txt'
-    tceSeedInFile = 'sector24_20200604_tce.h5'
+    tceSeedInFile = 'sector25_20200717_tce.h5'
 
     # cadence number time mapping has momentum dump flags in it
     # It is generated in dvts_bulk_resamp.py
@@ -73,7 +73,7 @@ if __name__ == '__main__':
     bdTime = timemap[idx]
     
     # Load the tce data h5
-    tceSeedInFile = 'sector24_20200604_tce.h5'
+    tceSeedInFile = 'sector25_20200717_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
