@@ -148,50 +148,58 @@ def tpf_resamp(file, fileOut, RESAMP, lcFile):
 
 if __name__ == "__main__":
     #  Directory list for Sector light curve files
-#    fileInputPrefixList = ['/pdo/spoc-data/sector-01/sector_early_look/target-pixel/tess2018206045859-s0001-', \
-#                          '/pdo/spoc-data/sector-02/target-pixel/tess2018234235059-s0002-', \
-#                          '/pdo/spoc-data/sector-03/target-pixel/tess2018263035959-s0003-', \
-#                          '/pdo/spoc-data/sector-04/target-pixel/tess2018292075959-s0004-', \
-#                          '/pdo/spoc-data/sector-05/target-pixel/tess2018319095959-s0005-', \
-#                          '/pdo/spoc-data/sector-06/target-pixel/tess2018349182459-s0006-', \
-#                          '/pdo/spoc-data/sector-07/target-pixel/tess2019006130736-s0007-', \
-#                          '/pdo/spoc-data/sector-08/target-pixel/tess2019032160000-s0008-', \
-#                          '/pdo/spoc-data/sector-09/target-pixel/tess2019058134432-s0009-', \
-#                          '/pdo/spoc-data/sector-10/target-pixel/tess2019085135100-s0010-', \
-#                          '/pdo/spoc-data/sector-11/target-pixel/tess2019112060037-s0011-', \
-#                          '/pdo/spoc-data/sector-12/target-pixel/tess2019140104343-s0012-', \
-#                          '/pdo/spoc-data/sector-13/target-pixel/tess2019169103026-s0013-']
-#    fileInputSuffixList = ['-0120-s_tp.fits.gz', \
-#                           '-0121-s_tp.fits.gz', \
-#                           '-0123-s_tp.fits.gz', \
-#                           '-0124-s_tp.fits.gz', \
-#                           '-0125-s_tp.fits.gz', \
-#                           '-0126-s_tp.fits.gz', \
-#                           '-0131-s_tp.fits.gz', \
-#                           '-0136-s_tp.fits.gz', \
-#                           '-0139-s_tp.fits.gz', \
-#                           '-0140-s_tp.fits.gz', \
-#                           '-0143-s_tp.fits.gz', \
-#                           '-0144-s_tp.fits.gz', \
-#                           '-0146-s_tp.fits.gz']
-# In the case of a single sector One needs dummy entries for
-#  every sector
     fileInputPrefixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
                            '/foo6','/foo7','/foo8','/foo9','/foo10',\
-                           '/foo11','/foo12','/foo13','/foo14','/foo15',\
-                           '/foo16','/foo17','/foo18','/foo19','/foo20',\
-                           '/foo21','/foo22','/foo23','/foo24','/foo25',\
+                           '/foo11','/foo12','/foo13',\
+                           '/pdo/spoc-data/sector-014-20200415/target-pixel/tess2019198215352-s0014-', \
+                           '/pdo/spoc-data/sector-015-20200602/target-pixel/tess2019226182529-s0015-', \
+                           '/pdo/spoc-data/sector-016-20200602/target-pixel/tess2019253231442-s0016-',\
+                           '/pdo/spoc-data/sector-017-20200602/target-pixel/tess2019279210107-s0017-',\
+                           '/pdo/spoc-data/sector-018-20200602/target-pixel/tess2019306063752-s0018-',\
+                           '/pdo/spoc-data/sector-019-20200602/target-pixel/tess2019331140908-s0019-',\
+                           '/pdo/spoc-data/sector-020/target-pixel/tess2019357164649-s0020-',\
+                           '/pdo/spoc-data/sector-021/target-pixel/tess2020020091053-s0021-',\
+                           '/pdo/spoc-data/sector-022/target-pixel/tess2020049080258-s0022-',\
+                           '/pdo/spoc-data/sector-023/target-pixel/tess2020078014623-s0023-',\
+                           '/pdo/spoc-data/sector-024/target-pixel/tess2020106103520-s0024-',\
+                           '/pdo/spoc-data/sector-025/target-pixel/tess2020133194932-s0025-',\
                            '/pdo/spoc-data/sector-026/target-pixel/tess2020160202036-s0026-']
+
     fileInputSuffixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
                            '/foo6','/foo7','/foo8','/foo9','/foo10',\
-                           '/foo11', '/foo12', '/foo13','/foo14','/foo15',\
-                           '/foo16', '/foo17','/foo18','/foo19','/foo20',\
-                           '/foo21', '/foo22','/foo23','/foo24','/foo25',\
+                           '/foo11', '/foo12', '/foo13',\
+                           '-0150-s_tp.fits.gz', \
+                           '-0151-s_tp.fits.gz', \
+                           '-0152-s_tp.fits.gz',\
+                           '-0161-s_tp.fits.gz',\
+                           '-0162-s_tp.fits.gz',\
+                           '-0164-s_tp.fits.gz',\
+                           '-0165-s_tp.fits.gz',\
+                           '-0167-s_tp.fits.gz',\
+                           '-0174-s_tp.fits.gz',\
+                           '-0177-s_tp.fits.gz',\
+                           '-0180-s_tp.fits.gz',\
+                           '-0182-s_tp.fits.gz',\
                            '-0188-s_tp.fits.gz']
 
+# In the case of a single sector One needs dummy entries for
+#  every sector
+#    fileInputPrefixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
+#                           '/foo6','/foo7','/foo8','/foo9','/foo10',\
+#                           '/foo11','/foo12','/foo13','/foo14','/foo15',\
+#                           '/foo16','/foo17','/foo18','/foo19','/foo20',\
+#                           '/foo21','/foo22','/foo23','/foo24','/foo25',\
+#                           '/pdo/spoc-data/sector-014-026/target-pixel/tess2020160202036-s0026-']
+#    fileInputSuffixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
+#                           '/foo6','/foo7','/foo8','/foo9','/foo10',\
+#                           '/foo11', '/foo12', '/foo13','/foo14','/foo15',\
+#                           '/foo16', '/foo17','/foo18','/foo19','/foo20',\
+#                           '/foo21', '/foo22','/foo23','/foo24','/foo25',\
+#                           '-0188-s_tp.fits.gz']
+
     nSector = len(fileInputPrefixList)    
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector26/'
-    SECTOR = 26# =-1 if multi-sector
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector14-26/'
+    SECTOR = -1# =-1 if multi-sector
     RESAMP = 5  ###  USE AN ODD NUMBER HELPS WITH CADENCE NO ###
     overwrite = False
 
@@ -199,7 +207,7 @@ if __name__ == "__main__":
     #  You can specify a multisector tce seed file because
     #   al that it uses is TIC.  If it exists it is made
     # Load the tce data h5
-    tceSeedInFile = 'sector26_20200730_tce.h5'
+    tceSeedInFile = 'sector14-26_20200825_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
 

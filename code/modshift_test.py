@@ -283,24 +283,38 @@ def pgmcmc_prior(ioblk):
 
 if __name__ == '__main__':
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector26'
-    SECTOR = 26
-
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector14-26'
+    SECTOR = -1
+    OVERWRITE = False
     doPNGs = True
 #    pngFolder = '/pdo/users/cjburke/spocvet/sector2/pngs'
     # Run twice once with alt detrend and once with DV median detrend
-    medianInputFlux = False
-    fileOut = 'spoc_modshift_sector26_20200730.txt'
-    #medianInputFlux = True
-    #fileOut = 'spoc_modshift_med_sector26_20200730.txt'
-    
-    fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector26_20200730.txt'
+    #medianInputFlux = False
+    #fileOut = 'spoc_modshift_sector14-26_20200825.txt'
+    medianInputFlux = True
+    fileOut = 'spoc_modshift_med_sector14-26_20200825.txt'
+    rerun = False    
+    if os.path.exists(fileOut) and (not OVERWRITE):
+        # Read in previous output to get last TICvalue
+        dtypeseq=['i4','i4']
+        dtypeseq.extend(['f8']*17)
+        dtypeseq.extend(['i4']*6)
+        dtypeseq.extend(['f8','f8'])
+        dataBlock = np.genfromtxt(fileOut, dtype=dtypeseq)
+        modTic = dataBlock['f0']
+        lstTic = modTic[-1]
+        fom = open(fileOut, 'a+')
+        rerun = True
+    else:
+        fom = open(fileOut, 'w')
+    vetFile = 'spoc_fluxtriage_sector14-26_20200825.txt'
     #vetFile = 'junk.txt'
-    tceSeedInFile = 'sector26_20200730_tce.h5'
+    tceSeedInFile = 'sector14-26_20200825_tce.h5'
+    
+    badTic = np.array([], dtype=np.int64);
 
     # Load the tce data h5
-    tceSeedInFile = 'sector26_20200730_tce.h5'
+    tceSeedInFile = 'sector14-26_20200825_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
@@ -345,6 +359,17 @@ if __name__ == '__main__':
             alltic, allpn, allatvalid, allrp, allrstar, alllogg, allper, alltmags, \
             allmes, allsnr, alldur, allsolarflux, allatdep, allatepoch, \
             allatrpdrstar, allatrpdrstare, allatadrstar)
+            
+    if rerun:
+        idx = np.where((alltic == lstTic))[0]
+        idxUse = np.arange(idx[0]+1, len(alltic))
+        alltic, allpn, allatvalid, allrp, allrstar, alllogg, allper, alltmags, \
+                allmes, allsnr, alldur, allsolarflux, allatdep, allatepoch, \
+                allatrpdrstar, allatrpdrstare, allatadrstar = idx_filter(idxUse, \
+                alltic, allpn, allatvalid, allrp, allrstar, alllogg, allper, alltmags, \
+                allmes, allsnr, alldur, allsolarflux, allatdep, allatepoch, \
+                allatrpdrstar, allatrpdrstare, allatadrstar)
+        
     # These lines can be used for debugging
     #idx = np.where((alltic == alltic[530]))[0]
     #alltic, allpn, allatvalid, allrp, allrstar, alllogg, allper, alltmags, \
@@ -448,7 +473,7 @@ if __name__ == '__main__':
         ioblk, err = pgmcmc_model(ioblk)
         bigT = ioblk.bestphysvals[3]
         trp_per = ioblk.bestphysvals[0]
-        #phi = phaseData(ioblk.normts, allper[i], ioblk.bestphysvals[1])
+        phi = phaseData(ioblk.normts, allper[i], ioblk.bestphysvals[1])
         #plt.plot(phi, ioblk.normlc, '.')
         #plt.plot(phi, ioblk.modellc, '.')
         #plt.show()
@@ -476,85 +501,113 @@ if __name__ == '__main__':
         sysreturn, err = p.communicate()
         rc = p.returncode
         #print('alpha')
-        retlist = sysreturn.split()[1:]
-        primsig = float(retlist[0])
-        secsig = float(retlist[1])
-        tersig = float(retlist[2])
-        possig = float(retlist[3])
-        oesig = float(retlist[4])
-        depmnmedtest = float(retlist[5])
-        shptest = float(retlist[6])
-        asymtest = float(retlist[7])
-        threshany = float(retlist[8])
-        threshdiff = float(retlist[9])
-        fred = float(retlist[10])
-        primphi = float(retlist[11])
-        secphi = float(retlist[12])
-        terphi = float(retlist[13])
-        posphi = float(retlist[14])
-        secdep = float(retlist[15])
-        secdeperr = float(retlist[16])
-        
-        # determine if primary is significant relative to the other detections
-        primaryGd = True
-        primaryBdRsn = 0
-        # Check for fred == 0.0 issue in really bad light curves
-        if fred == 0.0:
-            fred = 1.0
-            primaryGd = False
-            primaryBdRsn = 8
-        if primsig/fred < threshany:
-            primaryGd = False
-            primaryBdRsn = 1
-        if primsig - tersig < threshdiff:
-            primaryGd = False
-            primaryBdRsn = primaryBdRsn + 2
-        if primsig - possig < threshdiff:
-            primaryGd = False
-            primaryBdRsn = primaryBdRsn + 4
-        # Determine if there is significant secondary
-        secondaryGd = True
-        secondaryBdRsn = 0
-        if secsig/fred < threshany:
-            secondaryGd = False
-            secondaryBdRsn = 1
-        if secsig - tersig < threshdiff:
-            secondaryGd = False
-            secondaryBdRsn = secondaryBdRsn + 2
-        if secsig - possig < threshdiff:
-            secondaryGd = False
-            seconaryBdRsn = secondaryBdRsn + 4
-        # If ther is a significant secondary look for overrided scenarios
-        secOvrRid = False
-        secOvrRidRsn = 0
-        prcalbedo = np.array([99.9, 99.9])
-        if secondaryGd:
-            # period is incorrect actually shouldbe half
-            if primsig - secsig < threshdiff:
-              phidiff = np.abs((primphi+0.5)-secphi)
-              if phidiff < bigT/trp_per*0.25:
-                  secOvrRid = True
-                  secOvrRidRsn = 1
-            # Look for secondary that could be planet albedo detect
-            if not secOvrRid:
-                Ntrials = 1000
-                ranrpDrstar = np.random.normal(allatrpdrstar[i], allatrpdrstare[i], size=(Ntrials,))
-                ransecdep = np.random.normal(secdep, secdeperr, size=(Ntrials,))
-                ranrpDa = ranrpDrstar / allatadrstar[i]
-                ranalbedo = ransecdep / ranrpDa / ranrpDa
-                prcalbedo = np.percentile(ranalbedo, [5.0, 50.0])
-                if prcalbedo[0] < 1.0:
-                    secOvrRid = True
-                    secOvrRidRsn = 2
-                    
-        
-        fom.write('{:016d} {:02d} {:s} {:d} {:d} {:d} {:d} {:d} {:d} {:f} {:f}\n'.format( \
-                      curTic, curPn, ' '.join(sysreturn.split()[1:]), int(primaryGd), primaryBdRsn, \
-                      int(secondaryGd), secondaryBdRsn, int(secOvrRid), secOvrRidRsn, \
-                      prcalbedo[0], prcalbedo[1]))
-        
+        #print(sysreturn)
+        #print(err)
+        #print('alpha')
+        #print('data valid')
+        #print(np.all(np.isfinite(ioblk.normlc)))
+        #print('time valid')
+        #print(np.all(np.isfinite(ioblk.normts)))
+        #print('model valid')
+        #print(np.all(np.isfinite(ioblk.modellc)))
+        # Check if there was a bad return from modshift
+        if not sysreturn:
+            print('Bad modshift return values')
+            # Did not get good values from modshift try one hail marry where the period is halved just
+            #  to get some results
+            #  Add tic to bad list
+            badTic = np.append(badTic, curTic)
+            syscall = '/pdo/users/cjburke/spocvet/sector4/modshift {:s} {:s} {:016d}_{:02d} {:f} {:f} 1'.format(\
+                            fileOutput, pngOutputPrefix, curTic, curPn, ioblk.bestphysvals[0]/2.0, ioblk.bestphysvals[1])
+            p = Popen(syscall.split(), stdin=None, stdout=PIPE, stderr=PIPE)
+            sysreturn, err = p.communicate()
+            rc = p.returncode
+            
+        if sysreturn:
+            retlist = sysreturn.split()[1:]
+            primsig = float(retlist[0])
+            secsig = float(retlist[1])
+            tersig = float(retlist[2])
+            possig = float(retlist[3])
+            oesig = float(retlist[4])
+            depmnmedtest = float(retlist[5])
+            shptest = float(retlist[6])
+            asymtest = float(retlist[7])
+            threshany = float(retlist[8])
+            threshdiff = float(retlist[9])
+            fred = float(retlist[10])
+            primphi = float(retlist[11])
+            secphi = float(retlist[12])
+            terphi = float(retlist[13])
+            posphi = float(retlist[14])
+            secdep = float(retlist[15])
+            secdeperr = float(retlist[16])
+            
+            # determine if primary is significant relative to the other detections
+            primaryGd = True
+            primaryBdRsn = 0
+            # Check for fred == 0.0 issue in really bad light curves
+            if fred == 0.0:
+                fred = 1.0
+                primaryGd = False
+                primaryBdRsn = 8
+            if primsig/fred < threshany:
+                primaryGd = False
+                primaryBdRsn = 1
+            if primsig - tersig < threshdiff:
+                primaryGd = False
+                primaryBdRsn = primaryBdRsn + 2
+            if primsig - possig < threshdiff:
+                primaryGd = False
+                primaryBdRsn = primaryBdRsn + 4
+            # Determine if there is significant secondary
+            secondaryGd = True
+            secondaryBdRsn = 0
+            if secsig/fred < threshany:
+                secondaryGd = False
+                secondaryBdRsn = 1
+            if secsig - tersig < threshdiff:
+                secondaryGd = False
+                secondaryBdRsn = secondaryBdRsn + 2
+            if secsig - possig < threshdiff:
+                secondaryGd = False
+                seconaryBdRsn = secondaryBdRsn + 4
+            # If ther is a significant secondary look for overrided scenarios
+            secOvrRid = False
+            secOvrRidRsn = 0
+            prcalbedo = np.array([99.9, 99.9])
+            if secondaryGd:
+                # period is incorrect actually shouldbe half
+                if primsig - secsig < threshdiff:
+                  phidiff = np.abs((primphi+0.5)-secphi)
+                  if phidiff < bigT/trp_per*0.25:
+                      secOvrRid = True
+                      secOvrRidRsn = 1
+                # Look for secondary that could be planet albedo detect
+                if not secOvrRid:
+                    Ntrials = 1000
+                    ranrpDrstar = np.random.normal(allatrpdrstar[i], allatrpdrstare[i], size=(Ntrials,))
+                    ransecdep = np.random.normal(secdep, secdeperr, size=(Ntrials,))
+                    ranrpDa = ranrpDrstar / allatadrstar[i]
+                    ranalbedo = ransecdep / ranrpDa / ranrpDa
+                    prcalbedo = np.percentile(ranalbedo, [5.0, 50.0])
+                    if prcalbedo[0] < 1.0:
+                        secOvrRid = True
+                        secOvrRidRsn = 2
+                        
+            
+            fom.write('{:016d} {:02d} {:s} {:d} {:d} {:d} {:d} {:d} {:d} {:f} {:f}\n'.format( \
+                          curTic, curPn, ' '.join(sysreturn.split()[1:]), int(primaryGd), primaryBdRsn, \
+                          int(secondaryGd), secondaryBdRsn, int(secOvrRid), secOvrRidRsn, \
+                          prcalbedo[0], prcalbedo[1]))
+        else:
+            print('Still Bad TIC: {0:d}'.format(curTic))
+            badTic = np.append(badTic, curTic)
         
         
         
 
     fom.close()
+
+    print('There were {0:d} Bad TICS'.format(len(badTic)))
+    print(badTic)
