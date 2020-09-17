@@ -27,20 +27,20 @@ def make_data_dirs(prefix, sector, epic):
 
 if __name__ == '__main__':
     # These are for parallel procoessing
-    wID = 2
-    nWrk = 3
+    wID = 0
+    nWrk = 1
     
-    summaryFolder = '/pdo/spoc-data/sector-014-026/dv-reports'
-    summaryPrefix = 'tess2019199201929-'
-    summaryPostfix = '-00353_dvr.pdf'
-    SECTOR1 = 14
-    SECTOR2 = 26
+    summaryFolder = '/pdo/spoc-data/sector-027/dv-reports'
+    summaryPrefix = 'tess2020187183116-'
+    summaryPostfix = '-00362_dvr.pdf'
+    SECTOR1 = 27
+    SECTOR2 = 27
     multiRun = False
     if SECTOR2 - SECTOR1 > 0:
         multiRun = True
-    tceSeedInFile = 'sector14-26_20200825_tce.h5'
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector14-26'
-    SECTOR = -1
+    tceSeedInFile = 'sector27_20200905_tce.h5'
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector27'
+    SECTOR = 27
     overwrite = False
     
     # Load the tce data h5
