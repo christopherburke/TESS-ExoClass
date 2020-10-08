@@ -28,11 +28,11 @@ def idx_filter(idx, *array_list):
 
 if __name__ == '__main__':
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector27'
-    SECTOR = 27
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector28'
+    SECTOR = 28
 
     doPDFs = True
-    vetFile = 'spoc_fluxtriage_sector27_20200905.txt'
+    vetFile = 'spoc_fluxtriage_sector28_20200925.txt'
     overwrite = False
 
     # Load the  flux vetting

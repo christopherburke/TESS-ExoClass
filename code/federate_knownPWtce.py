@@ -126,7 +126,7 @@ def coughlin_sigmap(p1,p2):
 
 
 if __name__ == '__main__':
-    fout = open('federate_knownP_sector27_20200905.txt', 'w')
+    fout = open('federate_knownP_sector28_20200925.txt', 'w')
     dataSpan = 27.0
     wideSearch = True
     searchRad = 180.0 # Arcsecond search radius for other TICs
@@ -217,7 +217,7 @@ if __name__ == '__main__':
 
 
     # Load the tce data h5
-    tceSeedInFile = 'sector27_20200905_tce.h5'
+    tceSeedInFile = 'sector28_20200925_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
