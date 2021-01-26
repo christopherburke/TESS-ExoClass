@@ -123,7 +123,7 @@ def query_othertics(ticWant, searchRad):
         ticList = [x['ID'] for x in outObject['data']]
     except:
         # No tic or somehow fail
-        print('TIC Searach {:d} Fail!'.format(ticWant))
+        print('TIC Search {:d} Fail!'.format(ticWant))
         ticList = [ticWant]
 
     return ticList
@@ -131,10 +131,13 @@ def query_othertics(ticWant, searchRad):
 
 
 if __name__ == '__main__':
-    fout = open('federate_toiWtce_sector31_20201218.txt', 'w')
+    fout = open('federate_toiWtce_sector32_20200125.txt', 'w')
     dataSpan = 27.0
 
-    wideSearch = True
+    wideSearch = True # Do MASTTIC query if true to search
+                        # for nearby matches in case the
+                        # signal is found on a different TIC
+                        # than in the TOIcatalog
     searchRad = 180.0 # Arcsecond search radius for other TICs
     # Check to see if cadence to time mappting is available
     hasCadTimeMap = False
@@ -168,7 +171,7 @@ if __name__ == '__main__':
     # To fix string before reading in
     # As of Oct. 2019 I needed to use this to fix commas in strings
     # sed -e 's/""//g' -e 's/,"[^"]*/,"NOCOMMENT/g' csv-file-2019-10-29.csv > toi-plus-2019-10-29-fixed.csv
-    qlpfile = 'csv-file-toi-catalog-fixed-20201218.csv'
+    qlpfile = 'csv-file-toi-catalog-fixed-20200125.csv'
     dtypeseq = ['U20','i4','f8','U2']
     dtypeseq.extend(['f8']*12)
     dtypeseq.extend(['U20','U80'])
@@ -196,7 +199,7 @@ if __name__ == '__main__':
 #                                gtTOI, gtDisp, gtPer, gtEpc, gtDur)
 
     # Load the tce data h5
-    tceSeedInFile = 'sector31_20201218_tce.h5'
+    tceSeedInFile = 'sector32_20200125_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
@@ -250,6 +253,7 @@ if __name__ == '__main__':
         curToi = gtTOI[i]
         # If wideSearch True then query MAST for 
         #  all TICs within searchRad arcsec of this target
+        print('Current Tic Search {0:d}'.format(curTic))
         if wideSearch:
             otherTICs = np.array(query_othertics(curTic, searchRad), dtype=np.int64)
             #otherTICs = np.sort(otherTICs)
