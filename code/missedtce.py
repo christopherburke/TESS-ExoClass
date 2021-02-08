@@ -30,7 +30,7 @@ if __name__ == '__main__':
     gtPN = dataBlock['f1']
 
     # Load the tce data pickle    
-    tceSeedInFile = 'sector32_20200125_tce.pkl'
+    tceSeedInFile = 'sector33_20200208_tce.pkl'
     fin = open(tceSeedInFile, 'rb')
     all_tces = pickle.load(fin)
     fin.close()
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     uniqTic = np.unique(alltic)
     print('Total Targets {0:d}'.format(len(uniqTic)))
     
-    vetFile = 'spoc_fluxtriage_sector32_20200125.txt'
+    vetFile = 'spoc_fluxtriage_sector33_20200208.txt'
     # Load the  flux vetting
     dataBlock = np.genfromtxt(vetFile, dtype=[int,int,int,'S1'])
     fvtic = dataBlock['f0']
