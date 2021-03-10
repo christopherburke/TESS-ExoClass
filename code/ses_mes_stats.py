@@ -282,21 +282,21 @@ if __name__ == "__main__":
     nWrk = int(args.n)
     # Load the h5 file that contains TCE seed information
     # The h5 file is created by gather_tce_fromdvxml.py
-    tceSeedInFile = 'sector33_20200208_tce.h5'
+    tceSeedInFile = 'sector34_20210303_tce.h5'
     #  Directory storing the resampled dv time series data
-    dvDataDir = '/pdo/users/cjburke/spocvet/sector33'
+    dvDataDir = '/pdo/users/cjburke/spocvet/sector34'
     # Directory of output hd5 files
     outputDir = dvDataDir
-    SECTOR = 33
+    SECTOR = 34
     # What fraction of data can be missing and still calculat ses_mes
     # In Sector 1 due to the 2 days of missing stuff it was 0.68
     validFrac = 0.52
     overWrite = False
 
     # Skyline data excises loud cadecnes
-    skyline_file = 'skyline_data_sector33_20200208.txt'
+    skyline_file = 'skyline_data_sector34_20210303.txt'
     if os.path.isfile(skyline_file):
-        dataBlock = np.genfromtxt('skyline_data_sector33_20200208.txt', dtype=['f8'])
+        dataBlock = np.genfromtxt('skyline_data_sector34_20210303.txt', dtype=['f8'])
         badTimes = dataBlock['f0']
         if len(badTimes) < 2:
             badTimes = np.array([0.0])
