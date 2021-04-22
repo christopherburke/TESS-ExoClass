@@ -1,37 +1,37 @@
 #!/bin/bash
 
-OLD_NAME="sector34_20210303"
-NEW_NAME="sector35_20210407"
+OLD_NAME="sector35_20210407"
+NEW_NAME="sector36_20210421"
 
-OLD1="SECTOR = 34"
-NEW1="SECTOR = 35"
+OLD1="SECTOR = 35"
+NEW1="SECTOR = 36"
 
-OLD2="SECTOR1 = 34"
-NEW2="SECTOR1 = 35"
+OLD2="SECTOR1 = 35"
+NEW2="SECTOR1 = 36"
 
-OLD3="SECTOR2 = 34"
-NEW3="SECTOR2 = 35"
+OLD3="SECTOR2 = 35"
+NEW3="SECTOR2 = 36"
 
 # This replaces my local directory
-OLD4="sector34"
-NEW4="sector35"
+OLD4="sector35"
+NEW4="sector36"
 
 # This replaces SPOC data directory
-OLD5="sector-034"
-NEW5="sector-035"
+OLD5="sector-035"
+NEW5="sector-036"
 
 # DV report prefix
-OLD6="tess2021014055109-"
-NEW6="tess2021040113508-"
+OLD6="tess2021040113508-"
+NEW6="tess2021066093107-"
 # DV report postfix
-OLD7="-00444"
-NEW7="-00453"
+OLD7="-00453"
+NEW7="-00460"
 
 #LC prefix
-OLD8="tess2021014023720-s0034-"
-NEW8="tess2021039152502-s0035-"
-OLD9="-0204-s"
-NEW9="-0205-s"
+OLD8="tess2021039152502-s0035-"
+NEW8="tess2021065132309-s0036-"
+OLD9="-0205-s"
+NEW9="-0207-s"
 
 for name in `ls *py`; do
   echo $name

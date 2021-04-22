@@ -282,21 +282,21 @@ if __name__ == "__main__":
     nWrk = int(args.n)
     # Load the h5 file that contains TCE seed information
     # The h5 file is created by gather_tce_fromdvxml.py
-    tceSeedInFile = 'sector35_20210407_tce.h5'
+    tceSeedInFile = 'sector36_20210421_tce.h5'
     #  Directory storing the resampled dv time series data
-    dvDataDir = '/pdo/users/cjburke/spocvet/sector35'
+    dvDataDir = '/pdo/users/cjburke/spocvet/sector36'
     # Directory of output hd5 files
     outputDir = dvDataDir
-    SECTOR = 35
+    SECTOR = 36
     # What fraction of data can be missing and still calculat ses_mes
     # In Sector 1 due to the 2 days of missing stuff it was 0.68
     validFrac = 0.52
     overWrite = False
 
     # Skyline data excises loud cadecnes
-    skyline_file = 'skyline_data_sector35_20210407.txt'
+    skyline_file = 'skyline_data_sector36_20210421.txt'
     if os.path.isfile(skyline_file):
-        dataBlock = np.genfromtxt('skyline_data_sector35_20210407.txt', dtype=['f8'])
+        dataBlock = np.genfromtxt('skyline_data_sector36_20210421.txt', dtype=['f8'])
         badTimes = dataBlock['f0']
         if len(badTimes) < 2:
             badTimes = np.array([0.0])
@@ -316,7 +316,7 @@ if __name__ == "__main__":
     # These next few lines can be used to examine a single target    
     #all_epics = np.array([x.epicId for x in all_tces], dtype=np.int64)
     #all_pns = np.array([x.planetNum for x in all_tces], dtype=np.int)
-    #ia = np.where((all_epics == 24843062) & (all_pns == 1))[0]
+    #ia = np.where((all_epics == 48779170) & (all_pns == 2))[0]
     #doDebug = True
     # Loop over tces and perform various ses, mes, chases tests
     cnt = 0

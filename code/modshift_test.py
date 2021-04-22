@@ -283,16 +283,16 @@ def pgmcmc_prior(ioblk):
 
 if __name__ == '__main__':
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector35'
-    SECTOR = 35
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector36'
+    SECTOR = 36
     OVERWRITE = False
     doPNGs = True
 #    pngFolder = '/pdo/users/cjburke/spocvet/sector2/pngs'
     # Run twice once with alt detrend and once with DV median detrend
-    #medianInputFlux = False
-    #fileOut = 'spoc_modshift_sector35_20210407.txt'
-    medianInputFlux = True
-    fileOut = 'spoc_modshift_med_sector35_20210407.txt'
+    medianInputFlux = False
+    fileOut = 'spoc_modshift_sector36_20210421.txt'
+    #medianInputFlux = True
+    #fileOut = 'spoc_modshift_med_sector36_20210421.txt'
     rerun = False    
     if os.path.exists(fileOut) and (not OVERWRITE):
         # Read in previous output to get last TICvalue
@@ -307,14 +307,14 @@ if __name__ == '__main__':
         rerun = True
     else:
         fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector35_20210407.txt'
+    vetFile = 'spoc_fluxtriage_sector36_20210421.txt'
     #vetFile = 'junk.txt'
-    tceSeedInFile = 'sector35_20210407_tce.h5'
+    tceSeedInFile = 'sector36_20210421_tce.h5'
     
     badTic = np.array([], dtype=np.int64);
 
     # Load the tce data h5
-    tceSeedInFile = 'sector35_20210407_tce.h5'
+    tceSeedInFile = 'sector36_20210421_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     

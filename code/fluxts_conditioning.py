@@ -192,7 +192,7 @@ def detrend_with_smoothn_edgefix(flux, vd, ootvd, durat, fixEdge=True, \
     # We only need this median filter to get the alpha parameter from smoothn
     # Trim away the begining and end to remove edge effects
     # Protect agains tmp_medfilt being shorter than twice medfilterlen
-    if len(tmp_medfilt) > 2*medfilterlen:
+    if len(tmp_medfilt) > 3*medfilterlen:
         tmp2_medfilt = tmp_medfilt[medfilterlen:-medfilterlen]
     else:
         medfilterlen = int(0.1*len(tmp_medfilt))
