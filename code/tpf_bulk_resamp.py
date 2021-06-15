@@ -163,7 +163,7 @@ if __name__ == "__main__":
 #                           '/pdo/spoc-data/sector-023/target-pixel/tess2020078014623-s0023-',\
 #                           '/pdo/spoc-data/sector-024/target-pixel/tess2020106103520-s0024-',\
 #                           '/pdo/spoc-data/sector-025/target-pixel/tess2020133194932-s0025-',\
-#                           '/pdo/spoc-data/sector-026/target-pixel/tess2021065132309-s0036-']
+#                           '/pdo/spoc-data/sector-026/target-pixel/tess2021091135823-s0037-']
 #
 #    fileInputSuffixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
 #                           '/foo6','/foo7','/foo8','/foo9','/foo10',\
@@ -191,7 +191,8 @@ if __name__ == "__main__":
                            '/foo21','/foo22','/foo23','/foo24','/foo25',\
                            '/foo26','/foo27','/foo28','/foo29','/foo30',\
                            '/foo31','/foo32','/foo33','/foo34','/foo35',\
-                           '/pdo/spoc-data/sector-036/target-pixel/tess2021065132309-s0036-']
+                           '/foo36',\
+                           '/pdo/spoc-data/sector-037/target-pixel/tess2021091135823-s0037-']
     fileInputSuffixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
                            '/foo6','/foo7','/foo8','/foo9','/foo10',\
                            '/foo11', '/foo12', '/foo13','/foo14','/foo15',\
@@ -199,11 +200,12 @@ if __name__ == "__main__":
                            '/foo21', '/foo22','/foo23','/foo24','/foo25',\
                            '/foo26','/foo27','/foo28','/foo29','/foo30',\
                            '/foo31','/foo32','/foo33','/foo34','/foo35',\
-                           '-0207-s_tp.fits.gz']
+                           '/foo36',\
+                           '-0208-s_tp.fits.gz']
 
     nSector = len(fileInputPrefixList)    
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector36/'
-    SECTOR = 36# =-1 if multi-sector
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector37/'
+    SECTOR = 37# =-1 if multi-sector
     RESAMP = 5  ###  USE AN ODD NUMBER HELPS WITH CADENCE NO ###
     overwrite = False
 
@@ -211,7 +213,7 @@ if __name__ == "__main__":
     #  You can specify a multisector tce seed file because
     #   al that it uses is TIC.  If it exists it is made
     # Load the tce data h5
-    tceSeedInFile = 'sector36_20210421_tce.h5'
+    tceSeedInFile = 'sector37_20210614_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
 
