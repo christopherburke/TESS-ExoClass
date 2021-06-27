@@ -11,6 +11,7 @@ from gather_tce_fromdvxml import tce_seed
 import os
 from subprocess import Popen, PIPE
 import math
+import glob
 
 def make_data_dirs(prefix, sector, epic):
     secDir = 'S{0:02d}'.format(sector)
@@ -27,20 +28,20 @@ def make_data_dirs(prefix, sector, epic):
 
 if __name__ == '__main__':
     # These are for parallel procoessing
-    wID = 0
-    nWrk = 1
+    wID = 4
+    nWrk = 5
     
-    summaryFolder = '/pdo/spoc-data/sector-037/dv-reports'
-    summaryPrefix = 'tess2021092173506-'
-    summaryPostfix = '-00478_dvr.pdf'
-    SECTOR1 = 37
-    SECTOR2 = 37
+    summaryFolder = '/pdo/spoc-data/sector-001-036/dv-reports'
+    summaryPrefix = 'tess2018206190142-'
+    summaryPostfix = '-00471_dvr.pdf'
+    SECTOR1 = 1
+    SECTOR2 = 36
     multiRun = False
     if SECTOR2 - SECTOR1 > 0:
         multiRun = True
-    tceSeedInFile = 'sector37_20210614_tce.h5'
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector37'
-    SECTOR = 37
+    tceSeedInFile = 'sector1-36_20210615_tce.h5'
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-36'
+    SECTOR = -1
     overwrite = False
     
     # Load the tce data h5
@@ -57,7 +58,16 @@ if __name__ == '__main__':
             curTic = alltic[i]
             print(curTic, i, len(alltic))
             curPN = allpn[i]
-            dvReportFile = os.path.join(summaryFolder,'{0}s{1:04d}-s{2:04d}-{3:016d}{4}'.format(summaryPrefix,SECTOR1,SECTOR2,curTic,summaryPostfix))
+            srchstr = '{0}s{1:04d}-s{2:04d}-{3:016d}{4}'.format(summaryPrefix,SECTOR1,SECTOR2,curTic,'*dvr.pdf')
+            dvReportFileList = glob.glob(os.path.join(summaryFolder,srchstr))
+            if not len(dvReportFileList)==1:
+                if len(dvReportFileList) == 0:
+                    print('EXITING! worker {0:d} of {1:d} Could not find {2}'.format(wID, nWrk, srchstr))
+                    exit()
+                else:
+                    print('EXITING! worker {0:d} of {1:d} Found multiple files from {2}'.format(wID, nWrk, srchstr))
+                    exit()
+            dvReportFile = dvReportFileList[0]
     #        comstring = 'pdftotext -layout {0} - | grep -A 12 \"Difference image for target {1:d}, planet candidate {2:d}\" | tail -n 1'.format(dvReportFile, curTic, curPN)
     
             # Need to also determine number of contents pages before page 1
@@ -70,6 +80,7 @@ if __name__ == '__main__':
             rc = p2.returncode
             retlist = sysreturn.split('\n')
             pgistr = retlist[0].strip(' ')
+            prePages = 0
             if pgistr == 'ii':
                 prePages = 2
             if pgistr == 'iii':
@@ -84,6 +95,10 @@ if __name__ == '__main__':
                 prePages = 7
             if pgistr == 'viii':
                 prePages = 8
+            if prePages == 0:
+                print('EXITING! worker {0:d} of {1:d} found unexpected number of prepages {2}'.format(wID, nWrk, srchstr))
+                exit()
+
             #prePages = len(retlist[0].split('i'))-1
             if multiRun: # There is a summary centroid plot get its page and save it out
                 grep_com = ['grep','-A','5','planet-{0:02d}/difference-image/{1:016d}-{0:02d}-difference-image-centroid-offsets.fig'.format(curPN,curTic)]

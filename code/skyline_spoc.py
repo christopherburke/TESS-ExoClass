@@ -36,10 +36,10 @@ def genericFed(per, epc, tryper, tryepc, trydur, trypn, trytic, tStart, tEnd):
 
 
 if __name__ == '__main__':
-    fout = open('skyline_data_sector37_20210614.txt', 'w')
+    fout = open('skyline_data_sector1-36_20210615.txt', 'w')
     
     # Load the tce data h5
-    tceSeedInFile = 'sector37_20210614_tce.h5'
+    tceSeedInFile = 'sector1-36_20210615_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     

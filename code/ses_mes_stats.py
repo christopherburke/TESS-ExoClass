@@ -282,21 +282,25 @@ if __name__ == "__main__":
     nWrk = int(args.n)
     # Load the h5 file that contains TCE seed information
     # The h5 file is created by gather_tce_fromdvxml.py
-    tceSeedInFile = 'sector37_20210614_tce.h5'
+    tceSeedInFile = 'sector1-36_20210615_tce.h5'
     #  Directory storing the resampled dv time series data
-    dvDataDir = '/pdo/users/cjburke/spocvet/sector37'
+    dvDataDir = '/pdo/users/cjburke/spocvet/sector1-36'
     # Directory of output hd5 files
     outputDir = dvDataDir
-    SECTOR = 37
+    SECTOR = -1
     # What fraction of data can be missing and still calculat ses_mes
     # In Sector 1 due to the 2 days of missing stuff it was 0.68
-    validFrac = 0.52
-    overWrite = False
+    # For multisector this does not need to be adjusted because
+    # there is a check that will remove blocks of data if >7 days
+    # are missing. Those are treated as missing sectors
+    # and are removed from the validFrac calculation
+    validFrac = 0.56
+    overWrite = True
 
     # Skyline data excises loud cadecnes
-    skyline_file = 'skyline_data_sector37_20210614.txt'
+    skyline_file = 'skyline_data_sector1-36_20210615.txt'
     if os.path.isfile(skyline_file):
-        dataBlock = np.genfromtxt('skyline_data_sector37_20210614.txt', dtype=['f8'])
+        dataBlock = np.genfromtxt('skyline_data_sector1-36_20210615.txt', dtype=['f8'])
         badTimes = dataBlock['f0']
         if len(badTimes) < 2:
             badTimes = np.array([0.0])
@@ -314,10 +318,10 @@ if __name__ == "__main__":
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
 
     # These next few lines can be used to examine a single target    
-    #all_epics = np.array([x.epicId for x in all_tces], dtype=np.int64)
-    #all_pns = np.array([x.planetNum for x in all_tces], dtype=np.int)
-    #ia = np.where((all_epics == 48779170) & (all_pns == 2))[0]
-    #doDebug = True
+#    all_epics = np.array([x.epicId for x in all_tces], dtype=np.int64)
+#    all_pns = np.array([x.planetNum for x in all_tces], dtype=np.int)
+#    ia = np.where((all_epics == 278139637) & (all_pns == 3))[0]
+#    doDebug = True
     # Loop over tces and perform various ses, mes, chases tests
     cnt = 0
     doDebug = False

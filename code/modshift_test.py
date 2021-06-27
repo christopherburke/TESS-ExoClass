@@ -283,16 +283,18 @@ def pgmcmc_prior(ioblk):
 
 if __name__ == '__main__':
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector37'
-    SECTOR = 37
-    OVERWRITE = False
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-36'
+    SECTOR = -1
+    OVERWRITE = True
     doPNGs = True
 #    pngFolder = '/pdo/users/cjburke/spocvet/sector2/pngs'
     # Run twice once with alt detrend and once with DV median detrend
     medianInputFlux = False
-    fileOut = 'spoc_modshift_sector37_20210614.txt'
+    fileOut = 'spoc_modshift_sector1-36_20210615.txt'
     #medianInputFlux = True
-    #fileOut = 'spoc_modshift_med_sector37_20210614.txt'
+    #fileOut = 'spoc_modshift_med_sector1-36_20210615.txt'
+    # Debugging fileout
+    #fileOut = 'junk.txt'
     rerun = False    
     if os.path.exists(fileOut) and (not OVERWRITE):
         # Read in previous output to get last TICvalue
@@ -307,14 +309,14 @@ if __name__ == '__main__':
         rerun = True
     else:
         fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector37_20210614.txt'
+    vetFile = 'spoc_fluxtriage_sector1-36_20210615.txt'
     #vetFile = 'junk.txt'
-    tceSeedInFile = 'sector37_20210614_tce.h5'
+    tceSeedInFile = 'sector1-36_20210615_tce.h5'
     
     badTic = np.array([], dtype=np.int64);
 
     # Load the tce data h5
-    tceSeedInFile = 'sector37_20210614_tce.h5'
+    tceSeedInFile = 'sector1-36_20210615_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
@@ -372,6 +374,7 @@ if __name__ == '__main__':
         
     # These lines can be used for debugging
     #idx = np.where((alltic == alltic[530]))[0]
+    #idx = np.where((alltic == 284789252))[0]
     #alltic, allpn, allatvalid, allrp, allrstar, alllogg, allper, alltmags, \
     #        allmes, allsnr, alldur, allsolarflux, allatdep, allatepoch, \
     #        allatrpdrstar, allatrpdrstare, allatadrstar = idx_filter(idx, \
@@ -402,11 +405,11 @@ if __name__ == '__main__':
         # Instantiate pgmcmc_ioblk class and fill in values
         ioblk = pgmcmc_ioblk()
         ioblk.parm.samplen = 15
-        ioblk.parm.cadlen = np.abs(np.median(np.diff(time)))
+        idxGd = np.where(validData)[0]
+        ioblk.parm.cadlen = np.abs(np.median(np.diff(time[idxGd])))
         print('Cadence Length: {:7.4f}'.format(ioblk.parm.cadlen))
         ioblk.parm.fitregion = 4.0
         ioblk.parm.debugLevel = 3
-        idxGd = np.where(validData)[0]
         ioblk.normlc = altDetrend[idxGd]
         ioblk.normes = robust.mad(ioblk.normlc)
         ioblk.normts = time[idxGd]

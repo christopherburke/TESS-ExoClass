@@ -135,10 +135,10 @@ def genericFed(per, epc, tryper, tryepc, trydur, trypn, trytic, tStart, tEnd):
 
 
 if __name__ == '__main__':
-    fout = open('selfMatch_sector37_20210614.txt', 'w')
+    fout = open('selfMatch_sector1-36_20210615.txt', 'w')
     dataSpan = 27.0
     # Load the tce data h5
-    tceSeedInFile = 'sector37_20210614_tce.h5'
+    tceSeedInFile = 'sector1-36_20210615_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     # Check to see if cadence to time mappting is available
@@ -257,8 +257,14 @@ if __name__ == '__main__':
             # If federation found calculate spatial separation between TICs
             bstSep = -99.0
             if bstFederateFlag == 1:
-                bstSep = getTICSep(curTic, bsttic)
-
+                try:
+                    bstSep = getTICSep(curTic, bsttic)
+                except:
+                    # try again
+                    try:
+                        bstSep = getTICSep(curTic, bsttic)
+                    except:
+                        bstSep = 9999.9
             str = '{:12d} {:2d} {:12d} {:2d} {:2d} {:6.3f} {:2d} {:10.5f} {:2d} {:6.2f} {:d}\n'.format(curTic, \
                    curToi, bsttic, bstpn, bstMatch, bstStat, bstPeriodRatioFlag, \
                    bstPeriodRatio, bstFederateFlag, bstSep, nFed)

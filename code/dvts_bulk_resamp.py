@@ -63,6 +63,7 @@ def dvts_resamp(file, dirOut, RESAMP, SECTOR=None, overwrite=True):
     kpCadenceNo = np.array([0], dtype=np.int)
     kpTimetbjd = np.array([0.0], dtype=np.float)
     kpQuality = np.array([0], dtype=np.int)
+    kpPDC = np.array([0.0], dtype=np.float)
     for ii in range(nTces):
         # Check if already done
         epic = hdulist[0].header['TICID']
@@ -96,6 +97,13 @@ def dvts_resamp(file, dirOut, RESAMP, SECTOR=None, overwrite=True):
             kpQuality = hdulist['statistics'].data['QUALITY']
             kpPDC = hdulist['statistics'].data['PDCSAP_FLUX']
 
+            # Fix the issue of having times close to zero
+            # First get time stamps on valid data
+            idx = np.where((np.isfinite(timetbjd)) & (np.isfinite(lc_init)) & (np.isfinite(pdc_flux)))[0]
+            # minimum time on valid data
+            minGdTime = np.min(timetbjd[idx])
+            idx = np.where(timetbjd < minGdTime-1.0)[0]
+            timetbjd[idx] = np.nan
     
             newNImage = int(np.floor(nImage / RESAMP))
             oldNImage = newNImage*RESAMP
@@ -187,23 +195,37 @@ def dvts_resamp(file, dirOut, RESAMP, SECTOR=None, overwrite=True):
 
 if __name__ == "__main__":
 
-    dirInputs = '/pdo/spoc-data/sector-037/dv-time-series/'
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector37/'
+    dirInputs = '/pdo/spoc-data/sector-001-036/dv-time-series/'
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector1-36/'
     RESAMP = 5  ###  USE AN ODD NUMBER HELPS WITH CADENCE NO ###
-    SECTOR_OVRRIDE = None # If NOT multisector set this to None ###
+    SECTOR_OVRRIDE = -1 # If NOT multisector set this to None ###
     overwrite = True # Set False to keep old results and only do files that dont exist
 
     fileList = glob.glob(os.path.join(dirInputs, '*dvt.fits*'))
+    
+    # For debugging a target filter fileList to wanttic string
+    #wanttic='278139637'
+    #newFileList = []
+    #for fil in fileList:
+    #    if fil.find(wanttic) != -1:
+    #        newFileList.append(fil)
+    #fileList = newFileList
+    # END target debugging
+    
     cnt = 0
     # Keep track of max data span for use in federation
     dataSpanMax = 0.0
+    gdFracMax = 0.0
     for fil in fileList:
         cnt = cnt + 1
         if np.mod(cnt,10) == 0:
-            print(cnt,' Data Span {0:f}'.format(dataSpanMax))
+            print(cnt,' Data Span {0:f} GdFrac: {1:f}'.format(dataSpanMax, gdFracMax))
         dataSpan, cadno, timetjd, quality, pdc = dvts_resamp(fil, dirOutputs, RESAMP, SECTOR=SECTOR_OVRRIDE, overwrite=overwrite)
-        if dataSpan > dataSpanMax:
+        nData = len(quality)
+        gdFrac = float(len(np.where((quality==0) & (np.isfinite(pdc)==True))[0]))/float(nData)
+        if dataSpan+2.0*gdFrac > dataSpanMax+2.0*gdFracMax:
             dataSpanMax = dataSpan
+            gdFracMax = gdFrac
             fout = open('cadnoVtimemap.txt','w')
             for i, cad in enumerate(cadno):
                 momdump = int(0)

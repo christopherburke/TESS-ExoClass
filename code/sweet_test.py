@@ -218,16 +218,16 @@ if __name__ == '__main__':
     MAXPER = 5.0
     
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector37'
-    SECTOR = 37
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-36'
+    SECTOR = -1
 
-    fileOut = 'spoc_sweet_sector37_20210614.txt'
+    fileOut = 'spoc_sweet_sector1-36_20210615.txt'
     fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector37_20210614.txt'
-    tceSeedInFile = 'sector37_20210614_tce.h5'
+    vetFile = 'spoc_fluxtriage_sector1-36_20210615.txt'
+    tceSeedInFile = 'sector1-36_20210615_tce.h5'
 
     # Load the tce data h5
-    tceSeedInFile = 'sector37_20210614_tce.h5'
+    tceSeedInFile = 'sector1-36_20210615_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
@@ -287,11 +287,11 @@ if __name__ == '__main__':
         # Instantiate pgmcmc_ioblk class and fill in values
         ioblk = pgmcmc_ioblk()
         ioblk.parm.samplen = 15
-        ioblk.parm.cadlen = np.abs(np.median(np.diff(time)))
+        idxGd = np.where(validData)[0]
+        ioblk.parm.cadlen = np.abs(np.median(np.diff(time[idxGd])))
         print('Cadence Length: {:7.4f}'.format(ioblk.parm.cadlen))
         ioblk.parm.fitregion = 4.0
         ioblk.parm.debugLevel = 3
-        idxGd = np.where(validData)[0]
         tmpflx = flx[idxGd]
         tmpt = time[idxGd]
         tmpttwo = tmpt*tmpt
