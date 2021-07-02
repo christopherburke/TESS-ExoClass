@@ -14,6 +14,7 @@ from subprocess import call
 import math
 import h5py
 import argparse
+import glob
 
 def make_data_dirs(prefix, sector, epic):
     secDir = 'S{0:02d}'.format(sector)
@@ -490,7 +491,7 @@ if __name__ == '__main__':
                 if pdcNoi[kpdcidx] < 0.8:# and pdcCor[kpdcidx] <:
                     tier1 = False
                     fc[10] = 1
-                    fc_str = fc_str + 'PDCBad_'
+                    fc_str = fc_str + 'PDCsummaryPostfix_'
             # Planet radius too big caution
             if curRp > 20.0:
                 tier1 = False
@@ -547,7 +548,12 @@ if __name__ == '__main__':
                 mrkOut.write('} if true}{pop false} ifelse} >> setpagedevice\n')
                 mrkOut.close()
                 
-                inputFile1 = os.path.join(summaryFolder,'{0}s{1:04d}-s{2:04d}-{3:016d}-{4:02d}{5}'.format(summaryPrefix,SECTOR1,SECTOR2,alltic[j],allpn[j],summaryPostfix))
+                inputFile1 = os.path.join(summaryFolder,'{0}s{1:04d}-s{2:04d}-{3:016d}-{4:02d}*dvs.pdf'.format(summaryPrefix,SECTOR1,SECTOR2,alltic[j],allpn[j],summaryPostfix))
+                inputFileList = glob.glob(inputFile1)
+                if not len(inputFileList) == 1:
+                    print('Error: not found or multiple DV summaries found for {0:d} pn {1:d}'.format(alltic[j], allpn[j]))
+                    exit()
+                inputFile1 = inputFileList[0]
                 #outputFile = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic),'tecsummary_{0:016d}_{1:02d}.pdf'.format(curTic,curPn))
                 # Add TEC tier level and keywords to summary page with imagemagick convert
                 #comstring = "convert -density 500 {0} -pointsize 25 -draw \"text 20,150 '{1}'\"  {2}".format(inputFile1, mrkStr, outputFile)
@@ -556,6 +562,11 @@ if __name__ == '__main__':
                 #inputFile1 = outputFile
                 inputFile2 = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_{0:016d}_{1:02d}-modshift.pdf'.format(curTic,curPn))
                 inputFile3 = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_{0:016d}_{1:02d}_med-modshift.pdf'.format(curTic,curPn))
+                # Check that modshift files exist
+                if not os.path.isfile(inputFile2):
+                    inputFile2 = ''
+                if not os.path.isfile(inputFile3):
+                    inputFile3 = ''
     
                 inputFileList = []
                 if multiRun:
