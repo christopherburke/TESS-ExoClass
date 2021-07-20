@@ -31,13 +31,13 @@ if __name__ == '__main__':
     wID = int(args.w)
     nWrk = int(args.n)
 
-    sourceDir = '/pdo/users/cjburke/spocvet/sector1-36/pdfs'
-    outDir = '/pdo/users/cjburke/spocvet/sector1-36/tevpdfs'
-    miniDir = '/pdo/spoc-data/sector-001-036/dv-reports/'
-    miniHdr = 'tess2018206190142-'
-    miniTail = '-00471_dvm.pdf'
+    sourceDir = '/pdo/users/cjburke/spocvet/sector38/pdfs'
+    outDir = '/pdo/users/cjburke/spocvet/sector38/tevpdfs'
+    miniDir = '/pdo/spoc-data/sector-038/dv-reports/'
+    miniHdr = 'tess2021119082105-'
+    miniTail = '-00488_dvm.pdf'
     multiSector = False
-    SECTOR = -1
+    SECTOR = 38
     
     if multiSector:
         useSector = 1000+SECTOR
