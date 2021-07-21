@@ -218,16 +218,16 @@ if __name__ == '__main__':
     MAXPER = 5.0
     
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector38'
-    SECTOR = 38
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector39'
+    SECTOR = 39
 
-    fileOut = 'spoc_sweet_sector38_20210719.txt'
+    fileOut = 'spoc_sweet_sector39_20210720.txt'
     fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector38_20210719.txt'
-    tceSeedInFile = 'sector38_20210719_tce.h5'
+    vetFile = 'spoc_fluxtriage_sector39_20210720.txt'
+    tceSeedInFile = 'sector39_20210720_tce.h5'
 
     # Load the tce data h5
-    tceSeedInFile = 'sector38_20210719_tce.h5'
+    tceSeedInFile = 'sector39_20210720_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     

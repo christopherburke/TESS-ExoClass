@@ -94,41 +94,41 @@ if __name__ == '__main__':
     wID = int(args.w)
     nWrk = int(args.n)
     
-    summaryFolder = '/pdo/spoc-data/sector-038/dv-reports'
-    summaryPrefix = 'tess2021119082105-'
-    summaryPostfix = '-00488_dvs.pdf'
-    SECTOR1 = 38
-    SECTOR2 = 38
+    summaryFolder = '/pdo/spoc-data/sector-039/dv-reports'
+    summaryPrefix = 'tess2021147062104-'
+    summaryPostfix = '-00491_dvs.pdf'
+    SECTOR1 = 39
+    SECTOR2 = 39
     multiRun = False
     if SECTOR2 - SECTOR1 > 0:
         multiRun = True
 
     doPNGs = False
-    pngFolder = '/pdo/users/cjburke/spocvet/sector38/pngs/'
+    pngFolder = '/pdo/users/cjburke/spocvet/sector39/pngs/'
     doMergeSum = True
     if nWrk == 1:
         doMergeSum = False
-    pdfFolder = '/pdo/users/cjburke/spocvet/sector38/pdfs/'
-    SECTOR1 = 38
-    SECTOR2 = 38
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector38'
-    SECTOR = 38# -1 for multi-sector
+    pdfFolder = '/pdo/users/cjburke/spocvet/sector39/pdfs/'
+    SECTOR1 = 39
+    SECTOR2 = 39
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector39'
+    SECTOR = 39# -1 for multi-sector
 
-    fileOut1 = 'spoc_ranking_Tier1_sector38_20210719.txt'
-    fileOut2 = 'spoc_ranking_Tier2_sector38_20210719.txt'
-    fileOut3 = 'spoc_ranking_Tier3_sector38_20210719.txt'
-    vetFile = 'spoc_fluxtriage_sector38_20210719.txt'
-    tceSeedInFile = 'sector38_20210719_tce.h5'
-    modshiftFile = 'spoc_modshift_sector38_20210719.txt'
-    modshiftFile2 = 'spoc_modshift_med_sector38_20210719.txt'
-    sweetFile = 'spoc_sweet_sector38_20210719.txt'
-    toiFederateFile = 'federate_toiWtce_sector38_20210719.txt'
-    knowPFederateFile = 'federate_knownP_sector38_20210719.txt'
-    selfMatchFile = 'selfMatch_sector38_20210719.txt'
-    modumpFile = 'spoc_modump_sector38_20210719.txt'
+    fileOut1 = 'spoc_ranking_Tier1_sector39_20210720.txt'
+    fileOut2 = 'spoc_ranking_Tier2_sector39_20210720.txt'
+    fileOut3 = 'spoc_ranking_Tier3_sector39_20210720.txt'
+    vetFile = 'spoc_fluxtriage_sector39_20210720.txt'
+    tceSeedInFile = 'sector39_20210720_tce.h5'
+    modshiftFile = 'spoc_modshift_sector39_20210720.txt'
+    modshiftFile2 = 'spoc_modshift_med_sector39_20210720.txt'
+    sweetFile = 'spoc_sweet_sector39_20210720.txt'
+    toiFederateFile = 'federate_toiWtce_sector39_20210720.txt'
+    knowPFederateFile = 'federate_knownP_sector39_20210720.txt'
+    selfMatchFile = 'selfMatch_sector39_20210720.txt'
+    modumpFile = 'spoc_modump_sector39_20210720.txt'
 
     # Load the tce data h5
-    tceSeedInFile = 'sector38_20210719_tce.h5'
+    tceSeedInFile = 'sector39_20210720_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
