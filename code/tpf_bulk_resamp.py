@@ -179,7 +179,7 @@ if __name__ == "__main__":
 #                          '/pdo/spoc-data/sector-033/target-pixel/tess2020351194500-s0033-',\
 #                          '/pdo/spoc-data/sector-034/target-pixel/tess2021014023720-s0034-',\
 #                          '/pdo/spoc-data/sector-035/target-pixel/tess2021039152502-s0035-',\
-#                          '/pdo/spoc-data/sector-036/target-pixel/tess2021146024351-s0039-']
+#                          '/pdo/spoc-data/sector-036/target-pixel/tess2021175071901-']
 #    fileInputSuffixList = ['-0120-s_tp.fits.gz', \
 #                           '-0121-s_tp.fits.gz', \
 #                           '-0123-s_tp.fits.gz', \
@@ -205,7 +205,7 @@ if __name__ == "__main__":
 #                           '-0203-s_tp.fits.gz',\
 #                           '-0204-s_tp.fits.gz',\
 #                           '-0205-s_tp.fits.gz',\
-#                           '-0210-s_tp.fits.gz',\
+#                           '-0211-s_tp.fits.gz',\
 #                          ]
 
 # In the case of a single sector One needs dummy entries for
@@ -217,8 +217,8 @@ if __name__ == "__main__":
                            '/foo21','/foo22','/foo23','/foo24','/foo25',\
                            '/foo26','/foo27','/foo28','/foo29','/foo30',\
                            '/foo31','/foo32','/foo33','/foo34','/foo35',\
-                           '/foo36','/foo37','/foo38',\
-                           '/pdo/spoc-data/sector-039/target-pixel/tess2021146024351-s0039-']
+                           '/foo36','/foo37','/foo38','/foo39',\
+                           '/pdo/spoc-data/sector-040/target-pixel/tess2021175071901-s0040-']
     fileInputSuffixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
                            '/foo6','/foo7','/foo8','/foo9','/foo10',\
                            '/foo11', '/foo12', '/foo13','/foo14','/foo15',\
@@ -226,12 +226,12 @@ if __name__ == "__main__":
                            '/foo21', '/foo22','/foo23','/foo24','/foo25',\
                            '/foo26','/foo27','/foo28','/foo29','/foo30',\
                            '/foo31','/foo32','/foo33','/foo34','/foo35',\
-                           '/foo36','/foo37','/foo38',\
-                           '-0210-s_tp.fits.gz']
+                           '/foo36','/foo37','/foo38','/foo39',\
+                           '-0211-s_tp.fits.gz']
 
     nSector = len(fileInputPrefixList)    
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector39/'
-    SECTOR = 39# =-1 if multi-sector
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector40/'
+    SECTOR = 40# =-1 if multi-sector
     RESAMP = 5  ###  USE AN ODD NUMBER HELPS WITH CADENCE NO ###
     overwrite = False
 
@@ -239,7 +239,7 @@ if __name__ == "__main__":
     #  You can specify a multisector tce seed file because
     #   al that it uses is TIC.  If it exists it is made
     # Load the tce data h5
-    tceSeedInFile = 'sector39_20210720_tce.h5'
+    tceSeedInFile = 'sector40_20210826_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
 

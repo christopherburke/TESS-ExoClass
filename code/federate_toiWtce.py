@@ -131,7 +131,7 @@ def query_othertics(ticWant, searchRad):
 
 
 if __name__ == '__main__':
-    fout = open('federate_toiWtce_sector39_20210720.txt', 'w')
+    fout = open('federate_toiWtce_sector40_20210826.txt', 'w')
     dataSpan = 27.0
 
     wideSearch = True # Do MASTTIC query if true to search
@@ -171,9 +171,9 @@ if __name__ == '__main__':
     # To fix string before reading in
     # As of Oct. 2019 I needed to use this to fix commas in strings
     # sed -e 's/""//g' -e 's/,"[^"]*/,"NOCOMMENT/g' csv-file-2019-10-29.csv > toi-plus-2019-10-29-fixed.csv
-    qlpfile = 'csv-file-toi-catalog-FIXED-20210720.csv'
+    qlpfile = 'csv-file-toi-catalog-FIXED-20210826.csv'
     dtypeseq = ['U20','i4','f8','U2']
-    dtypeseq.extend(['f8']*12)
+    dtypeseq.extend(['f8']*14)
     dtypeseq.extend(['U20','U80'])
     dtypeseq.extend(['f8']*12)
     dtypeseq.extend(['U20'])
@@ -186,8 +186,8 @@ if __name__ == '__main__':
     gtDisp = dataBlock['f3']
     gtRA = dataBlock['f4']
     gtDec = dataBlock['f5']
-    gtPer = dataBlock['f10']
-    gtEpc = dataBlock['f8']
+    gtPer = dataBlock['f12']
+    gtEpc = dataBlock['f10']
     print('Last TOI {0}'.format(np.max(gtTOI)))
     # Need to fix single transit TOIs with nan for period
     idx = np.where(np.logical_not(np.isfinite(gtPer)))[0]
@@ -199,7 +199,7 @@ if __name__ == '__main__':
 #                                gtTOI, gtDisp, gtPer, gtEpc, gtDur)
 
     # Load the tce data h5
-    tceSeedInFile = 'sector39_20210720_tce.h5'
+    tceSeedInFile = 'sector40_20210826_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     

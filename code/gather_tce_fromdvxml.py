@@ -196,8 +196,8 @@ class tce_seed(object):
         
         
 if __name__ == "__main__":
-    tceSeedOutFile = 'sector39_20210720_tce.h5'
-    headXMLPath = '/pdo/spoc-data/sector-039/dv-results/'
+    tceSeedOutFile = 'sector40_20210826_tce.h5'
+    headXMLPath = '/pdo/spoc-data/sector-040/dv-results/'
     # Namespace there is extra junk prepended to tags
     #  This is supposed to make it easier to use 
     ns = {'ns': 'http://www.nasa.gov/2018/TESS/DV'}
