@@ -131,7 +131,7 @@ def query_othertics(ticWant, searchRad):
 
 
 if __name__ == '__main__':
-    fout = open('federate_toiWtce_sector40_20210826.txt', 'w')
+    fout = open('federate_toiWtce_sector1-39_20210827.txt', 'w')
     dataSpan = 27.0
 
     wideSearch = True # Do MASTTIC query if true to search
@@ -199,7 +199,7 @@ if __name__ == '__main__':
 #                                gtTOI, gtDisp, gtPer, gtEpc, gtDur)
 
     # Load the tce data h5
-    tceSeedInFile = 'sector40_20210826_tce.h5'
+    tceSeedInFile = 'sector1-39_20210827_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     

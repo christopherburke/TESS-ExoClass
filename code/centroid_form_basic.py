@@ -99,16 +99,16 @@ if __name__ == '__main__':
 
     OVERWRITE = False
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector40'
-    SECTOR = 40
-    SECTOR1 = 40
-    SECTOR2 = 40
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-39'
+    SECTOR = -1
+    SECTOR1 = 1
+    SECTOR2 = 39
 #    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-2'
 #    SECTOR=-1
 
     #vetFile = 'spoc_sector1_early_fluxvet_20180904.txt'
-    vetFile = 'spoc_fluxtriage_sector40_20210826.txt'
-    tceSeedInFile = 'sector40_20210826_tce.h5'
+    vetFile = 'spoc_fluxtriage_sector1-39_20210827.txt'
+    tceSeedInFile = 'sector1-39_20210827_tce.h5'
 #    vetFile = 'spoc_sector1_2_fluxtriage_20181019.txt'
 #    tceSeedInFile = 'sector1_2_20181019_tce.pkl'
 
@@ -121,7 +121,7 @@ if __name__ == '__main__':
 
 
     # Load the tce data h5
-    tceSeedInFile = 'sector40_20210826_tce.h5'
+    tceSeedInFile = 'sector1-39_20210827_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
@@ -161,7 +161,7 @@ if __name__ == '__main__':
     #               (allvet == 1) )[0]
 # DEBUG SINGLE TIC
 #    idx = np.where((allatvalid == 1) & (alltrpvalid == 1) & (allsolarflux > 0.0) & \
-#                   (allvet == 1) & (alltic == 30631330 ) & (allpn==3))[0]
+#                   (allvet == 1) & (alltic == 30533103 ) & (allpn==1))[0]
     idx = np.where((allatvalid == 1) & (alltrpvalid == 1) & (allsolarflux > 0.0) & \
                    (allvet == 1) )[0]
     alltic, allpn, allatvalid, allrp, allrstar, alllogg, allper, alltmags, \
@@ -275,7 +275,7 @@ if __name__ == '__main__':
                                     curFlx = curFlx[ibOvrLap]
                                     # Need to add a bias level 
                                     mnFlx = np.min(curFlx[useVD])
-                                    print('MinFlux: {:f}'.format(mnFlx))
+                                    print('MinFlux: {:f} {:d} {:d} {:d}'.format(mnFlx, k, ii, jj))
                                     if np.isfinite(mnFlx) and (len(np.where(tpf_vd)[0])>0):
                                         if mnFlx < 0.0:
                                             curFlx = curFlx - mnFlx + 10.0
@@ -286,6 +286,18 @@ if __name__ == '__main__':
                         #                    plt.plot(eventTime, curFlx[validData], '.')
                         #                    plt.show()
                         #                    tmpDebug = True
+                                        #if k == 5 and ii == 0 and jj == 10:
+                                        #    tmpDebug = True
+                                        # Sometimes there are nans in a pixel that
+                                        #  are generally not present in the valid flags
+                                        # deternder doesn't work if nans are on valid data
+                                        #  find them and mark them invalid
+                                        # This will effect the remaining pixels as well
+                                        idxbad = np.logical_not(np.isfinite(curFlx))
+                                        tpf_vd[idxbad] = False
+                                        ootvd[idxbad] = False
+                                        useVD[idxbad] = False
+                                        
                                         final_smooth_flux, bad_edge_flag = flux_cond.detrend_with_smoothn_edgefix(\
                                             curFlx, tpf_vd, ootvd, int(np.ceil(cadPerHr*searchDurationHours)), fixEdge=True, \
                                              medfiltScaleFac=10, gapThreshold=5, edgeExamWindow=8, \
