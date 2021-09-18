@@ -22,8 +22,8 @@ from gather_tce_fromdvxml import tce_seed
 if __name__ == "__main__":
     # Load the h5 file that contains TCE seed information
     # The h5 file is created by gather_tce_fromdvxml.py
-    tceSeedInFile = 'sector1-39_20210827_tce.h5'
-    outFile = 'sector1-39_20210827_tce.txt'
+    tceSeedInFile = 'sector41_20210917_tce.h5'
+    outFile = 'sector41_20210917_tce.txt'
     delim = ' | '
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)

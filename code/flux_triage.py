@@ -55,12 +55,12 @@ if __name__ == '__main__':
     
     # Load the h5 file that contains TCE seed information
     # The h5 file is created by gather_tce_fromdvxml.py
-    tceSeedInFile = 'sector1-39_20210827_tce.h5'
+    tceSeedInFile = 'sector41_20210917_tce.h5'
 
     #  Directory storing the ses mes data
-    sesDataDir = '/pdo/users/cjburke/spocvet/sector1-39'
-    SECTOR = -1
-    fluxVetOut = 'spoc_fluxtriage_sector1-39_20210827.txt'
+    sesDataDir = '/pdo/users/cjburke/spocvet/sector41'
+    SECTOR = 41
+    fluxVetOut = 'spoc_fluxtriage_sector41_20210917.txt'
 #    fluxVetOut = 'junk.txt'
 
     tcedata = tce_seed()
