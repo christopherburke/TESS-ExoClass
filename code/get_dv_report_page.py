@@ -31,17 +31,17 @@ if __name__ == '__main__':
     wID = 0
     nWrk = 1
     
-    summaryFolder = '/pdo/spoc-data/sector-041/dv-reports'
-    summaryPrefix = 'tess2021205113501-'
-    summaryPostfix = '-00511_dvr.pdf'
-    SECTOR1 = 41
-    SECTOR2 = 41
+    summaryFolder = '/pdo/spoc-data/sector-042/dv-reports'
+    summaryPrefix = 'tess2021233042500-'
+    summaryPostfix = '-00517_dvr.pdf'
+    SECTOR1 = 42
+    SECTOR2 = 42
     multiRun = False
     if SECTOR2 - SECTOR1 > 0:
         multiRun = True
-    tceSeedInFile = 'sector41_20210917_tce.h5'
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector41'
-    SECTOR = 41
+    tceSeedInFile = 'sector42_20210930_tce.h5'
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector42'
+    SECTOR = 42
     overwrite = False
     
     # Load the tce data h5
@@ -78,8 +78,8 @@ if __name__ == '__main__':
             p1.stdout.close()
             sysreturn, err = p2.communicate()
             rc = p2.returncode
-            retlist = sysreturn.split('\n')
-            pgistr = retlist[0].strip(' ')
+            retlist = sysreturn.split(b'\n')
+            pgistr = retlist[0].strip(b' ').decode('ascii')
             prePages = 0
             if pgistr == 'ii':
                 prePages = 2
@@ -107,7 +107,7 @@ if __name__ == '__main__':
                 p1.stdout.close()      
                 sysreturn, err = p2.communicate()
                 rc = p2.returncode
-                retlist = sysreturn.split('\n')
+                retlist = sysreturn.split(b'\n')
                 pageWant = -1
                 if len(retlist) > 1: # If has difference image
         #            print(retlist)
@@ -127,7 +127,7 @@ if __name__ == '__main__':
                 p1.stdout.close()
                 sysreturn, err = p2.communicate()
                 rc = p2.returncode
-                retlist = sysreturn.split('\n')
+                retlist = sysreturn.split(b'\n')
                 pageWant = -1
                 if len(retlist) > 1: # If has difference image
                     pageWant = int(retlist[-2])

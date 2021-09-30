@@ -29,7 +29,8 @@ try: # Python 3.x
 except ImportError:  # Python 2.x
     import httplib  
 import urllib
-import urllib2
+# Removign python 2 support
+#import urllib2
 import os
 import ssl
 
@@ -126,7 +127,7 @@ def coughlin_sigmap(p1,p2):
 
 
 if __name__ == '__main__':
-    fout = open('federate_knownP_sector41_20210917.txt', 'w')
+    fout = open('federate_knownP_sector42_20210930.txt', 'w')
     dataSpan = 27.0
     wideSearch = True
     searchRad = 180.0 # Arcsecond search radius for other TICs
@@ -141,16 +142,17 @@ if __name__ == '__main__':
 
 
     # Load known transiting planet table from NEXSCI   
-    whereString = 'pl_tranflag = 1 and st_elat>0.0'
+    #whereString = 'pl_tranflag = 1 and st_elat>0.0'
+    whereString = 'pl_tranflag = 1'
     url = 'https://exoplanetarchive.ipac.caltech.edu/cgi-bin/nstedAPI/nph-nstedAPI?'
     data = {'table':'planets', \
-            'select':'pl_name,pl_orbper,pl_tranmid,pl_trandur,ra,dec', \
+            'select':'pl_name,pl_orbper,pl_tranmid,pl_trandur,ra,dec,st_elat', \
             'format':'csv', \
             'where':whereString}
-    url_values = urllib.urlencode(data)
-    print url_values
+    url_values = urllib.parse.urlencode(data)
+    print(url_values)
     
-    queryData = urllib2.urlopen(url + url_values)
+    queryData = urllib.request.urlopen(url + url_values)
  
 
 #    url_values = urllib.parse.urlencode(data)
@@ -158,7 +160,7 @@ if __name__ == '__main__':
 #    queryData = urllib.request.urlopen(url + url_values)
     returnPage = queryData.read()
     dtypeseq = ['U40']
-    dtypeseq.extend(['f8'] * 5)
+    dtypeseq.extend(['f8'] * 6)
     dataBlock = np.genfromtxt(returnPage.splitlines(), delimiter=',', skip_header=1, \
                         dtype=dtypeseq)
     gtName = dataBlock['f0']
@@ -167,8 +169,17 @@ if __name__ == '__main__':
     gtDur = dataBlock['f3']*24.0 # Is in days convert to hours
     gtRa = dataBlock['f4']
     gtDec = dataBlock['f5']
+    gtEclipLat = dataBlock['f6']
     gtTIC = np.arange(len(gtName))
     gtTOI = np.arange(len(gtName))
+    
+    # Filter for planets in the correct ecliptic area to speed this up
+    idx = np.where((gtEclipLat > -20.0) & (gtEclipLat < 20.0))[0]
+    gtName = gtName[idx]
+    gtPer, gtEpc, gtDur, gtRa, gtDec, gtTIC, gtTOI = cjb.idx_filter(idx, \
+        gtPer, gtEpc, gtDur, gtRa, gtDec, gtTIC, gtTOI                                                            )
+
+    
     # Check for missing ephemeris values
     idxBd = np.where((np.logical_not(np.isfinite(gtPer))) | \
                      (np.logical_not(np.isfinite(gtEpc))))[0]
@@ -184,9 +195,9 @@ if __name__ == '__main__':
                     'select':'mpl_name,mpl_orbper,mpl_tranmid,mpl_trandur', \
                     'format':'csv', \
                     'where':whereString}
-            url_values = urllib.urlencode(data)
-            #print url_values
-            queryData = urllib2.urlopen(url + url_values)
+            url_values = urllib.parse.urlencode(data)
+            #print(url_values)
+            queryData = urllib.request.urlopen(url + url_values)
             returnPage = queryData.read()
             dtypeseq = ['U40']
             dtypeseq.extend(['f8'] * 3)
@@ -208,7 +219,7 @@ if __name__ == '__main__':
             else:
                 print('Not Matching to {0}'.format(gtName[curIdxBd]))
                 print(curPer, curEpc)
-           
+    # This removes planets with no valid period found
     idx = np.where((np.isfinite(gtPer)))[0]
     gtName = gtName[idx]
     gtPer, gtEpc, gtDur, gtRa, gtDec, gtTIC, gtTOI = cjb.idx_filter(idx, \
@@ -217,7 +228,7 @@ if __name__ == '__main__':
 
 
     # Load the tce data h5
-    tceSeedInFile = 'sector41_20210917_tce.h5'
+    tceSeedInFile = 'sector42_20210930_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
@@ -347,7 +358,7 @@ if __name__ == '__main__':
             bstFederateFlag = 0
             bsttic = 0
         str = '{:12d} {:8.2f} {:s} {:12d} {:2d} {:2d} {:6.3f} {:2d} {:10.5f} {:2d}\n'.format(curTic, \
-                   curToi, curName.astype('string').replace(" ",""), bsttic, bstpn, bstMatch, bstStat, bstPeriodRatioFlag, \
+                   curToi, curName.astype('str').replace(" ",""), bsttic, bstpn, bstMatch, bstStat, bstPeriodRatioFlag, \
                    bstPeriodRatio, bstFederateFlag)
         if bstpn > 0:
             fout.write(str)

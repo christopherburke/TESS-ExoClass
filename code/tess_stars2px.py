@@ -3,7 +3,7 @@
 tess_stars2px.py - High precision TESS pointing tool.
 Convert target coordinates given in Right Ascension and Declination to
 TESS detector pixel coordinates for the prime mission TESS observing 
-sectors (Year 1 & 2) and Extendend mission Year 3.
+sectors (Year 1 & 2) and Extendend mission Years 3-4.
 Can also query MAST to obtain detector
 pixel coordinates for a star by TIC ID only (must be online for this option).
 
@@ -18,22 +18,31 @@ AUTHORS: Original programming in C and focal plane geometry solutions
  Testing by Thomas Barclay (NASA Goddard) &
          Jessica Roberts (Univ. of Colorado)
  Sesame queries by Brett Morris (UW)
+ Proxy Support added by Dishendra Mishra 
 
-VERSION: 0.4.0
+VERSION: 0.6.1
 
 WHAT'S NEW:
-    -***FIXED: TIC ids that overflow 32bit integers were not being resolved correctly.  Now Fixed by using 64 bit integers
-    -Missing check on last sector 39 fixed
-    -Fixed pixel limits in function entry
-    -Year 3 Sectors 27-39 now provided
-    -Updated Sector 24-26 pointing to higher ecliptic scattered light avoidance position
+    -Too close to edge Warning flag now output in column 11. If a target is within 6 pixels
+        of the edge of the science region (edgeWarn==1), then the target is unlikely
+        to be assigned a 2minute or 20s aperture. The science pixels range
+        in column from 45-2092 and row from 1-2048
+    -Year 4 Sectors 40-55 Now Available
+    -Now has option to perform an approximate aberration correction.
+        Uses astropy GCRS geocentric aberrated frame.  The Earth has velocity of 30km/s
+        whereas TESS has velocity relative to Earth of <4km/s.  Thus, correcting
+        for Earth aberration is most of the way there. Earth aberrates ~20 arcsec ~ 1 TESS pixel
+        Aberration is only done in forward ra,dec-> pix direction. No aberratuib correction is done for inverse pix->ra,dec direction
+    -Inverse transform (input Sector, Camera, CCD, pixel Column, pixel Row --> RA and Dec) is now 'analytic' rather than through brute force minimization.  The inverse transform is much faster and much more reliable.
+    -MUCH FASTER NOW - skipped rough estimate step which was much much slower
+         than just doing the matrix math for position.
     
 
 NOTES:
-    -Pointing table is for TESS Year 1 - 3 (Sectors 1-39) in Southern Ecliptic
+    -Pointing table is for TESS Year 1 - 4 (Sectors 1-55) 
     -Pointing table is unofficial, and the pointings may change.
     -See https://tess.mit.edu/observations/ for latest TESS pointing table
-    -Pointing prediction algorithm is same as employed internally at MIT for
+    -Pointing prediction algorithm is similar to internally at MIT for
         target management.  However, hard coded focal plane geometry is not
         up to date and may contain inaccurate results.
     -Testing shows pointing with this tool should be accurate to better than
@@ -41,7 +50,7 @@ NOTES:
         adopted for centroiding highly assymmetric point-spread function
         at edge of
         camera, and by-eye source location, a 2 pixel accuracy estimate is
-        warranted.
+        warranted. There is an approximate aberration option now available
     -The output pixel coordinates assume the ds9 convention with
         1,1 being the middle of the lower left corner.
     -No corrections for velocity aberration are calculated.
@@ -64,36 +73,9 @@ NOTES:
         this code can predict positions in advance of data release.
      -Hard coded focal plane geometry parameters from rfpg5_c1kb.txt
 
-NOTES OLDER VERSIONS:
-    -Wrapper function implemented tess_stars2px_function_entry()
-     With an example in the readme for using tess_stars2px in a python program
-     rather than on the command line.
-    -Pre filter step previously depended on the current mission profile of 
-        pointings aligned with ecliptic coordinates to work.  The pre filter
-        step was rewritten in order to support mission planning not tied 
-        to ecliptic alignment.  End users should not see any change in 
-        results with this change.  However, local copies can be modified
-        for arbitrary spacecraft ra,dec, roll and get same functionality.
-    -A reverse option is added to find the ra and dec for a given 
-        sector, camera, ccd, colpix, rowpix.  This is most useful for 
-        planning arbitrary pointing boundaries and internal use to identify
-        targets on uncalibrated
-        images that don't have WCS info available.  For precision work one
-        shold defer to WCS information on calibrated FFIs rather than this tool.
-        The reverse is a brute force 'hack' that uses a minimizer on the
-        forward direction code to find ra and dec.  In principle it is possible
-        to reverse the matrix transforms to get the ra and dec directly, but
-        I chose this less efficient method for expediency.  The minimizer
-        is not guaranteed to converge at correct answer.  The current method
-        is a slow way to do this.
-
     
 TODOS:
-    -Include approximate or detailed velocity aberration corrections
     -Time dependent Focal plane geometry
-    -Do the reverse transormation go from pixel to RA and Dec in a direct
-        reverse transform manner rather than the current implementation
-        that does a brute force minimization from the forward ra,dec-->pix code
 
 DEPENDENCIES:
     python 3+
@@ -144,20 +126,25 @@ import numpy as np
 import os
 import argparse
 from astropy.coordinates import SkyCoord
+import astropy.units as u
+from astropy.time import Time
 import sys
 import datetime
 import json
 try: # Python 3.x
     from urllib.parse import quote as urlencode
     from urllib.request import urlretrieve
+    from urllib.parse import urlparse
 except ImportError:  # Python 2.x
     from urllib import pathname2url as urlencode
     from urllib import urlretrieve
+    from urlparse import urlparse
 try: # Python 3.x
     import http.client as httplib 
 except ImportError:  # Python 2.x
     import httplib
 import scipy.optimize as opt
+import base64
 
 
 class Levine_FPG():
@@ -532,11 +519,59 @@ class Levine_FPG():
         xytmp[0] = -cphi*rfp0*rfp
         xytmp[1] = -sphi*rfp0*rfp
         return self.make_az_asym(icam, xytmp)
+
+    def fp_optics(self, icam, xyfp):
+        deg2rad = np.pi/ 180.0
+        xy = self.rev_az_asym(icam, xyfp)
+        rfp_times_rfp0 = np.sqrt(xy[0]*xy[0] + xy[1]*xy[1])
+        phirad = np.arctan2(-xy[1], -xy[0])
+        phideg = phirad / deg2rad
+        if (phideg < 0.0):
+            phideg += 360.0
+        thetarad = self.tanth_of_r(icam, rfp_times_rfp0)
+        thetadeg = thetarad / deg2rad
+        lng_deg = phideg
+        lat_deg = 90.0 - thetadeg
+        return lng_deg, lat_deg
+    
+    def r_of_tanth(self, icam, z):
+        tanth = np.tan(z)
+        rfp0 = self.optcon[icam][0]*tanth
+        noptcon = len(self.optcon[icam])
+        ii = np.arange(1, noptcon)
+        rfp = np.sum(self.optcon[icam][1:] * np.power(tanth, 2.0*(ii-1)))
+        return rfp0*rfp
         
+    def tanth_of_r(self, icam, rprp0):
+
+        if np.abs(rprp0) > 1.0e-10:
+            c0 = self.optcon[icam][0]
+            zi = np.arctan(np.sqrt(rprp0) / c0)
+            def minFunc(z, icam, rp):
+                rtmp = self.r_of_tanth(icam, z)
+                return (rtmp - rprp0)*(rtmp - rprp0)
+            
+            optResult = opt.minimize(minFunc, [zi], \
+                                     args=(icam, rprp0), method='Nelder-Mead', \
+                                     tol=1.0e-10, \
+                                     options={'maxiter':500})
+            #print(optResult)
+            return optResult.x[0]
+        else:
+            return 0.0
+
     def make_az_asym(self, icam, xy):
         xyp = self.xyrotate(self.asymang[icam], xy)
         xypa = np.zeros_like(xyp)
         xypa[0] = self.asymfac[icam] * xyp[0]
+        xypa[1] = xyp[1]
+        xyout = self.xyrotate(-self.asymang[icam], xypa)
+        return xyout
+
+    def rev_az_asym(self, icam, xyin):
+        xyp = self.xyrotate(self.asymang[icam], xyin)
+        xypa = np.zeros_like(xyp)
+        xypa[0] = xyp[0] / self.asymfac[icam]
         xypa[1] = xyp[1]
         xyout = self.xyrotate(-self.asymang[icam], xypa)
         return xyout
@@ -651,6 +686,19 @@ class Levine_FPG():
             fitpx[1] = ccdpx[1]
                 
         return ccdpx, fitpx
+
+    def pix_to_mm_single_ccd(self, icam, ccdpx, iccd):
+        """convert pixel to mm focal plane position
+        """
+        xyccd = np.zeros_like(ccdpx)
+        xyccd[0] = (ccdpx[0] + 0.5) * self.pixsz[icam][iccd][0]
+        xyccd[1] = (ccdpx[1] + 0.5) * self.pixsz[icam][iccd][1]
+        xyb = self.xyrotate(-self.ccdang[icam][iccd], xyccd)
+        xya = np.zeros_like(xyb)
+        xya[0] = xyb[0] + self.ccdxy0[icam][iccd][0]
+        xya[1] = xyb[1] + self.ccdxy0[icam][iccd][1]
+                
+        return xya
         
     def radec2pix(self, ras, decs):
         """ After the rotation matrices are defined to the actual
@@ -721,14 +769,28 @@ class Levine_FPG():
         fitsypos = fitpx[1]
         ccdxpos = ccdpx[0]
         ccdypos = ccdpx[1]
-        
         return ccdNum, fitsxpos, fitsypos, ccdxpos, ccdypos, lat
+        
+    def pix2radec_nocheck_single(self, cam, iccd, ccdpx):
+        """
+            Reverse the transform going from pixel coords to Ra & Dec
+        """
+        deg2rad = np.pi / 180.0
+        # Convert pixels to mm
+        xyfp = self.pix_to_mm_single_ccd(cam, ccdpx, iccd)
+        lng_deg, lat_deg = self.fp_optics(cam, xyfp)
+        vcam0, vcam1, vcam2 = self.sphereToCart(lng_deg, lat_deg)
+        vcam = np.array([vcam0, vcam1, vcam2], dtype=np.double)
+        curVec = np.matmul(np.transpose(self.rmat4[cam]), vcam)
+        ra, dec = self.cartToSphere(curVec)
+        
+        return ra/deg2rad, dec/deg2rad
         
 class TESS_Spacecraft_Pointing_Data:
     #Hard coded spacecraft pointings by Sector
     # When adding sectors the arg2 needs to end +1 from sector
     #  due to the np.arange function ending at arg2-1
-    sectors = np.arange(1,40, dtype=np.int)
+    sectors = np.arange(1,56, dtype=np.int)
 
     # Arrays are borken up into the following sectors:
     # Line 1: Sectors 1-5
@@ -741,6 +803,10 @@ class TESS_Spacecraft_Pointing_Data:
     # Line 8: Sectors 31-34
     # Line 9: Sectors 35-38
     # Line 10: Sectors 39
+    # Line 11: Sectors 40-43
+    # Line 12: S 44-47
+    # Line 13: S 48-51
+    # Line 14: S 52-55
     ### NOTE IF you add Sectors be sure to update the allowed range
     ### for sectors in argparse arguments!!!
     ras = np.array([352.6844,16.5571,36.3138,55.0070,73.5382, \
@@ -752,7 +818,11 @@ class TESS_Spacecraft_Pointing_Data:
                     326.8525,357.2944,18.9190,38.3564,\
                     57.6357,77.1891,96.5996,115.2951,\
                     133.2035,150.9497,170.2540,195.7176,\
-                    242.1981], dtype=np.float)
+                    242.1981, \
+                    273.0766, 277.6209, 13.0140, 49.5260, \
+                    89.6066, 130.2960, 168.3488, 143.3807,\
+                    179.4254, 202.6424, 221.8575, 239.4257, \
+                    266.3618, 270.8126, 290.1210, 307.8655], dtype=np.float)
             
     decs = np.array([-64.8531,-54.0160,-44.2590,-36.6420,-31.9349, \
                      -30.5839,-32.6344,-37.7370,-45.3044,\
@@ -763,7 +833,11 @@ class TESS_Spacecraft_Pointing_Data:
                      -72.4265,-63.0056,-52.8296,-43.3178,\
                      -35.7835,-31.3957,-30.7848,-33.7790,\
                      -39.6871,-47.7512,-57.3725,-67.8307,\
-                     -76.3969], dtype=np.float) 
+                     -76.3969, \
+                     61.7450, 62.7640, 6.3337, 18.9737,\
+                     24.1343, 19.0181, 5.7613, 73.1125, \
+                     62.1038, 50.9532, 41.7577, 35.2333, \
+                     61.8190, 61.5761, 32.6073, 37.6464], dtype=np.float) 
 
     rolls = np.array([-137.8468,-139.5665,-146.9616,-157.1698,-168.9483, \
                       178.6367,166.4476,155.3091,145.9163,\
@@ -774,9 +848,29 @@ class TESS_Spacecraft_Pointing_Data:
                       214.5061,222.5216,219.7970,212.0441,\
                       201.2334,188.6263,175.5369,163.1916,\
                       152.4006,143.7306,138.1685,139.3519,\
-                      161.5986], dtype=np.float) 
+                      161.5986,\
+                      14.1539, 37.2224, 292.8009, 284.9617,\
+                      270.1557, 255.0927, 247.0722, 327.1020,\
+                      317.4166, 321.3516, 329.7340, 339.8650,\
+                      343.1429, 3.6838, 13.4565, 24.5369], dtype=np.float) 
+
+    midtimes = np.array([ 2458339.652778, 2458368.593750, 2458396.659722, 2458424.548611, 2458451.548611,\
+                         2458478.104167, 2458504.697917, 2458530.256944, 2458556.722222,\
+                         2458582.760417, 2458610.774306, 2458640.031250, 2458668.618056,\
+                         2458697.336806, 2458724.934028, 2458751.649306, 2458777.722222,\
+                         2458803.440972, 2458828.958333, 2458856.388889, 2458884.916667, 2458913.565972,\
+                         2458941.829861, 2458969.263889, 2458996.909722, 2459023.107639,\
+                         2459049.145833, 2459075.166667, 2459102.319444, 2459130.201389,\
+                         2459158.854167, 2459186.940972, 2459215.427083, 2459241.979167,\
+                         2459268.579861, 2459295.301177, 2459322.577780, 2459349.854382,\
+                         2459377.130985,\
+                         2459404.407588, 2459431.684191, 2459458.960794, 2459486.237397,\
+                         2459513.514000, 2459540.790602, 2459568.067205, 2459595.343808,\
+                         2459622.620411, 2459649.897014, 2459677.173617, 2459704.450219,\
+                         2459731.726822, 2459759.003425, 2459786.280028, 2459813.556631], dtype=np.float)
 
     camSeps = np.array([36.0, 12.0, 12.0, 36.0], dtype=np.float)
+    
 
     def __init__(self, trySector=None, fpgParmFileList=None):
         # Convert S/C boresite pointings to ecliptic coords for each camera
@@ -787,6 +881,7 @@ class TESS_Spacecraft_Pointing_Data:
             self.ras = self.ras[idx]
             self.decs = self.decs[idx]
             self.rolls = self.rolls[idx]
+            self.midtimes = self.midtimes[idx]
         nPoints = len(self.sectors)
         self.camRa = np.zeros((4, nPoints), dtype=np.float)
         self.camDec = np.zeros((4, nPoints), dtype=np.float)
@@ -844,7 +939,7 @@ def get_radec_from_posangsep(ra, dec, pa, sep):
 
 class target_info:
     def __init__(self):
-        self.ticid = 0
+        self.ticid = int(0)
         self.ra = 0.0
         self.dec = 0.0
         self.eclipLong = 0.0
@@ -902,10 +997,9 @@ def doRoughPosition(targinfo, scinfo):
     return targinfo
 
 ## [Mast Query]
-def mastQuery(request):
+def mastQuery(request,proxy_uri=None):
 
-    server='mast.stsci.edu'
-
+    host='mast.stsci.edu'
     # Grab Python Version 
     version = ".".join(map(str, sys.version_info[:3]))
 
@@ -919,7 +1013,17 @@ def mastQuery(request):
     requestString = urlencode(requestString)
     
     # opening the https connection
-    conn = httplib.HTTPSConnection(server)
+    if None == proxy_uri:
+        conn = httplib.HTTPSConnection(host)
+    else:
+        port = 443
+        url = urlparse(proxy_uri)
+        conn = httplib.HTTPSConnection(url.hostname,url.port)
+
+        if url.username and url.password:
+            auth = '%s:%s' % (url.username, url.password)
+            headers['Proxy-Authorization'] = 'Basic ' + str(base64.b64encode(auth.encode())).replace("b'", "").replace("'", "")
+        conn.set_tunnel(host, port, headers)
 
     # Making the query
     conn.request("POST", "/api/v0/invoke", "request="+requestString, headers)
@@ -961,8 +1065,7 @@ def fileOutputHeader(fp, fpgParmFileList=None):
 
 def tess_stars2px_function_entry(starIDs, starRas, starDecs, trySector=None, scInfo=None, \
                               fpgParmFileList=None, combinedFits=False,\
-                              noCollateral=False):
-    
+                              noCollateral=False, aberrate=False):
     if scInfo == None:
         # Instantiate Spacecraft position info
         scinfo = TESS_Spacecraft_Pointing_Data(trySector=trySector, fpgParmFileList=fpgParmFileList)
@@ -974,7 +1077,7 @@ def tess_stars2px_function_entry(starIDs, starRas, starDecs, trySector=None, scI
     # Make rough determination as to which pointing camera combos are worth
     # Checking in detail and then do detailed checking
     findAny=False
-    outID = np.array([-1], dtype=np.int)
+    outID = np.array([-1], dtype=np.int64)
     outEclipLong = np.array([-1.0], dtype=np.float)
     outEclipLat = np.array([-1.0], dtype=np.float)
     outSec = np.array([-1], dtype=np.int)
@@ -983,56 +1086,79 @@ def tess_stars2px_function_entry(starIDs, starRas, starDecs, trySector=None, scI
     outColPix = np.array([-1.0], dtype=np.float)
     outRowPix = np.array([-1.0], dtype=np.float)
     for i, curTarg in enumerate(starList):
-        curTarg = doRoughPosition(curTarg, scinfo)
-        # Look to see if target was in any sectors
-        if len(curTarg.sectors)>0:
-            uniqSectors = np.unique(curTarg.sectors)
-            starRas = np.array([curTarg.ra])
-            starDecs =  np.array([curTarg.dec])
-            for curSec in uniqSectors:
-                idxSec = np.where(scinfo.sectors == curSec)[0][0]
-                starInCam, starCcdNum, starFitsXs, starFitsYs, starCcdXs, starCcdYs = scinfo.fpgObjs[idxSec].radec2pix(\
-                           starRas, starDecs)
-                for jj, cam in enumerate(starInCam):
-                    # SPOC calibrated FFIs have 44 collateral pixels in x and are 1 based  
-                    xUse = starCcdXs[jj] + 45.0
-                    yUse = starCcdYs[jj] + 1.0
-                    xMin = 44.0
-                    ymaxCoord = 2049
-                    xmaxCoord = 2093
-                    if combinedFits:
-                        xUse = starFitsXs[jj]
-                        yUse = starFitsYs[jj]
-                        xmaxCoord = 4097
-                        ymaxCoord = 4097
-                        xMin = 0.0
-                    if noCollateral:
-                        xUse = starCcdXs[jj]
-                        yUse = starCcdYs[jj]
-                        xMin = 0.0
-                    if xUse>xMin and yUse>0 and xUse<xmaxCoord and yUse<ymaxCoord:
-                        if findAny==False:
-                            outID[0] = curTarg.ticid
-                            outEclipLong[0] = curTarg.eclipLong
-                            outEclipLat[0] = curTarg.eclipLat
-                            outSec[0] = curSec
-                            outCam[0] = starInCam[jj]
-                            outCcd[0] = starCcdNum[jj]
-                            outColPix[0] = xUse
-                            outRowPix[0] = yUse
-                            findAny=True
-                        else:
-                            outID = np.append(outID, curTarg.ticid)
-                            outEclipLong = np.append(outEclipLong, curTarg.eclipLong)
-                            outEclipLat = np.append(outEclipLat, curTarg.eclipLat)
-                            outSec = np.append(outSec, curSec)
-                            outCam = np.append(outCam, starInCam[jj])
-                            outCcd = np.append(outCcd, starCcdNum[jj])
-                            outColPix = np.append(outColPix, xUse)
-                            outRowPix = np.append(outRowPix, yUse)
+        starRas = np.array([curTarg.ra])
+        starDecs =  np.array([curTarg.dec])
+        for curSec in scinfo.sectors:
+            idxSec = np.where(scinfo.sectors == curSec)[0][0]
+            # Apply an approximate aberration correction
+            if aberrate:
+                useTime = Time(scinfo.midtimes[idxSec], format='jd')
+                # Make coordinate object in ICRS coordinates
+                ccat = SkyCoord(ra=starRas * u.deg,
+                                 dec=starDecs * u.deg,
+                                 obstime=useTime, frame='icrs')
+                # convert to Geocentric aberrated coordinates
+                # This is only an approximation to TESS
+                #  because TESS orbits Earth and has 
+                #  velocity <=4km/s relative to Earth whereas Earth is 30km/s
+                cgcrs = ccat.transform_to('gcrs')
+                starRas = np.array(cgcrs.ra.degree)
+                starDecs = np.array(cgcrs.dec.degree)
+
+            starInCam, starCcdNum, starFitsXs, starFitsYs, starCcdXs, starCcdYs = scinfo.fpgObjs[idxSec].radec2pix(\
+                       starRas, starDecs)
+            for jj, cam in enumerate(starInCam):
+                # SPOC calibrated FFIs have 44 collateral pixels in x and are 1 based  
+                xUse = starCcdXs[jj] + 45.0
+                yUse = starCcdYs[jj] + 1.0
+                xMin = 44.0
+                ymaxCoord = 2049
+                xmaxCoord = 2093
+                if combinedFits:
+                    xUse = starFitsXs[jj]
+                    yUse = starFitsYs[jj]
+                    xmaxCoord = 4097
+                    ymaxCoord = 4097
+                    xMin = 0.0
+                if noCollateral:
+                    xUse = starCcdXs[jj]
+                    yUse = starCcdYs[jj]
+                    xMin = 0.0
+                if xUse>xMin and yUse>0 and xUse<xmaxCoord and yUse<ymaxCoord:
+                    if findAny==False:
+                        outID[0] = int(curTarg.ticid)
+                        outEclipLong[0] = curTarg.eclipLong
+                        outEclipLat[0] = curTarg.eclipLat
+                        outSec[0] = curSec
+                        outCam[0] = starInCam[jj]
+                        outCcd[0] = starCcdNum[jj]
+                        outColPix[0] = xUse
+                        outRowPix[0] = yUse
+                        findAny=True
+                    else:
+                        outID = np.append(outID, int(curTarg.ticid))
+                        outEclipLong = np.append(outEclipLong, curTarg.eclipLong)
+                        outEclipLat = np.append(outEclipLat, curTarg.eclipLat)
+                        outSec = np.append(outSec, curSec)
+                        outCam = np.append(outCam, starInCam[jj])
+                        outCcd = np.append(outCcd, starCcdNum[jj])
+                        outColPix = np.append(outColPix, xUse)
+                        outRowPix = np.append(outRowPix, yUse)
     return outID, outEclipLong, outEclipLat, outSec, outCam, outCcd, \
             outColPix, outRowPix, scinfo
 
+def tess_stars2px_reverse_function_entry(trySector, camera, ccd, colWant, rowWant, scInfo=None, \
+                              fpgParmFileList=None):
+    if scInfo == None:
+        # Instantiate Spacecraft position info
+        scinfo = TESS_Spacecraft_Pointing_Data(trySector=trySector, fpgParmFileList=fpgParmFileList)
+    else:
+        scinfo = scInfo
+        
+    idxSec = np.where(scinfo.sectors == trySector)[0][0]
+    starRa, starDec = scinfo.fpgObjs[idxSec].pix2radec_nocheck_single(\
+                       camera-1, ccd-1, [colWant-45.0, rowWant-1.0])
+    return starRa, starDec, scinfo
     
 if __name__ == '__main__':
     # Parse the command line arguments
@@ -1045,7 +1171,7 @@ if __name__ == '__main__':
                         help="Filename for input Target TIC [int]; RA[deg]; Dec[dec]; in white space delimited text file Column 1, 2, and 3 respectively")
     parser.add_argument("-o", "--outputFile", type=argparse.FileType('w'), \
                         help="Optional filename for output.  Default is output to stdout ")
-    parser.add_argument("-s", "--sector", type=int, choices=range(1,39),\
+    parser.add_argument("-s", "--sector", type=int, choices=range(1,56),\
                         help="Search a single sector Number [int]")
     parser.add_argument("-x", "--combinedFits", action='store_true', \
                         help="Output detector pixel coordinates for the 'Big' multi-detector combined fits file format")
@@ -1057,6 +1183,10 @@ if __name__ == '__main__':
                         help="Do reverse search.  Return RA Dec for a given pixel position.  5 parameters sector cam ccd colpix rowpix")
     parser.add_argument("-n", "--name", nargs=1, type=str, \
                         help="Search for a target by resolving its name with SESAME")
+    parser.add_argument("-p", "--proxy_uri", nargs=1, type=str, \
+                        help="Use proxy e.g.\"http://<user>:<passwd>@<proxy_server>:<proxy_port>\" ")
+    parser.add_argument("-a", "--aberrate", action='store_true',\
+                        help="Apply approximate aberration correction to input coordinates. Uses astropy GCRS coordinate frame to approximate TESS aberration")
     args = parser.parse_args()
 
 # DEBUG BLOCK for hard coding input parameters and testing
@@ -1125,7 +1255,10 @@ if __name__ == '__main__':
                    'params':{'columns':'*', 'filters':[{ \
                             'paramName':'ID', 'values':ticStringList}]}, \
                     'format':'json', 'removenullcolumns':True}
-                headers, outString = mastQuery(request)
+                if args.proxy_uri is None:
+                    headers, outString = mastQuery(request)
+                else:
+                    headers, outString = mastQuery(request,args.proxy_uri[0])
                 outObject = json.loads(outString)
                 starRas = np.array([x['ra'] for x in outObject['data']])
                 starDecs = np.array([x['dec'] for x in outObject['data']])
@@ -1149,7 +1282,7 @@ if __name__ == '__main__':
             fileOutputHeader(args.outputFile, fpgParmFileList=fpgParmFileList)
         else:
             # add single line header to stdout
-            print('# TIC     |   RA      |   Dec     | EclipticLong | EclipticLat | Sector | Camera | Ccd | ColPix | RowPix')
+            print('# TIC     |   RA      |   Dec     | EclipticLong | EclipticLat | Sector | Camera | Ccd | ColPix | RowPix | EdgeWarn')
         # Now make list of the star objects
         starList = make_target_objects(starTics, starRas, starDecs)
         #print('Finished converting coords to ecliptic')
@@ -1157,43 +1290,62 @@ if __name__ == '__main__':
         # Checking in detail and then do detailed checking
         findAny=False
         for i, curTarg in enumerate(starList):
-            curTarg = doRoughPosition(curTarg, scinfo)
-            #print('Rough Position Done: {:d} {:d}'.format(i, curTarg.ticid))
-            # Look to see if target was in any sectors
-            if len(curTarg.sectors)>0:
-                uniqSectors = np.unique(curTarg.sectors)
-                starRas = np.array([curTarg.ra])
-                starDecs =  np.array([curTarg.dec])
-                for curSec in uniqSectors:
-                    idxSec = np.where(scinfo.sectors == curSec)[0][0]
-                    starInCam, starCcdNum, starFitsXs, starFitsYs, starCcdXs, starCcdYs = scinfo.fpgObjs[idxSec].radec2pix(\
-                               starRas, starDecs)
-                    for jj, cam in enumerate(starInCam):
-                        # SPOC calibrated FFIs have 44 collateral pixels in x and are 1 based  
-                        xUse = starCcdXs[jj] + 45.0
-                        yUse = starCcdYs[jj] + 1.0
-                        xMin = 44.0
-                        ymaxCoord = 2049
-                        xmaxCoord = 2093
-                        if args.combinedFits:
-                            xUse = starFitsXs[jj]
-                            yUse = starFitsYs[jj]
-                            xmaxCoord = 4097
-                            ymaxCoord = 4097
-                            xMin = 0.0
-                        if args.noCollateral:
-                            xUse = starCcdXs[jj]
-                            yUse = starCcdYs[jj]
-                            xMin = 0.0
-                        if xUse>xMin and yUse>0 and xUse<xmaxCoord and yUse<ymaxCoord:
-                            findAny=True
-                            strout = '{:09d} | {:10.6f} | {:10.6f} | {:10.6f} | {:10.6f} | {:2d} | {:1d} | {:1d} | {:8.3f} | {:8.3f}'.format(\
-                               curTarg.ticid, curTarg.ra, curTarg.dec, curTarg.eclipLong,\
-                               curTarg.eclipLat, curSec, starInCam[jj], starCcdNum[jj], xUse, yUse)
-                            if not (args.outputFile is None):
-                                args.outputFile.write('{:s}\n'.format(strout))
-                            else:
-                                print(strout)
+            starRas = np.array([curTarg.ra])
+            starDecs =  np.array([curTarg.dec])
+            for curSec in scinfo.sectors:
+                idxSec = np.where(scinfo.sectors == curSec)[0][0]
+                # Apply an approximate aberration correction
+                if args.aberrate:
+                    useTime = Time(scinfo.midtimes[idxSec], format='jd')
+                    # Make coordinate object in ICRS coordinates
+                    ccat = SkyCoord(ra=starRas * u.deg,
+                                     dec=starDecs * u.deg,
+                                     obstime=useTime, frame='icrs')
+                    # convert to Geocentric aberrated coordinates
+                    # This is only an approximation to TESS
+                    #  because TESS orbits Earth and has 
+                    #  velocity <=4km/s relative to Earth whereas Earth is 30km/s
+                    cgcrs = ccat.transform_to('gcrs')
+                    starRas = np.array(cgcrs.ra.degree)
+                    starDecs = np.array(cgcrs.dec.degree)
+                starInCam, starCcdNum, starFitsXs, starFitsYs, starCcdXs, starCcdYs = scinfo.fpgObjs[idxSec].radec2pix(\
+                           starRas, starDecs)
+                for jj, cam in enumerate(starInCam):
+                    # SPOC calibrated FFIs have 44 collateral pixels in x and are 1 based  
+                    xUse = starCcdXs[jj] + 45.0
+                    yUse = starCcdYs[jj] + 1.0
+                    xMin = 44.0
+                    ymaxCoord = 2049
+                    xmaxCoord = 2093
+                    if args.combinedFits:
+                        xUse = starFitsXs[jj]
+                        yUse = starFitsYs[jj]
+                        xmaxCoord = 4097
+                        ymaxCoord = 4097
+                        xMin = 0.0
+                    if args.noCollateral:
+                        xUse = starCcdXs[jj]
+                        yUse = starCcdYs[jj]
+                        xMin = 0.0
+                    if xUse>xMin and yUse>0 and xUse<xmaxCoord and yUse<ymaxCoord:
+                        findAny=True
+                        edgeWarn = 0
+                        edgePix = 6
+                        if xUse<=(xMin+edgePix):
+                            edgeWarn = 1
+                        if xUse>=(xmaxCoord-edgePix):
+                            edgeWarn = 1
+                        if yUse<=edgePix:
+                            edgeWarn = 1
+                        if yUse>=(ymaxCoord-edgePix):
+                            edgeWarn = 1
+                        strout = '{:09d} | {:10.6f} | {:10.6f} | {:10.6f} | {:10.6f} | {:2d} | {:1d} | {:1d} | {:11.6f} | {:11.6f} | {:1d}'.format(\
+                           curTarg.ticid, curTarg.ra, curTarg.dec, curTarg.eclipLong,\
+                           curTarg.eclipLat, curSec, starInCam[jj], starCcdNum[jj], xUse, yUse, edgeWarn)
+                        if not (args.outputFile is None):
+                            args.outputFile.write('{:s}\n'.format(strout))
+                        else:
+                            print(strout)
     
         if not findAny:
             print('No Target/s were found to be on detectors')
@@ -1210,68 +1362,75 @@ if __name__ == '__main__':
         iCcd = int(args.reverse[2])-1
         colWnt = float(args.reverse[3])
         rowWnt = float(args.reverse[4])
-        camRa = scinfo.camRa[iCam,0]
-        camDec = scinfo.camDec[iCam,0]
-        def minFunc(x, iCam, iCcd, colWnt, rowWnt):
-            starCcdNum, starFitsXs, starFitsYs, starCcdXs, starCcdYs, lat = scinfo.fpgObjs[0].radec2pix_nocheck_single(\
-                               x[0], x[1], iCam, iCcd)
-            xUse = starCcdXs + 45.0
-            yUse = starCcdYs + 1.0
-            # Penalize latitudes <70
-            latBad = 0.0
-            if lat < 70.0:
-                latBad = 70.0-lat
-            zUse = np.power(xUse-colWnt,2) + np.power(yUse-rowWnt,2) + np.power(latBad,4) + 1.0
-            return zUse
-        # Use an initial minimize with bounds to keep things from going haywire
-        # start with camera center
-        optResult = opt.minimize(minFunc, [camRa, camDec], \
-                                 args=(iCam, iCcd, colWnt, rowWnt), method='TNC', \
-                                 bounds=[[0.0,410.0],[-90.0, 90.0]], tol=1.0e-6, \
-                                 options={'maxiter':500})
-        newRa = optResult.x[0]
-        newDec = optResult.x[1]
-        #  Refine minimization to hopefully converge
-        optResult2 = opt.minimize(minFunc, [newRa, newDec], \
-                                 args=(iCam, iCcd, colWnt, rowWnt), method='Nelder-Mead', \
-                                 tol=1.0e-6, \
-                                 options={'maxiter':500})
-        newRa2 = optResult2.x[0]
-        newDec2 = optResult2.x[1]
-        minQuality = optResult2.fun
-        newRa2 = np.mod(newRa2, 360.0)
-        if np.abs(minQuality - 1.0) > 1.0e-4:
 
-            newRa = camRa + (newRa-camRa)/2.0
-            newDec = camDec + (newDec-camDec)/2.0
-            optResult3 = opt.minimize(minFunc, [newRa, newDec], \
-                                 args=(iCam, iCcd, colWnt, rowWnt), method='Nelder-Mead', \
-                                 tol=1.0e-6, \
-                                 options={'maxiter':500}) 
-            newRa3 = optResult3.x[0]
-            newDec3 = optResult3.x[1]
-            minQuality = optResult3.fun
-            newRa3 = np.mod(newRa3, 360.0)
-            if newDec3 < -90.0:
-                newDec3 = -90.0 + (-90.0 - newDec3)
-                newRa3 = newRa3 + 180.0
-                newRa3 = np.mod(newRa3, 360.0)
-            if newDec3 > 90.0:
-                newDec3 = 90.0 + (90.0 - newDec3)
-                newRa3 = newRa3 + 180.0
-                newRa3 = np.mod(newRa3, 360.0)
-                
-            print(newRa3, newDec3, minQuality)
-            
-        else:
-            if newDec2 < -90.0:
-                newDec2 = -90.0 + (-90.0 - newDec2)
-                newRa2 = newRa2 + 180.0
-                newRa2 = np.mod(newRa2, 360.0)
-            if newDec2 > 90.0:
-                newDec2 = 90.0 + (90.0 - newDec2)
-                newRa2 = newRa2 + 180.0
-                newRa2 = np.mod(newRa2, 360.0)
-
-            print(newRa2, newDec2, minQuality)
+        # Lets try going direct route with inversion of codes
+        starCcdXs = colWnt - 45.0
+        starCcdYs = rowWnt - 1.0
+        idxSec = np.where(scinfo.sectors == trySector)[0][0]
+        ra_deg, dec_deg = scinfo.fpgObjs[idxSec].pix2radec_nocheck_single(iCam, iCcd, [starCcdXs, starCcdYs])
+        print(ra_deg, dec_deg)
+        
+#  OLD Way with minimizer       
+#        def minFunc(x, iCam, iCcd, colWnt, rowWnt):
+#            starCcdNum, starFitsXs, starFitsYs, starCcdXs, starCcdYs, lat = scinfo.fpgObjs[0].radec2pix_nocheck_single(\
+#                               x[0], x[1], iCam, iCcd)
+#            xUse = starCcdXs + 45.0
+#            yUse = starCcdYs + 1.0
+#            # Penalize latitudes <70
+#            latBad = 0.0
+#            if lat < 70.0:
+#                latBad = 70.0-lat
+#            zUse = np.power(xUse-colWnt,2) + np.power(yUse-rowWnt,2) + np.power(latBad,4) + 1.0
+#            return zUse
+#        # Use an initial minimize with bounds to keep things from going haywire
+#        # start with camera center
+#        optResult = opt.minimize(minFunc, [camRa, camDec], \
+#                                 args=(iCam, iCcd, colWnt, rowWnt), method='TNC', \
+#                                 bounds=[[0.0,410.0],[-90.0, 90.0]], tol=1.0e-6, \
+#                                 options={'maxiter':500})
+#        newRa = optResult.x[0]
+#        newDec = optResult.x[1]
+#        #  Refine minimization to hopefully converge
+#        optResult2 = opt.minimize(minFunc, [newRa, newDec], \
+#                                 args=(iCam, iCcd, colWnt, rowWnt), method='Nelder-Mead', \
+#                                 tol=1.0e-6, \
+#                                 options={'maxiter':500})
+#        newRa2 = optResult2.x[0]
+#        newDec2 = optResult2.x[1]
+#        minQuality = optResult2.fun
+#        newRa2 = np.mod(newRa2, 360.0)
+#        if np.abs(minQuality - 1.0) > 1.0e-4:
+#
+#            newRa = camRa + (newRa-camRa)/2.0
+#            newDec = camDec + (newDec-camDec)/2.0
+#            optResult3 = opt.minimize(minFunc, [newRa, newDec], \
+#                                 args=(iCam, iCcd, colWnt, rowWnt), method='Nelder-Mead', \
+#                                 tol=1.0e-6, \
+#                                 options={'maxiter':500}) 
+#            newRa3 = optResult3.x[0]
+#            newDec3 = optResult3.x[1]
+#            minQuality = optResult3.fun
+#            newRa3 = np.mod(newRa3, 360.0)
+#            if newDec3 < -90.0:
+#                newDec3 = -90.0 + (-90.0 - newDec3)
+#                newRa3 = newRa3 + 180.0
+#                newRa3 = np.mod(newRa3, 360.0)
+#            if newDec3 > 90.0:
+#                newDec3 = 90.0 + (90.0 - newDec3)
+#                newRa3 = newRa3 + 180.0
+#                newRa3 = np.mod(newRa3, 360.0)
+#                
+#            print(newRa3, newDec3, minQuality)
+#            
+#        else:
+#            if newDec2 < -90.0:
+#                newDec2 = -90.0 + (-90.0 - newDec2)
+#                newRa2 = newRa2 + 180.0
+#                newRa2 = np.mod(newRa2, 360.0)
+#            if newDec2 > 90.0:
+#                newDec2 = 90.0 + (90.0 - newDec2)
+#                newRa2 = newRa2 + 180.0
+#                newRa2 = np.mod(newRa2, 360.0)
+#
+#            print(newRa2, newDec2, minQuality)
         

@@ -71,7 +71,7 @@ if __name__ == '__main__':
 #                          '/pdo/spoc-data/sector-036/light-curve/tess2021065132309-s0036-',\
 #                          '/pdo/spoc-data/sector-037/light-curve/tess2021091135823-s0037-',\
 #                          '/pdo/spoc-data/sector-038/light-curve/tess2021118034608-s0038-',\
-#                          '/pdo/spoc-data/sector-039/light-curve/tess2021204101404-s0041-']
+#                          '/pdo/spoc-data/sector-039/light-curve/tess2021232031932-s0042-']
 
 #    fileInputSuffixList = ['-0120-s_lc.fits.gz', \
 #                           '-0121-s_lc.fits.gz', \
@@ -101,7 +101,7 @@ if __name__ == '__main__':
 #                           '-0207-s_lc.fits.gz',\
 #                           '-0208-s_lc.fits.gz',\
 #                           '-0209-s_lc.fits.gz',\
-#                           '-0212-s_lc.fits.gz']
+#                           '-0213-s_lc.fits.gz']
 
 # Single sector block of file prefixes fill with fake values
     fileInputPrefixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
@@ -112,7 +112,8 @@ if __name__ == '__main__':
                            '/foo26','/foo27','/foo28','/foo29','/foo30',\
                            '/foo31','/foo32','/foo33','/foo34','/foo35',\
                            '/foo36','/foo37','/foo38','/foo39','/foo40',\
-                           '/pdo/spoc-data/sector-041/light-curve/tess2021204101404-s0041-']
+                           '/foo41',\
+                           '/pdo/spoc-data/sector-042/light-curve/tess2021232031932-s0042-']
     fileInputSuffixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
                            '/foo6','/foo7','/foo8','/foo9','/foo10',\
                            '/foo11','/foo12','/foo13','/foo14','/foo15',
@@ -121,20 +122,21 @@ if __name__ == '__main__':
                            '/foo26','/foo27','/foo28','/foo29','/foo30',\
                            '/foo31','/foo32','/foo33','/foo34','/foo35',\
                            '/foo36','/foo37','/foo38','/foo39','/foo40',\
-                           '-0212-s_lc.fits.gz']
+                           '/foo41',\
+                           '-0213-s_lc.fits.gz']
     nSector = len(fileInputPrefixList)    
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector41/'
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector42/'
     RESAMP = 31  ###  USE AN ODD NUMBER ###
-    SECTOR = 41# =-1 if multi-sector
+    SECTOR = 42# =-1 if multi-sector
 
-    #fileOut = 'spoc_pdcstats_sector41_20210917.txt'
+    #fileOut = 'spoc_pdcstats_sector42_20210930.txt'
     #fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector41_20210917.txt'
+    vetFile = 'spoc_fluxtriage_sector42_20210930.txt'
     #vetFile = 'junk.txt'
-    tceSeedInFile = 'sector41_20210917_tce.h5'
+    tceSeedInFile = 'sector42_20210930_tce.h5'
 
     # Load the tce data h5
-    tceSeedInFile = 'sector41_20210917_tce.h5'
+    tceSeedInFile = 'sector42_20210930_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
