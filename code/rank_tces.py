@@ -94,41 +94,41 @@ if __name__ == '__main__':
     wID = int(args.w)
     nWrk = int(args.n)
     
-    summaryFolder = '/pdo/spoc-data/sector-042/dv-reports'
-    summaryPrefix = 'tess2021233042500-'
-    summaryPostfix = '-00517_dvs.pdf'
-    SECTOR1 = 42
-    SECTOR2 = 42
+    summaryFolder = '/pdo/spoc-data/sector-043/dv-reports'
+    summaryPrefix = 'tess2021259155059-'
+    summaryPostfix = '-00522_dvs.pdf'
+    SECTOR1 = 43
+    SECTOR2 = 43
     multiRun = False
     if SECTOR2 - SECTOR1 > 0:
         multiRun = True
 
     doPNGs = False
-    pngFolder = '/pdo/users/cjburke/spocvet/sector42/pngs/'
+    pngFolder = '/pdo/users/cjburke/spocvet/sector43/pngs/'
     doMergeSum = True
     if nWrk == 1:
         doMergeSum = False
-    pdfFolder = '/pdo/users/cjburke/spocvet/sector42/pdfs/'
-    SECTOR1 = 42
-    SECTOR2 = 42
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector42'
-    SECTOR = 42# -1 for multi-sector
+    pdfFolder = '/pdo/users/cjburke/spocvet/sector43/pdfs/'
+    SECTOR1 = 43
+    SECTOR2 = 43
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector43'
+    SECTOR = 43# -1 for multi-sector
 
-    fileOut1 = 'spoc_ranking_Tier1_sector42_20210930.txt'
-    fileOut2 = 'spoc_ranking_Tier2_sector42_20210930.txt'
-    fileOut3 = 'spoc_ranking_Tier3_sector42_20210930.txt'
-    vetFile = 'spoc_fluxtriage_sector42_20210930.txt'
-    tceSeedInFile = 'sector42_20210930_tce.h5'
-    modshiftFile = 'spoc_modshift_sector42_20210930.txt'
-    modshiftFile2 = 'spoc_modshift_med_sector42_20210930.txt'
-    sweetFile = 'spoc_sweet_sector42_20210930.txt'
-    toiFederateFile = 'federate_toiWtce_sector42_20210930.txt'
-    knowPFederateFile = 'federate_knownP_sector42_20210930.txt'
-    selfMatchFile = 'selfMatch_sector42_20210930.txt'
-    modumpFile = 'spoc_modump_sector42_20210930.txt'
+    fileOut1 = 'spoc_ranking_Tier1_sector43_20211101.txt'
+    fileOut2 = 'spoc_ranking_Tier2_sector43_20211101.txt'
+    fileOut3 = 'spoc_ranking_Tier3_sector43_20211101.txt'
+    vetFile = 'spoc_fluxtriage_sector43_20211101.txt'
+    tceSeedInFile = 'sector43_20211101_tce.h5'
+    modshiftFile = 'spoc_modshift_sector43_20211101.txt'
+    modshiftFile2 = 'spoc_modshift_med_sector43_20211101.txt'
+    sweetFile = 'spoc_sweet_sector43_20211101.txt'
+    toiFederateFile = 'federate_toiWtce_sector43_20211101.txt'
+    knowPFederateFile = 'federate_knownP_sector43_20211101.txt'
+    selfMatchFile = 'selfMatch_sector43_20211101.txt'
+    modumpFile = 'spoc_modump_sector43_20211101.txt'
 
     # Load the tce data h5
-    tceSeedInFile = 'sector42_20210930_tce.h5'
+    tceSeedInFile = 'sector43_20211101_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
@@ -394,7 +394,7 @@ if __name__ == '__main__':
                 ib = np.where((alltic[j] == toiFedTic))[0]
                 if len(ib)>0:
                     # has some kind of neighbor with previously identified toi
-                    matchFlag = 3
+                    matchFlg = 3
             # Look to previous Planet match
             ib = np.where((alltic[j] == kpFedTic) & (allpn[j] == kpFedPN))[0]
             if len(ib)>0:

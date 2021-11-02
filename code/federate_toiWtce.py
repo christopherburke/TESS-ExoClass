@@ -131,7 +131,7 @@ def query_othertics(ticWant, searchRad):
 
 
 if __name__ == '__main__':
-    fout = open('federate_toiWtce_sector42_20210930.txt', 'w')
+    fout = open('federate_toiWtce_sector43_20211101.txt', 'w')
     dataSpan = 27.0
 
     wideSearch = True # Do MASTTIC query if true to search
@@ -171,8 +171,8 @@ if __name__ == '__main__':
     # To fix string before reading in
     # As of Oct. 2019 I needed to use this to fix commas in strings
     # sed -e 's/""//g' -e 's/,"[^"]*/,"NOCOMMENT/g' csv-file-2019-10-29.csv > toi-plus-2019-10-29-fixed.csv
-    qlpfile = 'csv-file-toi-catalog-FIXED-20210930.csv'
-    dtypeseq = ['U20','i4','f8','U2']
+    qlpfile = 'csv-file-toi-catalog-FIXED-20211101.csv'
+    dtypeseq = ['U20','U20','i4','f8','U2']
     dtypeseq.extend(['f8']*14)
     dtypeseq.extend(['U20','U80'])
     dtypeseq.extend(['f8']*12)
@@ -181,13 +181,13 @@ if __name__ == '__main__':
     dtypeseq.extend(['U40','U40'])
     dataBlock = np.genfromtxt(qlpfile, \
                               dtype=dtypeseq, delimiter=',',skip_header=5)
-    gtTIC = dataBlock['f1']
-    gtTOI = dataBlock['f2']
-    gtDisp = dataBlock['f3']
-    gtRA = dataBlock['f4']
-    gtDec = dataBlock['f5']
-    gtPer = dataBlock['f12']
-    gtEpc = dataBlock['f10']
+    gtTIC = dataBlock['f2']
+    gtTOI = dataBlock['f3']
+    gtDisp = dataBlock['f4']
+    gtRA = dataBlock['f5']
+    gtDec = dataBlock['f6']
+    gtPer = dataBlock['f13']
+    gtEpc = dataBlock['f11']
     print('Last TOI {0}'.format(np.max(gtTOI)))
     # Need to fix single transit TOIs with nan for period
     idx = np.where(np.logical_not(np.isfinite(gtPer)))[0]
@@ -199,7 +199,7 @@ if __name__ == '__main__':
 #                                gtTOI, gtDisp, gtPer, gtEpc, gtDur)
 
     # Load the tce data h5
-    tceSeedInFile = 'sector42_20210930_tce.h5'
+    tceSeedInFile = 'sector43_20211101_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     

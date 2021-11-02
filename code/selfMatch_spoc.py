@@ -135,10 +135,10 @@ def genericFed(per, epc, tryper, tryepc, trydur, trypn, trytic, tStart, tEnd):
 
 
 if __name__ == '__main__':
-    fout = open('selfMatch_sector42_20210930.txt', 'w')
+    fout = open('selfMatch_sector43_20211101.txt', 'w')
     dataSpan = 27.0
     # Load the tce data h5
-    tceSeedInFile = 'sector42_20210930_tce.h5'
+    tceSeedInFile = 'sector43_20211101_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     # Check to see if cadence to time mappting is available
