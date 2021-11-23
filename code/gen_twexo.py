@@ -28,11 +28,11 @@ def idx_filter(idx, *array_list):
 
 if __name__ == '__main__':
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector43'
-    SECTOR = 43
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector44'
+    SECTOR = 44
 
     doPDFs = True
-    vetFile = 'spoc_fluxtriage_sector43_20211101.txt'
+    vetFile = 'spoc_fluxtriage_sector44_20211122.txt'
     overwrite = False
 
     # Load the  flux vetting
@@ -44,8 +44,10 @@ if __name__ == '__main__':
     # Generate html for triage passing TICs
     idx = np.where(fvvet == 1)[0]
     useTic = np.unique(fvtic[idx])
-    
-    for curTic in useTic:        
+    nTic = len(useTic)
+    for i,curTic in enumerate(useTic):
+        if np.mod(i, 20) == 0:
+            print('Done {0:d} of {1:d}'.format(i, nTic))
         htmlOutput = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'twexo_{0:016d}'.format(curTic))
         if not os.path.isfile(htmlOutput + '.pdf') or overwrite:
             # Build argument list

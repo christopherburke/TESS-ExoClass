@@ -131,7 +131,7 @@ def query_othertics(ticWant, searchRad):
 
 
 if __name__ == '__main__':
-    fout = open('federate_toiWtce_sector43_20211101.txt', 'w')
+    fout = open('federate_toiWtce_sector44_20211122.txt', 'w')
     dataSpan = 27.0
 
     wideSearch = True # Do MASTTIC query if true to search
@@ -171,7 +171,7 @@ if __name__ == '__main__':
     # To fix string before reading in
     # As of Oct. 2019 I needed to use this to fix commas in strings
     # sed -e 's/""//g' -e 's/,"[^"]*/,"NOCOMMENT/g' csv-file-2019-10-29.csv > toi-plus-2019-10-29-fixed.csv
-    qlpfile = 'csv-file-toi-catalog-FIXED-20211101.csv'
+    qlpfile = 'csv-file-toi-catalog-FIXED-20211122.csv'
     dtypeseq = ['U20','U20','i4','f8','U2']
     dtypeseq.extend(['f8']*14)
     dtypeseq.extend(['U20','U80'])
@@ -199,7 +199,7 @@ if __name__ == '__main__':
 #                                gtTOI, gtDisp, gtPer, gtEpc, gtDur)
 
     # Load the tce data h5
-    tceSeedInFile = 'sector43_20211101_tce.h5'
+    tceSeedInFile = 'sector44_20211122_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
@@ -246,11 +246,14 @@ if __name__ == '__main__':
     uowStart = np.min(useepc)-1.0
     uowEnd = np.max(useepc) + dataSpan + 1.0
     # Go  the ground truth data (ground truth acts like KOIs in kepler federation)
+    nGT = len(gtTIC)
     for i in range(len(gtTIC)):
         curTic = gtTIC[i]
         curper = gtPer[i]
         curepc = gtEpc[i]
         curToi = gtTOI[i]
+        if np.mod(i,20) == 0:
+            print('Done {0:d} of {1:d}'.format(i, nGT))
         # If wideSearch True then query MAST for 
         #  all TICs within searchRad arcsec of this target
         print('Current Tic Search {0:d}'.format(curTic))

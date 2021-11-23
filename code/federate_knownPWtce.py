@@ -127,7 +127,7 @@ def coughlin_sigmap(p1,p2):
 
 
 if __name__ == '__main__':
-    fout = open('federate_knownP_sector43_20211101.txt', 'w')
+    fout = open('federate_knownP_sector44_20211122.txt', 'w')
     dataSpan = 27.0
     wideSearch = True
     searchRad = 180.0 # Arcsecond search radius for other TICs
@@ -143,12 +143,13 @@ if __name__ == '__main__':
 
     # Load known transiting planet table from NEXSCI   
     #whereString = 'pl_tranflag = 1 and st_elat>0.0'
-    whereString = 'pl_tranflag = 1'
-    url = 'https://exoplanetarchive.ipac.caltech.edu/cgi-bin/nstedAPI/nph-nstedAPI?'
-    data = {'table':'planets', \
-            'select':'pl_name,pl_orbper,pl_tranmid,pl_trandur,ra,dec,st_elat', \
-            'format':'csv', \
-            'where':whereString}
+    selectString = 'select pl_name,pl_orbper,pl_tranmid,pl_trandur,ra,dec,elat'
+    fromString = 'from pscomppars'
+    whereString = 'where tran_flag = 1'
+    url = 'https://exoplanetarchive.ipac.caltech.edu/TAP/sync?'
+    data = {'query':'{0} {1} {2}'.format(selectString, fromString, whereString), \
+                    'format':'csv'}
+
     url_values = urllib.parse.urlencode(data)
     print(url_values)
     
@@ -166,7 +167,7 @@ if __name__ == '__main__':
     gtName = dataBlock['f0']
     gtPer = dataBlock['f1']
     gtEpc = dataBlock['f2']-2457000.0
-    gtDur = dataBlock['f3']*24.0 # Is in days convert to hours
+    gtDur = dataBlock['f3'] # Used to be in days now its in hours*24.0 # Is in days convert to hours
     gtRa = dataBlock['f4']
     gtDec = dataBlock['f5']
     gtEclipLat = dataBlock['f6']
@@ -187,14 +188,18 @@ if __name__ == '__main__':
     if len(idxBd) > 0:
         for curIdxBd in idxBd:
             print('Bad Ephemeris for Known Planet')
-            print(gtName[curIdxBd])
-            # Load known multi data planet table from NEXSCI   
-            whereString = 'mpl_name like \'{0}\''.format(gtName[curIdxBd])
-            url = 'https://exoplanetarchive.ipac.caltech.edu/cgi-bin/nstedAPI/nph-nstedAPI?'
-            data = {'table':'exomultpars', \
-                    'select':'mpl_name,mpl_orbper,mpl_tranmid,mpl_trandur', \
-                    'format':'csv', \
-                    'where':whereString}
+            #print(gtName[curIdxBd])
+            # Load known planet data from NEXSCI
+            # Using TAP interface
+            selectString = 'select pl_name,pl_orbper,pl_tranmid,pl_trandur'
+            fromString = 'from ps'
+            #whereString = 'where pl_name like \'%{0}%\''.format(gtName[curIdxBd])
+            curName = gtName[curIdxBd].replace('"','')
+            print(curName)
+            whereString = 'where pl_name = \'{0}\''.format(curName)
+            url = 'https://exoplanetarchive.ipac.caltech.edu/TAP/sync?'
+            data = {'query':'{0} {1} {2}'.format(selectString, fromString, whereString), \
+                    'format':'csv'}
             url_values = urllib.parse.urlencode(data)
             #print(url_values)
             queryData = urllib.request.urlopen(url + url_values)
@@ -228,7 +233,7 @@ if __name__ == '__main__':
 
 
     # Load the tce data h5
-    tceSeedInFile = 'sector43_20211101_tce.h5'
+    tceSeedInFile = 'sector44_20211122_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
@@ -275,6 +280,7 @@ if __name__ == '__main__':
     uowStart = np.min(useepc)-1.0
     uowEnd = np.max(useepc) + dataSpan + 1.0
     # Go  the ground truth data (ground truth acts like KOIs in kepler federation)
+    nGT = len(gtTIC)
     for i in range(len(gtTIC)):
         curTic = gtTIC[i]
         curper = gtPer[i]
@@ -283,6 +289,8 @@ if __name__ == '__main__':
         curName = gtName[i]
         curRa = gtRa[i]
         curDec = gtDec[i]
+        if np.mod(i,20) == 0:
+            print('Done {0:d} of {1:d}'.format(i, nGT))
         # If wideSearch True then query MAST for 
         #  all TICs within searchRad arcsec of this target
         if wideSearch:
