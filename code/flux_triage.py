@@ -30,7 +30,7 @@ def coughlin_sigmap(p1,p2):
 
 def get_useable_ephems(all_tces):
     allepics = np.zeros((len(all_tces),), dtype=np.int64)
-    allpns = np.zeros((len(all_tces),), dtype=np.int)
+    allpns = np.zeros((len(all_tces),), dtype=int)
     allper = np.zeros((len(all_tces),))
     allepoch = np.zeros_like(allper)
     allduration = np.zeros_like(allper)
@@ -55,12 +55,12 @@ if __name__ == '__main__':
     
     # Load the h5 file that contains TCE seed information
     # The h5 file is created by gather_tce_fromdvxml.py
-    tceSeedInFile = 'sector44_20211122_tce.h5'
+    tceSeedInFile = 'sector45_20211220_tce.h5'
 
     #  Directory storing the ses mes data
-    sesDataDir = '/pdo/users/cjburke/spocvet/sector44'
-    SECTOR = 44
-    fluxVetOut = 'spoc_fluxtriage_sector44_20211122.txt'
+    sesDataDir = '/pdo/users/cjburke/spocvet/sector45'
+    SECTOR = 45
+    fluxVetOut = 'spoc_fluxtriage_sector45_20211220.txt'
 #    fluxVetOut = 'junk.txt'
 
     tcedata = tce_seed()

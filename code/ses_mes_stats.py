@@ -111,7 +111,7 @@ def get_ses_stats(corr, norm, corr_r, norm_r, phi, phiDur, events, time, oCadNo,
     all_corr_r = np.array([])
     all_norm_r = np.array([])
     all_time = np.array([])
-    all_cadNo = np.array([], dtype=np.int)
+    all_cadNo = np.array([], dtype=int)
     runcad = np.arange(len(corr))
     idx1 = np.where(np.abs(phi) <= 1.0*phiDur)[0]
     wideLimit = np.min([chasesWindowFac*phiDur, 0.2])
@@ -282,12 +282,12 @@ if __name__ == "__main__":
     nWrk = int(args.n)
     # Load the h5 file that contains TCE seed information
     # The h5 file is created by gather_tce_fromdvxml.py
-    tceSeedInFile = 'sector44_20211122_tce.h5'
+    tceSeedInFile = 'sector45_20211220_tce.h5'
     #  Directory storing the resampled dv time series data
-    dvDataDir = '/pdo/users/cjburke/spocvet/sector44'
+    dvDataDir = '/pdo/users/cjburke/spocvet/sector45'
     # Directory of output hd5 files
     outputDir = dvDataDir
-    SECTOR = 44
+    SECTOR = 45
     # What fraction of data can be missing and still calculat ses_mes
     # In Sector 1 due to the 2 days of missing stuff it was 0.68
     # For multisector this does not need to be adjusted because
@@ -298,9 +298,9 @@ if __name__ == "__main__":
     overWrite = True
 
     # Skyline data excises loud cadecnes
-    skyline_file = 'skyline_data_sector44_20211122.txt'
+    skyline_file = 'skyline_data_sector45_20211220.txt'
     if os.path.isfile(skyline_file):
-        dataBlock = np.genfromtxt('skyline_data_sector44_20211122.txt', dtype=['f8'])
+        dataBlock = np.genfromtxt('skyline_data_sector45_20211220.txt', dtype=['f8'])
         badTimes = dataBlock['f0']
         if len(badTimes) < 2:
             badTimes = np.array([0.0])
@@ -319,7 +319,7 @@ if __name__ == "__main__":
 
     # These next few lines can be used to examine a single target    
 #    all_epics = np.array([x.epicId for x in all_tces], dtype=np.int64)
-#    all_pns = np.array([x.planetNum for x in all_tces], dtype=np.int)
+#    all_pns = np.array([x.planetNum for x in all_tces], dtype=int)
 #    ia = np.where((all_epics == 278139637) & (all_pns == 3))[0]
 #    doDebug = True
     # Loop over tces and perform various ses, mes, chases tests
@@ -392,7 +392,7 @@ if __name__ == "__main__":
                     plt.show()
                     
                 # assign sector numbers to data
-                secnum = np.ones_like(cadNo, dtype=np.int)
+                secnum = np.ones_like(cadNo, dtype=int)
                 idxSec = np.where(td.all_sectors>=0)[0]
                 td.all_sectors = td.all_sectors[idxSec]
                 td.all_cadstart = td.all_cadstart[idxSec]
@@ -528,7 +528,7 @@ if __name__ == "__main__":
                     #else:
                     #    plt.pause(0.002)
                     waveletLen = 12
-                    searchLen = np.int(np.round(cadPerHr * searchDurationHours))
+                    searchLen = np.int32(np.round(cadPerHr * searchDurationHours))
                     varianceFilterFactor = 15
                     varianceFilterWindow = searchLen * varianceFilterFactor
                     wavObj = kw.waveletObject(waveletLen, final_smooth_flux_ext, varianceFilterWindow)
@@ -590,7 +590,7 @@ if __name__ == "__main__":
                     allCorr = np.array([0.0])
                     allNorm = np.array([0.0])
                     allTime = np.array([0.0])
-                    allCadNo = np.array([0], dtype=np.int)
+                    allCadNo = np.array([0], dtype=int)
                     final_smooth_flux = np.array([0.0])
                     bad_edge_flag = np.array([0.0])
                     vd_ext = np.array([0.0])
@@ -621,12 +621,12 @@ if __name__ == "__main__":
                 tmp = f.create_dataset('valid_data_flag_ext', data=vd_ext, compression='gzip')
                 tmp = f.create_dataset('normTS', data=normTS, compression='gzip')
                 tmp = f.create_dataset('corrTS', data=corrTS, compression='gzip')
-                tmp = f.create_dataset('validSes', data=np.array([validSes], dtype=np.int))
-                tmp = f.create_dataset('newMes', data=np.array([newMes], dtype=np.float))
-                tmp = f.create_dataset('validAltDet', data=np.array([validAltDet], dtype=np.int))
-                tmp = f.create_dataset('ses2Mes', data=np.array([ses2Mes], dtype=np.float))
-                tmp = f.create_dataset('newNTran', data=np.array([newNTran], dtype=np.int))
-                tmp = f.create_dataset('chasesSumry', data=np.array([Chases_sumry], dtype=np.float))
+                tmp = f.create_dataset('validSes', data=np.array([validSes], dtype=int))
+                tmp = f.create_dataset('newMes', data=np.array([newMes], dtype=float))
+                tmp = f.create_dataset('validAltDet', data=np.array([validAltDet], dtype=int))
+                tmp = f.create_dataset('ses2Mes', data=np.array([ses2Mes], dtype=float))
+                tmp = f.create_dataset('newNTran', data=np.array([newNTran], dtype=int))
+                tmp = f.create_dataset('chasesSumry', data=np.array([Chases_sumry], dtype=float))
                 tmp = f.create_dataset('allSes', data=allSes, compression='gzip')
                 tmp = f.create_dataset('allChases', data=allChases, compression='gzip')
                 tmp = f.create_dataset('allCorr', data=allCorr, compression='gzip')
@@ -634,13 +634,13 @@ if __name__ == "__main__":
                 tmp = f.create_dataset('allTime', data=allTime, compression='gzip')
                 tmp = f.create_dataset('allCadNo', data=allCadNo, compression='gzip')
                 
-                tmp = f.create_dataset('newMnMes', data=np.array([newMnMes], dtype=np.float))
-                tmp = f.create_dataset('mnSes2mnMes', data=np.array([mnSes2mnMes], dtype=np.float))
-                tmp = f.create_dataset('phaseDur', data=np.array([phaseDur], dtype=np.float))
-                tmp = f.create_dataset('newMes_r', data=np.array([newMes_r], dtype=np.float))
-                tmp = f.create_dataset('ses2Mes_r', data=np.array([ses2Mes_r], dtype=np.float))
-                tmp = f.create_dataset('newMnMes_r', data=np.array([newMnMes_r], dtype=np.float))
-                tmp = f.create_dataset('mnSes2mnMes_r', data=np.array([mnSes2mnMes_r], dtype=np.float))
+                tmp = f.create_dataset('newMnMes', data=np.array([newMnMes], dtype=float))
+                tmp = f.create_dataset('mnSes2mnMes', data=np.array([mnSes2mnMes], dtype=float))
+                tmp = f.create_dataset('phaseDur', data=np.array([phaseDur], dtype=float))
+                tmp = f.create_dataset('newMes_r', data=np.array([newMes_r], dtype=float))
+                tmp = f.create_dataset('ses2Mes_r', data=np.array([ses2Mes_r], dtype=float))
+                tmp = f.create_dataset('newMnMes_r', data=np.array([newMnMes_r], dtype=float))
+                tmp = f.create_dataset('mnSes2mnMes_r', data=np.array([mnSes2mnMes_r], dtype=float))
 
                 f.close()
                 

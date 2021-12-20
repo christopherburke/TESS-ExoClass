@@ -99,16 +99,16 @@ if __name__ == '__main__':
 
     OVERWRITE = False
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector44'
-    SECTOR = 44
-    SECTOR1 = 44
-    SECTOR2 = 44
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector45'
+    SECTOR = 45
+    SECTOR1 = 45
+    SECTOR2 = 45
 #    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-2'
 #    SECTOR=-1
 
     #vetFile = 'spoc_sector1_early_fluxvet_20180904.txt'
-    vetFile = 'spoc_fluxtriage_sector44_20211122.txt'
-    tceSeedInFile = 'sector44_20211122_tce.h5'
+    vetFile = 'spoc_fluxtriage_sector45_20211220.txt'
+    tceSeedInFile = 'sector45_20211220_tce.h5'
 #    vetFile = 'spoc_sector1_2_fluxtriage_20181019.txt'
 #    tceSeedInFile = 'sector1_2_20181019_tce.pkl'
 
@@ -121,13 +121,13 @@ if __name__ == '__main__':
 
 
     # Load the tce data h5
-    tceSeedInFile = 'sector44_20211122_tce.h5'
+    tceSeedInFile = 'sector45_20211220_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
     alltic = np.array([x.epicId for x in all_tces], dtype=np.int64)
-    allpn = np.array([x.planetNum for x in all_tces], dtype=np.int)
-    allatvalid = np.array([x.at_valid for x in all_tces], dtype=np.int)
+    allpn = np.array([x.planetNum for x in all_tces], dtype=int)
+    allatvalid = np.array([x.at_valid for x in all_tces], dtype=int)
     allrp = np.array([x.at_rp for x in all_tces])
     allrstar = np.array([x.rstar for x in all_tces])
     alllogg = np.array([x.logg for x in all_tces])
@@ -265,9 +265,9 @@ if __name__ == '__main__':
                             imgShp = tpf_medimg.shape
                             nr = imgShp[0]
                             nc = imgShp[1]
-                            depthImg = np.zeros((nr,nc), dtype=np.float)
-                            snrImg = np.zeros((nr,nc), dtype=np.float)
-                            priposImg = np.zeros((nr,nc), dtype=np.float)
+                            depthImg = np.zeros((nr,nc), dtype=float)
+                            snrImg = np.zeros((nr,nc), dtype=float)
+                            priposImg = np.zeros((nr,nc), dtype=float)
                             doDebug = False
                             for ii in range(nr):
                                 for jj in range(nc):

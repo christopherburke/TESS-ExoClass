@@ -31,17 +31,17 @@ if __name__ == '__main__':
     wID = 0
     nWrk = 1
     
-    summaryFolder = '/pdo/spoc-data/sector-044/dv-reports'
-    summaryPrefix = 'tess2021285162058-'
-    summaryPostfix = '-00532_dvr.pdf'
-    SECTOR1 = 44
-    SECTOR2 = 44
+    summaryFolder = '/pdo/spoc-data/sector-045/dv-reports'
+    summaryPrefix = 'tess2021311000057-'
+    summaryPostfix = '-00542_dvr.pdf'
+    SECTOR1 = 45
+    SECTOR2 = 45
     multiRun = False
     if SECTOR2 - SECTOR1 > 0:
         multiRun = True
-    tceSeedInFile = 'sector44_20211122_tce.h5'
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector44'
-    SECTOR = 44
+    tceSeedInFile = 'sector45_20211220_tce.h5'
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector45'
+    SECTOR = 45
     overwrite = False
     
     # Load the tce data h5
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)    
 
     alltic = np.array([x.epicId for x in all_tces], dtype=np.int64)
-    allpn = np.array([x.planetNum for x in all_tces], dtype=np.int)
+    allpn = np.array([x.planetNum for x in all_tces], dtype=int)
     #idx = np.where(alltic == 167600516)[0]
     #alltic = alltic[idx[0]:]
     #allpn = allpn[idx[0]:]

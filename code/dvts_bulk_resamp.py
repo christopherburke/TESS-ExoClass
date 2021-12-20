@@ -49,21 +49,21 @@ def dvts_resamp(file, dirOut, RESAMP, SECTOR=None, overwrite=True):
                   'DEC_OBJ','PMRA','PMDEC','PMTOTAL','TESSMAG','TEFF', \
                   'LOGG','RADIUS']
         formatprihdr = [np.uint32, \
-                    np.float,np.float,np.float,np.float,np.float, \
-                    np.float,np.float,np.float,np.float,np.float]
+                    float,float,float,float,float, \
+                    float,float,float,float,float]
     else:
         keepprihdr = ['TICID','SECTOR','PXTABLE','RA_OBJ', \
                       'DEC_OBJ','PMRA','PMDEC','PMTOTAL','TESSMAG','TEFF', \
                       'LOGG','RADIUS']
-        formatprihdr = [np.uint32, np.int, np.int, \
-                        np.float,np.float,np.float,np.float,np.float, \
-                        np.float,np.float,np.float,np.float,np.float]
+        formatprihdr = [np.uint32, int, int, \
+                        float,float,float,float,float, \
+                        float,float,float,float,float]
 
     # make empty arrays
-    kpCadenceNo = np.array([0], dtype=np.int)
-    kpTimetbjd = np.array([0.0], dtype=np.float)
-    kpQuality = np.array([0], dtype=np.int)
-    kpPDC = np.array([0.0], dtype=np.float)
+    kpCadenceNo = np.array([0], dtype=int)
+    kpTimetbjd = np.array([0.0], dtype=float)
+    kpQuality = np.array([0], dtype=int)
+    kpPDC = np.array([0.0], dtype=float)
     for ii in range(nTces):
         # Check if already done
         epic = hdulist[0].header['TICID']
@@ -118,7 +118,7 @@ def dvts_resamp(file, dirOut, RESAMP, SECTOR=None, overwrite=True):
             # Do downsampling of data stream
             cadenceNoBeg = np.min(np.reshape(cadenceNo, (newNImage, RESAMP)), axis=1)
             cadenceNoEnd = np.max(np.reshape(cadenceNo, (newNImage, RESAMP)), axis=1)
-            cadenceNo = np.mean(np.reshape(cadenceNo, (newNImage, RESAMP)), axis=1, dtype=np.int)
+            cadenceNo = np.mean(np.reshape(cadenceNo, (newNImage, RESAMP)), axis=1, dtype=int)
             timetbjd = np.mean(np.reshape(timetbjd, (newNImage, RESAMP)), axis=1)
             lc_init = np.mean(np.reshape(lc_init, (newNImage, RESAMP)), axis=1)
             lc_init_err = np.mean(np.reshape(lc_init_err, (newNImage, RESAMP)), axis=1)
@@ -195,8 +195,8 @@ def dvts_resamp(file, dirOut, RESAMP, SECTOR=None, overwrite=True):
 
 if __name__ == "__main__":
 
-    dirInputs = '/pdo/spoc-data/sector-044/dv-time-series/'
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector44/'
+    dirInputs = '/pdo/spoc-data/sector-045/dv-time-series/'
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector45/'
     RESAMP = 5  ###  USE AN ODD NUMBER HELPS WITH CADENCE NO ###
     SECTOR_OVRRIDE = None # If NOT multisector set this to None ###
     overwrite = True # Set False to keep old results and only do files that dont exist

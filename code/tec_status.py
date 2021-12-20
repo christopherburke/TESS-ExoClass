@@ -27,25 +27,25 @@ def make_data_dirs(prefix, sector, epic):
 
 
 if __name__ == '__main__':
-    SECTOR1 = 44
-    SECTOR2 = 44
+    SECTOR1 = 45
+    SECTOR2 = 45
     multiRun = False
     if SECTOR2 - SECTOR1 > 0:
         multiRun = True
-    tceSeedInFile = 'sector44_20211122_tce.h5'
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector44'
-    SECTOR = 44
-    skyline_out = 'skyline_data_sector44_20211122.txt'
-    fed_knownP_out = 'federate_knownP_sector44_20211122.txt'
-    fed_toi_out = 'federate_toiWtce_sector44_20211122.txt'
-    fed_self_out = 'selfMatch_sector44_20211122.txt'
-    fluxVetOut = 'spoc_fluxtriage_sector44_20211122.txt'
+    tceSeedInFile = 'sector45_20211220_tce.h5'
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector45'
+    SECTOR = 45
+    skyline_out = 'skyline_data_sector45_20211220.txt'
+    fed_knownP_out = 'federate_knownP_sector45_20211220.txt'
+    fed_toi_out = 'federate_toiWtce_sector45_20211220.txt'
+    fed_self_out = 'selfMatch_sector45_20211220.txt'
+    fluxVetOut = 'spoc_fluxtriage_sector45_20211220.txt'
     SWEETMAXPER = 5.0
-    sweet_out = 'spoc_sweet_sector44_20211122.txt'
-    modump_out = 'spoc_modump_sector44_20211122.txt'    
-    fileOut1 = 'spoc_ranking_Tier1_sector44_20211122.txt'
-    fileOut2 = 'spoc_ranking_Tier2_sector44_20211122.txt'
-    fileOut3 = 'spoc_ranking_Tier3_sector44_20211122.txt'
+    sweet_out = 'spoc_sweet_sector45_20211220.txt'
+    modump_out = 'spoc_modump_sector45_20211220.txt'    
+    fileOut1 = 'spoc_ranking_Tier1_sector45_20211220.txt'
+    fileOut2 = 'spoc_ranking_Tier2_sector45_20211220.txt'
+    fileOut3 = 'spoc_ranking_Tier3_sector45_20211220.txt'
     if multiRun:
         useSector = 1000+SECTOR2
     else:
@@ -59,10 +59,10 @@ if __name__ == '__main__':
         tcedata = tce_seed()
         all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
         alltic = np.array([x.epicId for x in all_tces], dtype=np.int64)
-        all_pns = np.array([x.planetNum for x in all_tces], dtype=np.int)
+        all_pns = np.array([x.planetNum for x in all_tces], dtype=int)
         allsolarflux = np.array([x.at_effflux for x in all_tces])
         alltrpvalid = np.array([x.trp_valid for x in all_tces])
-        allatvalid = np.array([x.at_valid for x in all_tces], dtype=np.int)
+        allatvalid = np.array([x.at_valid for x in all_tces], dtype=int)
         allper = np.array([x.at_period for x in all_tces])
 
         allUnqTic = np.unique(alltic)

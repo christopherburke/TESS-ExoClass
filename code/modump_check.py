@@ -53,15 +53,15 @@ def idx_filter(idx, *array_list):
 
 if __name__ == '__main__':
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector44'
-    SECTOR = 44
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector45'
+    SECTOR = 45
 
     
-    fileOut = 'spoc_modump_sector44_20211122.txt'    
+    fileOut = 'spoc_modump_sector45_20211220.txt'    
     fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector44_20211122.txt'
+    vetFile = 'spoc_fluxtriage_sector45_20211220.txt'
     #vetFile = 'junk.txt'
-    tceSeedInFile = 'sector44_20211122_tce.h5'
+    tceSeedInFile = 'sector45_20211220_tce.h5'
 
     # cadence number time mapping has momentum dump flags in it
     # It is generated in dvts_bulk_resamp.py
@@ -73,13 +73,13 @@ if __name__ == '__main__':
     bdTime = timemap[idx]
     
     # Load the tce data h5
-    tceSeedInFile = 'sector44_20211122_tce.h5'
+    tceSeedInFile = 'sector45_20211220_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
     alltic = np.array([x.epicId for x in all_tces], dtype=np.int64)
-    allpn = np.array([x.planetNum for x in all_tces], dtype=np.int)
-    allatvalid = np.array([x.at_valid for x in all_tces], dtype=np.int)
+    allpn = np.array([x.planetNum for x in all_tces], dtype=int)
+    allatvalid = np.array([x.at_valid for x in all_tces], dtype=int)
     allrp = np.array([x.at_rp for x in all_tces])
     allrstar = np.array([x.rstar for x in all_tces])
     alllogg = np.array([x.logg for x in all_tces])

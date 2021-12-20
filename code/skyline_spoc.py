@@ -36,21 +36,21 @@ def genericFed(per, epc, tryper, tryepc, trydur, trypn, trytic, tStart, tEnd):
 
 
 if __name__ == '__main__':
-    fout = open('skyline_data_sector44_20211122.txt', 'w')
+    fout = open('skyline_data_sector45_20211220.txt', 'w')
     
     # Load the tce data h5
-    tceSeedInFile = 'sector44_20211122_tce.h5'
+    tceSeedInFile = 'sector45_20211220_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
     alltic = np.array([x.epicId for x in all_tces], dtype=np.int64)
-    allpn = np.array([x.planetNum for x in all_tces], dtype=np.int)
-    allatvalid = np.array([x.at_valid for x in all_tces], dtype=np.int)
+    allpn = np.array([x.planetNum for x in all_tces], dtype=int)
+    allatvalid = np.array([x.at_valid for x in all_tces], dtype=int)
     allrp = np.array([x.at_rp for x in all_tces])
     allper = np.array([x.at_period for x in all_tces])
     alldur = np.array([x.at_dur for x in all_tces])
     allepc = np.array([x.at_epochbtjd for x in all_tces])
-    alltrpvalid = np.array([x.trp_valid for x in all_tces], dtype=np.int)
+    alltrpvalid = np.array([x.trp_valid for x in all_tces], dtype=int)
     alltrpdur = np.array([x.trp_dur for x in all_tces])
     alltrpepc = np.array([x.trp_epochbtjd for x in all_tces])
     alltcedur = np.array([x.pulsedur for x in all_tces])

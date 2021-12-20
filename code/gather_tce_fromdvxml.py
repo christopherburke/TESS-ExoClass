@@ -96,7 +96,7 @@ class tce_seed(object):
         self.raDeg = 0.0
         self.teff = 0.0
         self.teff_e = 0.0
-        self.limbc = np.array([0.0, 0.0, 0.0, 0.0], dtype=np.float)
+        self.limbc = np.array([0.0, 0.0, 0.0, 0.0], dtype=float)
         self.feh = 0.0
         self.logg = 0.0
         self.rstar = 0.0
@@ -161,9 +161,9 @@ class tce_seed(object):
         self.data_start = 0
         self.data_end = 0
         # list of all sectors and start and end cadences numbers 
-        self.all_sectors = np.array([-1]*100, dtype=np.int)
-        self.all_cadstart = np.array([-1]*100, dtype=np.int)
-        self.all_cadend = np.array([-1]*100, dtype=np.int)
+        self.all_sectors = np.array([-1]*100, dtype=int)
+        self.all_cadstart = np.array([-1]*100, dtype=int)
+        self.all_cadend = np.array([-1]*100, dtype=int)
         
     def store_objlist_as_hd5f(self, objlist, fileName):
         # save the class structure into hd5
@@ -196,8 +196,8 @@ class tce_seed(object):
         
         
 if __name__ == "__main__":
-    tceSeedOutFile = 'sector44_20211122_tce.h5'
-    headXMLPath = '/pdo/spoc-data/sector-044/dv-results/'
+    tceSeedOutFile = 'sector45_20211220_tce.h5'
+    headXMLPath = '/pdo/spoc-data/sector-045/dv-results/'
     # Namespace there is extra junk prepended to tags
     #  This is supposed to make it easier to use 
     ns = {'ns': 'http://www.nasa.gov/2018/TESS/DV'}

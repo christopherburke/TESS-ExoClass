@@ -218,22 +218,22 @@ if __name__ == '__main__':
     MAXPER = 5.0
     
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector44'
-    SECTOR = 44
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector45'
+    SECTOR = 45
 
-    fileOut = 'spoc_sweet_sector44_20211122.txt'
+    fileOut = 'spoc_sweet_sector45_20211220.txt'
     fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector44_20211122.txt'
-    tceSeedInFile = 'sector44_20211122_tce.h5'
+    vetFile = 'spoc_fluxtriage_sector45_20211220.txt'
+    tceSeedInFile = 'sector45_20211220_tce.h5'
 
     # Load the tce data h5
-    tceSeedInFile = 'sector44_20211122_tce.h5'
+    tceSeedInFile = 'sector45_20211220_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
     alltic = np.array([x.epicId for x in all_tces], dtype=np.int64)
-    allpn = np.array([x.planetNum for x in all_tces], dtype=np.int)
-    allatvalid = np.array([x.at_valid for x in all_tces], dtype=np.int)
+    allpn = np.array([x.planetNum for x in all_tces], dtype=int)
+    allatvalid = np.array([x.at_valid for x in all_tces], dtype=int)
     allrp = np.array([x.at_rp for x in all_tces])
     allrstar = np.array([x.rstar for x in all_tces])
     alllogg = np.array([x.logg for x in all_tces])

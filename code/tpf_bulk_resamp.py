@@ -44,19 +44,19 @@ def tpf_resamp(file, fileOut, RESAMP, lcFile):
     shp = arr.shape
     nx = shp[0]
     ny = shp[1]
-    saturate_pixel = np.zeros((nx, ny), dtype=np.int)
+    saturate_pixel = np.zeros((nx, ny), dtype=int)
     median_image = np.zeros((nx, ny))
 
     # Get header information that we should keep
     keepprihdr = ['TICID','SECTOR','CAMERA','CCD','PXTABLE','RA_OBJ', \
                   'DEC_OBJ','PMRA','PMDEC','PMTOTAL','TESSMAG','TEFF', \
                   'LOGG','RADIUS']
-    formatprihdr = [np.uint32, np.int, np.int, np.int,np.int, \
-                    np.float,np.float,np.float,np.float,np.float, \
-                    np.float,np.float,np.float,np.float,np.float]
+    formatprihdr = [np.uint32, int, int, int,int, \
+                    float,float,float,float,float, \
+                    float,float,float,float,float]
 
     keep1hdr = ['1CRV4P','2CRV4P','1CRPX4','2CRPX4']
-    format1hdr = [np.int,np.int,np.float,np.float]
+    format1hdr = [int,int,float,float]
     
     cadenceNo = hdulist[1].data[:]['CADENCENO']
     timetbjd = hdulist[1].data[:]['TIME']
@@ -95,11 +95,11 @@ def tpf_resamp(file, fileOut, RESAMP, lcFile):
     dq_flag = dq_flag[frstIdx:endIdx+1]
     newNImage = len(cadenceNo) // RESAMP    
     # Do downsampling of data stream
-    cadenceNo = np.mean(np.reshape(cadenceNo, (newNImage, RESAMP)), axis=1, dtype=np.int)
+    cadenceNo = np.mean(np.reshape(cadenceNo, (newNImage, RESAMP)), axis=1, dtype=int)
     timetbjd = np.mean(np.reshape(timetbjd, (newNImage, RESAMP)), axis=1)
     flux_array = np.sum(np.reshape(flux_array, (newNImage, RESAMP, nx, ny)), axis=1)
     flux_bkg_array = np.sum(np.reshape(flux_bkg_array, (newNImage, RESAMP, nx, ny)), axis=1)
-    dq_flag = np.sum(np.reshape(dq_flag, (newNImage, RESAMP)), axis=1, dtype=np.int)
+    dq_flag = np.sum(np.reshape(dq_flag, (newNImage, RESAMP)), axis=1, dtype=int)
 
     # Identify data that is missing or NaN
     idx = np.where((np.isfinite(timetbjd)) & (np.isfinite(np.squeeze(flux_array[:,0,0]))) & (np.isfinite(np.squeeze(flux_bkg_array[:,0,0]))))[0]
@@ -153,6 +153,12 @@ def tpf_resamp(file, fileOut, RESAMP, lcFile):
     
 
 if __name__ == "__main__":
+    
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector45/'
+    SECTOR = 45# =-1 if multi-sector
+    RESAMP = 5  ###  USE AN ODD NUMBER HELPS WITH CADENCE NO ###
+    overwrite = False
+
     #  Directory list for Sector light curve files
     # Use this block for Multi-sector runs
 #    fileInputPrefixList = ['/pdo/spoc-data/sector-001-20210219/target-pixel/tess2018206045859-s0001-', \
@@ -183,7 +189,7 @@ if __name__ == "__main__":
 #                          '/pdo/spoc-data/sector-036/target-pixel/tess2021065132309-s0036-',\
 #                          '/pdo/spoc-data/sector-037/target-pixel/tess2021091135823-s0037-',\
 #                          '/pdo/spoc-data/sector-038/target-pixel/tess2021118034608-s0038-',\
-#                          '/pdo/spoc-data/sector-039/target-pixel/tess2021284114741-s0044-']
+#                          '/pdo/spoc-data/sector-039/target-pixel/tess2021310001228-s0045-']
 #    fileInputSuffixList = ['-0120-s_tp.fits.gz', \
 #                           '-0121-s_tp.fits.gz', \
 #                           '-0123-s_tp.fits.gz', \
@@ -212,42 +218,47 @@ if __name__ == "__main__":
 #                           '-0207-s_tp.fits.gz',\
 #                           '-0208-s_tp.fits.gz',\
 #                           '-0209-s_tp.fits.gz',\
-#                           '-0215-s_tp.fits.gz']
+#                           '-0216-s_tp.fits.gz']
 
 # In the case of a single sector One needs dummy entries for
 #  every sector
-    fileInputPrefixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
-                           '/foo6','/foo7','/foo8','/foo9','/foo10',\
-                           '/foo11','/foo12','/foo13','/foo14','/foo15',\
-                           '/foo16','/foo17','/foo18','/foo19','/foo20',\
-                           '/foo21','/foo22','/foo23','/foo24','/foo25',\
-                           '/foo26','/foo27','/foo28','/foo29','/foo30',\
-                           '/foo31','/foo32','/foo33','/foo34','/foo35',\
-                           '/foo36','/foo37','/foo38','/foo39','/foo40',\
-                           '/foo41','/foo42','/foo43',\
-                           '/pdo/spoc-data/sector-044/target-pixel/tess2021284114741-s0044-']
-    fileInputSuffixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
-                           '/foo6','/foo7','/foo8','/foo9','/foo10',\
-                           '/foo11', '/foo12', '/foo13','/foo14','/foo15',\
-                           '/foo16', '/foo17','/foo18','/foo19','/foo20',\
-                           '/foo21', '/foo22','/foo23','/foo24','/foo25',\
-                           '/foo26','/foo27','/foo28','/foo29','/foo30',\
-                           '/foo31','/foo32','/foo33','/foo34','/foo35',\
-                           '/foo36','/foo37','/foo38','/foo39','/foo40',\
-                           '/foo41','/foo42','/foo43',\
-                           '-0215-s_tp.fits.gz']
+    fileInputPrefixList = []
+    for i in np.arange(1,SECTOR):
+        fileInputPrefixList.append('/foo{0:d}'.format(i))
+    fileInputPrefixList.append('/pdo/spoc-data/sector-045/target-pixel/tess2021310001228-s0045-')
+    fileInputSuffixList = []
+    for i in np.arange(1,SECTOR):
+        fileInputSuffixList.append('/foo{0:d}'.format(i))
+    fileInputSuffixList.append('-0216-s_tp.fits.gz')
+
+    # fileInputPrefixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
+    #                        '/foo6','/foo7','/foo8','/foo9','/foo10',\
+    #                        '/foo11','/foo12','/foo13','/foo14','/foo15',\
+    #                        '/foo16','/foo17','/foo18','/foo19','/foo20',\
+    #                        '/foo21','/foo22','/foo23','/foo24','/foo25',\
+    #                        '/foo26','/foo27','/foo28','/foo29','/foo30',\
+    #                        '/foo31','/foo32','/foo33','/foo34','/foo35',\
+    #                        '/foo36','/foo37','/foo38','/foo39','/foo40',\
+    #                        '/foo41','/foo42','/foo43','/foo44',\
+    #                        '/pdo/spoc-data/sector-045/target-pixel/tess2021310001228-s0045-']
+    # fileInputSuffixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
+    #                        '/foo6','/foo7','/foo8','/foo9','/foo10',\
+    #                        '/foo11', '/foo12', '/foo13','/foo14','/foo15',\
+    #                        '/foo16', '/foo17','/foo18','/foo19','/foo20',\
+    #                        '/foo21', '/foo22','/foo23','/foo24','/foo25',\
+    #                        '/foo26','/foo27','/foo28','/foo29','/foo30',\
+    #                        '/foo31','/foo32','/foo33','/foo34','/foo35',\
+    #                        '/foo36','/foo37','/foo38','/foo39','/foo40',\
+    #                        '/foo41','/foo42','/foo43','/foo44',\
+    #                        '-0216-s_tp.fits.gz']
 
     nSector = len(fileInputPrefixList)    
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector44/'
-    SECTOR = 44# =-1 if multi-sector
-    RESAMP = 5  ###  USE AN ODD NUMBER HELPS WITH CADENCE NO ###
-    overwrite = False
 
     # Only do tpfs for the targets with TCEs
     #  You can specify a multisector tce seed file because
     #   al that it uses is TIC.  If it exists it is made
     # Load the tce data h5
-    tceSeedInFile = 'sector44_20211122_tce.h5'
+    tceSeedInFile = 'sector45_20211220_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
 

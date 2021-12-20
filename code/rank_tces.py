@@ -94,41 +94,41 @@ if __name__ == '__main__':
     wID = int(args.w)
     nWrk = int(args.n)
     
-    summaryFolder = '/pdo/spoc-data/sector-044/dv-reports'
-    summaryPrefix = 'tess2021285162058-'
-    summaryPostfix = '-00532_dvs.pdf'
-    SECTOR1 = 44
-    SECTOR2 = 44
+    summaryFolder = '/pdo/spoc-data/sector-045/dv-reports'
+    summaryPrefix = 'tess2021311000057-'
+    summaryPostfix = '-00542_dvs.pdf'
+    SECTOR1 = 45
+    SECTOR2 = 45
     multiRun = False
     if SECTOR2 - SECTOR1 > 0:
         multiRun = True
 
     doPNGs = False
-    pngFolder = '/pdo/users/cjburke/spocvet/sector44/pngs/'
+    pngFolder = '/pdo/users/cjburke/spocvet/sector45/pngs/'
     doMergeSum = True
     if nWrk == 1:
         doMergeSum = False
-    pdfFolder = '/pdo/users/cjburke/spocvet/sector44/pdfs/'
-    SECTOR1 = 44
-    SECTOR2 = 44
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector44'
-    SECTOR = 44# -1 for multi-sector
+    pdfFolder = '/pdo/users/cjburke/spocvet/sector45/pdfs/'
+    SECTOR1 = 45
+    SECTOR2 = 45
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector45'
+    SECTOR = 45# -1 for multi-sector
 
-    fileOut1 = 'spoc_ranking_Tier1_sector44_20211122.txt'
-    fileOut2 = 'spoc_ranking_Tier2_sector44_20211122.txt'
-    fileOut3 = 'spoc_ranking_Tier3_sector44_20211122.txt'
-    vetFile = 'spoc_fluxtriage_sector44_20211122.txt'
-    tceSeedInFile = 'sector44_20211122_tce.h5'
-    modshiftFile = 'spoc_modshift_sector44_20211122.txt'
-    modshiftFile2 = 'spoc_modshift_med_sector44_20211122.txt'
-    sweetFile = 'spoc_sweet_sector44_20211122.txt'
-    toiFederateFile = 'federate_toiWtce_sector44_20211122.txt'
-    knowPFederateFile = 'federate_knownP_sector44_20211122.txt'
-    selfMatchFile = 'selfMatch_sector44_20211122.txt'
-    modumpFile = 'spoc_modump_sector44_20211122.txt'
+    fileOut1 = 'spoc_ranking_Tier1_sector45_20211220.txt'
+    fileOut2 = 'spoc_ranking_Tier2_sector45_20211220.txt'
+    fileOut3 = 'spoc_ranking_Tier3_sector45_20211220.txt'
+    vetFile = 'spoc_fluxtriage_sector45_20211220.txt'
+    tceSeedInFile = 'sector45_20211220_tce.h5'
+    modshiftFile = 'spoc_modshift_sector45_20211220.txt'
+    modshiftFile2 = 'spoc_modshift_med_sector45_20211220.txt'
+    sweetFile = 'spoc_sweet_sector45_20211220.txt'
+    toiFederateFile = 'federate_toiWtce_sector45_20211220.txt'
+    knowPFederateFile = 'federate_knownP_sector45_20211220.txt'
+    selfMatchFile = 'selfMatch_sector45_20211220.txt'
+    modumpFile = 'spoc_modump_sector45_20211220.txt'
 
     # Load the tce data h5
-    tceSeedInFile = 'sector44_20211122_tce.h5'
+    tceSeedInFile = 'sector45_20211220_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
@@ -145,8 +145,8 @@ if __name__ == '__main__':
     oelims = [0.05, 5.0e-2]
     
     alltic = np.array([x.epicId for x in all_tces], dtype=np.int64)
-    allpn = np.array([x.planetNum for x in all_tces], dtype=np.int)
-    allatvalid = np.array([x.at_valid for x in all_tces], dtype=np.int)
+    allpn = np.array([x.planetNum for x in all_tces], dtype=int)
+    allatvalid = np.array([x.at_valid for x in all_tces], dtype=int)
     allrp = np.array([x.at_rp for x in all_tces])
     allrstar = np.array([x.rstar for x in all_tces])
     alllogg = np.array([x.logg for x in all_tces])
@@ -157,7 +157,7 @@ if __name__ == '__main__':
     alldur = np.array([x.at_dur for x in all_tces])
     allsolarflux = np.array([x.at_effflux for x in all_tces])
     allatdep = np.array([x.at_depth for x in all_tces])
-    alltrpvalid = np.array([x.trp_valid for x in all_tces], dtype=np.int)
+    alltrpvalid = np.array([x.trp_valid for x in all_tces], dtype=int)
     alltrpdep = np.array([x.trp_depth for x in all_tces])
     allsesinmes = np.array([x.maxsesinmes for x in all_tces])
     allcentoot = np.array([x.cent_oot_offset for x in all_tces])
@@ -273,10 +273,10 @@ if __name__ == '__main__':
     smFedPN1 = smFedPN1[idx]
 
     # Load the PDC fit goodness statistics
-    pdcTic = np.array([], dtype=np.int)
-    pdcPn = np.array([], dtype=np.int)
-    pdcNoi = np.array([], dtype=np.float)
-    pdcCor = np.array([], dtype=np.float)
+    pdcTic = np.array([], dtype=int)
+    pdcPn = np.array([], dtype=int)
+    pdcNoi = np.array([], dtype=float)
+    pdcCor = np.array([], dtype=float)
     for i, curTic in enumerate(alltic):
         curPn = allpn[i]
         # For multisector run find minimum pdc added Noise
@@ -385,7 +385,7 @@ if __name__ == '__main__':
             # Look for a TOI match
             matchFlg = 0
             # fc is the cause flags for going to Tier 2
-            fc = np.zeros((15,), dtype=np.int)
+            fc = np.zeros((15,), dtype=int)
             fc_str = ''
             ib = np.where((alltic[j] == toiFedTic) & (allpn[j] == toiFedPN))[0]
             if len(ib)>0:

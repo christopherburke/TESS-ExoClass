@@ -115,7 +115,7 @@ def pgmcmc_model(ioblk):
     idx = np.where(np.logical_and(ioblk.fitdata, ioblk.sampleit > 1))[0]
     if idx.size > 0:
         ztmp = phi[idx] * per
-        deltaXSmall = cadlen / np.float(samplen)
+        deltaXSmall = cadlen / float(samplen)
         smallBlock = np.linspace(-cadlen/2.0 + deltaXSmall/2.0,
                                   cadlen/2.0 - deltaXSmall/2.0, samplen)
         oN = ztmp.size
@@ -283,16 +283,16 @@ def pgmcmc_prior(ioblk):
 
 if __name__ == '__main__':
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector44'
-    SECTOR = 44
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector45'
+    SECTOR = 45
     OVERWRITE = False
     doPNGs = True
 #    pngFolder = '/pdo/users/cjburke/spocvet/sector2/pngs'
     # Run twice once with alt detrend and once with DV median detrend
     medianInputFlux = False
-    fileOut = 'spoc_modshift_sector44_20211122.txt'
+    fileOut = 'spoc_modshift_sector45_20211220.txt'
 #    medianInputFlux = True
-#    fileOut = 'spoc_modshift_med_sector44_20211122.txt'
+#    fileOut = 'spoc_modshift_med_sector45_20211220.txt'
     # Debugging fileout
     #fileOut = 'junk.txt'
     rerun = False    
@@ -309,20 +309,20 @@ if __name__ == '__main__':
         rerun = True
     else:
         fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector44_20211122.txt'
+    vetFile = 'spoc_fluxtriage_sector45_20211220.txt'
     #vetFile = 'junk.txt'
-    tceSeedInFile = 'sector44_20211122_tce.h5'
+    tceSeedInFile = 'sector45_20211220_tce.h5'
     
     badTic = np.array([], dtype=np.int64);
 
     # Load the tce data h5
-    tceSeedInFile = 'sector44_20211122_tce.h5'
+    tceSeedInFile = 'sector45_20211220_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
     alltic = np.array([x.epicId for x in all_tces], dtype=np.int64)
-    allpn = np.array([x.planetNum for x in all_tces], dtype=np.int)
-    allatvalid = np.array([x.at_valid for x in all_tces], dtype=np.int)
+    allpn = np.array([x.planetNum for x in all_tces], dtype=int)
+    allatvalid = np.array([x.at_valid for x in all_tces], dtype=int)
     allrp = np.array([x.at_rp for x in all_tces])
     allrstar = np.array([x.rstar for x in all_tces])
     alllogg = np.array([x.logg for x in all_tces])
