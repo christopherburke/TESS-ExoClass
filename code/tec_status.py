@@ -27,25 +27,25 @@ def make_data_dirs(prefix, sector, epic):
 
 
 if __name__ == '__main__':
-    SECTOR1 = 45
-    SECTOR2 = 45
+    SECTOR1 = 46
+    SECTOR2 = 46
     multiRun = False
     if SECTOR2 - SECTOR1 > 0:
         multiRun = True
-    tceSeedInFile = 'sector45_20211220_tce.h5'
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector45'
-    SECTOR = 45
-    skyline_out = 'skyline_data_sector45_20211220.txt'
-    fed_knownP_out = 'federate_knownP_sector45_20211220.txt'
-    fed_toi_out = 'federate_toiWtce_sector45_20211220.txt'
-    fed_self_out = 'selfMatch_sector45_20211220.txt'
-    fluxVetOut = 'spoc_fluxtriage_sector45_20211220.txt'
+    tceSeedInFile = 'sector46_20220118_tce.h5'
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector46'
+    SECTOR = 46
+    skyline_out = 'skyline_data_sector46_20220118.txt'
+    fed_knownP_out = 'federate_knownP_sector46_20220118.txt'
+    fed_toi_out = 'federate_toiWtce_sector46_20220118.txt'
+    fed_self_out = 'selfMatch_sector46_20220118.txt'
+    fluxVetOut = 'spoc_fluxtriage_sector46_20220118.txt'
     SWEETMAXPER = 5.0
-    sweet_out = 'spoc_sweet_sector45_20211220.txt'
-    modump_out = 'spoc_modump_sector45_20211220.txt'    
-    fileOut1 = 'spoc_ranking_Tier1_sector45_20211220.txt'
-    fileOut2 = 'spoc_ranking_Tier2_sector45_20211220.txt'
-    fileOut3 = 'spoc_ranking_Tier3_sector45_20211220.txt'
+    sweet_out = 'spoc_sweet_sector46_20220118.txt'
+    modump_out = 'spoc_modump_sector46_20220118.txt'    
+    fileOut1 = 'spoc_ranking_Tier1_sector46_20220118.txt'
+    fileOut2 = 'spoc_ranking_Tier2_sector46_20220118.txt'
+    fileOut3 = 'spoc_ranking_Tier3_sector46_20220118.txt'
     if multiRun:
         useSector = 1000+SECTOR2
     else:

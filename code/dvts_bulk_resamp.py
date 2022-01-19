@@ -102,7 +102,7 @@ def dvts_resamp(file, dirOut, RESAMP, SECTOR=None, overwrite=True):
             idx = np.where((np.isfinite(timetbjd)) & (np.isfinite(lc_init)) & (np.isfinite(pdc_flux)))[0]
             # minimum time on valid data
             minGdTime = np.min(timetbjd[idx])
-            idx = np.where(timetbjd < minGdTime-1.0)[0]
+            idx = np.where(timetbjd < minGdTime-30.0)[0]
             timetbjd[idx] = np.nan
     
             newNImage = int(np.floor(nImage / RESAMP))
@@ -195,8 +195,8 @@ def dvts_resamp(file, dirOut, RESAMP, SECTOR=None, overwrite=True):
 
 if __name__ == "__main__":
 
-    dirInputs = '/pdo/spoc-data/sector-045/dv-time-series/'
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector45/'
+    dirInputs = '/pdo/spoc-data/sector-046/dv-time-series/'
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector46/'
     RESAMP = 5  ###  USE AN ODD NUMBER HELPS WITH CADENCE NO ###
     SECTOR_OVRRIDE = None # If NOT multisector set this to None ###
     overwrite = True # Set False to keep old results and only do files that dont exist

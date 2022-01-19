@@ -29,6 +29,8 @@ from statsmodels import robust
 from pgmcmc import pgmcmc_ioblk, pgmcmc_setup
 from pgmcmc import pgmcmc_run_mcmc, pgmcmc_run_minimizer
 import matplotlib.pyplot as plt
+import argparse
+import sys
 
 def make_data_dirs(prefix, sector, epic):
     secDir = 'S{0:02d}'.format(sector)
@@ -282,17 +284,28 @@ def pgmcmc_prior(ioblk):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("iteration", type=int,\
+                    default = 1, choices=[1,2], \
+                    help="Iteration # 1=DV median filtered LC; 2=alternate detrended LC")
+    args = parser.parse_args() 
+    if args.iteration == 1:
+        print('Running Modshift on DV Median detrended light curves')
+        medianInputFlux = True
+        fileOut = 'spoc_modshift_med_sector46_20220118.txt'
+    elif args.iteration == 2:
+        print('Running Modshift on Altername detrended light curves')
+        medianInputFlux = False
+        fileOut = 'spoc_modshift_sector46_20220118.txt'
+    else:
+        print('First Argument must be 1 or 2')
+        sys.exit(1)
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector45'
-    SECTOR = 45
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector46'
+    SECTOR = 46
     OVERWRITE = False
     doPNGs = True
 #    pngFolder = '/pdo/users/cjburke/spocvet/sector2/pngs'
-    # Run twice once with alt detrend and once with DV median detrend
-    medianInputFlux = False
-    fileOut = 'spoc_modshift_sector45_20211220.txt'
-#    medianInputFlux = True
-#    fileOut = 'spoc_modshift_med_sector45_20211220.txt'
     # Debugging fileout
     #fileOut = 'junk.txt'
     rerun = False    
@@ -309,14 +322,14 @@ if __name__ == '__main__':
         rerun = True
     else:
         fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector45_20211220.txt'
+    vetFile = 'spoc_fluxtriage_sector46_20220118.txt'
     #vetFile = 'junk.txt'
-    tceSeedInFile = 'sector45_20211220_tce.h5'
+    tceSeedInFile = 'sector46_20220118_tce.h5'
     
     badTic = np.array([], dtype=np.int64);
 
     # Load the tce data h5
-    tceSeedInFile = 'sector45_20211220_tce.h5'
+    tceSeedInFile = 'sector46_20220118_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     

@@ -36,10 +36,10 @@ def genericFed(per, epc, tryper, tryepc, trydur, trypn, trytic, tStart, tEnd):
 
 
 if __name__ == '__main__':
-    fout = open('skyline_data_sector45_20211220.txt', 'w')
+    fout = open('skyline_data_sector46_20220118.txt', 'w')
     
     # Load the tce data h5
-    tceSeedInFile = 'sector45_20211220_tce.h5'
+    tceSeedInFile = 'sector46_20220118_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
@@ -79,8 +79,9 @@ if __name__ == '__main__':
     # created by dvts_bulk_resamp.py use it if so
     if os.path.exists('cadnoVtimemap.txt'):
         dataBlock = np.genfromtxt('cadnoVtimemap.txt', dtype=['i4','f8','i4','i4','i4'])
-        uowStart = np.min(dataBlock['f1'])
-        uowEnd = np.max(dataBlock['f1'])
+        ts = np.array(dataBlock['f1'])
+        uowStart = np.min(ts)
+        uowEnd = np.max(ts)
     print('Data Start: {0} Data End: {1}'.format(uowStart, uowEnd))
     # put an upper limit on duration
     idx = np.where(usedur>5.0)[0]
