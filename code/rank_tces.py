@@ -94,41 +94,41 @@ if __name__ == '__main__':
     wID = int(args.w)
     nWrk = int(args.n)
     
-    summaryFolder = '/pdo/spoc-data/sector-046/dv-reports'
-    summaryPrefix = 'tess2021337012456-'
-    summaryPostfix = '-00547_dvs.pdf'
-    SECTOR1 = 46
-    SECTOR2 = 46
+    summaryFolder = '/pdo/spoc-data/sector-047/dv-reports'
+    summaryPrefix = 'tess2021365070455-'
+    summaryPostfix = '-00560_dvs.pdf'
+    SECTOR1 = 47
+    SECTOR2 = 47
     multiRun = False
     if SECTOR2 - SECTOR1 > 0:
         multiRun = True
 
     doPNGs = False
-    pngFolder = '/pdo/users/cjburke/spocvet/sector46/pngs/'
+    pngFolder = '/pdo/users/cjburke/spocvet/sector47/pngs/'
     doMergeSum = True
     if nWrk == 1:
         doMergeSum = False
-    pdfFolder = '/pdo/users/cjburke/spocvet/sector46/pdfs/'
-    SECTOR1 = 46
-    SECTOR2 = 46
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector46'
-    SECTOR = 46# -1 for multi-sector
+    pdfFolder = '/pdo/users/cjburke/spocvet/sector47/pdfs/'
+    SECTOR1 = 47
+    SECTOR2 = 47
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector47'
+    SECTOR = 47# -1 for multi-sector
 
-    fileOut1 = 'spoc_ranking_Tier1_sector46_20220118.txt'
-    fileOut2 = 'spoc_ranking_Tier2_sector46_20220118.txt'
-    fileOut3 = 'spoc_ranking_Tier3_sector46_20220118.txt'
-    vetFile = 'spoc_fluxtriage_sector46_20220118.txt'
-    tceSeedInFile = 'sector46_20220118_tce.h5'
-    modshiftFile = 'spoc_modshift_sector46_20220118.txt'
-    modshiftFile2 = 'spoc_modshift_med_sector46_20220118.txt'
-    sweetFile = 'spoc_sweet_sector46_20220118.txt'
-    toiFederateFile = 'federate_toiWtce_sector46_20220118.txt'
-    knowPFederateFile = 'federate_knownP_sector46_20220118.txt'
-    selfMatchFile = 'selfMatch_sector46_20220118.txt'
-    modumpFile = 'spoc_modump_sector46_20220118.txt'
+    fileOut1 = 'spoc_ranking_Tier1_sector47_20220207.txt'
+    fileOut2 = 'spoc_ranking_Tier2_sector47_20220207.txt'
+    fileOut3 = 'spoc_ranking_Tier3_sector47_20220207.txt'
+    vetFile = 'spoc_fluxtriage_sector47_20220207.txt'
+    tceSeedInFile = 'sector47_20220207_tce.h5'
+    modshiftFile = 'spoc_modshift_sector47_20220207.txt'
+    modshiftFile2 = 'spoc_modshift_med_sector47_20220207.txt'
+    sweetFile = 'spoc_sweet_sector47_20220207.txt'
+    toiFederateFile = 'federate_toiWtce_sector47_20220207.txt'
+    knowPFederateFile = 'federate_knownP_sector47_20220207.txt'
+    selfMatchFile = 'selfMatch_sector47_20220207.txt'
+    modumpFile = 'spoc_modump_sector47_20220207.txt'
 
     # Load the tce data h5
-    tceSeedInFile = 'sector46_20220118_tce.h5'
+    tceSeedInFile = 'sector47_20220207_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
@@ -433,42 +433,51 @@ if __name__ == '__main__':
             # and no odd/even sig
             tier1 = True
             hasSec = False
+            nFlags = 0
             if allcentootsig[j] > centlims[1] or allcentoote[j] < 0.0:
                 tier1 = False
                 fc[0] = 1
                 fc_str = fc_str + 'CenOOT_'
+                #nFlags = nFlags + 1 #centroids dont count as flag
             if allcentticsig[j] > centlims[1] or allcenttice[j] < 0.0:
                 tier1 = False
                 fc[1] = 1
                 fc_str = fc_str + 'CenTIC_'
+                #nFlags = nFlags + 1 #centroids dont count as flag
             if modUniqFlg[kidx] == 0:
                 tier1 = False
                 fc[2] = 1
                 fc_str = fc_str + 'UniqAlt_'
+                nFlags = nFlags + 1
             if modUniqFlg2[kidx2] == 0:
                 tier1 = False
                 fc[3] = 1
                 fc_str = fc_str + 'UniqDV_'
+                nFlags = nFlags + 1
             if modSecFlg[kidx] == 1:
                 if modSecOvrFlg[kidx] == 0:
                     tier1 = False
                     fc[4] = 1
                     hasSec = True
                     fc_str = fc_str + 'HasSecAlt_'
+                    nFlags = nFlags + 1
                 else:
                     tier1 = False
                     fc[12] = 1
                     fc_str = fc_str + 'HasSecAltPlanet?_'
+                    #nFlags = nFlags + 1 #not flag
             if modSecFlg2[kidx2] == 1:
                 if modSecOvrFlg2[kidx2] == 0:
                     tier1 = False
                     fc[5] = 1
                     hasSec = True
                     fc_str = fc_str + 'HasSecDV_'
+                    nFlags = nFlags + 1
                 else:
                     tier1 = False
                     fc[13] = 1
                     fc_str = fc_str + 'HasSecDVPlanet?_'
+                    #nFlags = nFlags + 1 #  not flag
             OEThresh = 2.8
             if curSNR > 30.0:
                 OEThresh = 4.0
@@ -476,10 +485,12 @@ if __name__ == '__main__':
                 tier1 = False
                 fc[6] = 1
                 fc_str = fc_str + 'OEAlt_'
+                nFlags = nFlags + 1
             if modOESig2[kidx2] > OEThresh:
                 tier1 = False
                 fc[7] = 1
                 fc_str = fc_str + 'OEDV_'
+                nFlags = nFlags + 1
             sweetFail = False
             if len(kswidx)>0:
                 # Look for sweet test results
@@ -488,30 +499,38 @@ if __name__ == '__main__':
                     fc[8] = 1
                     sweetFail = True
                     fc_str = fc_str + 'Sweet_'
+                    nFlags = nFlags + 1
             # Other TCE match
             if len(ksmidx)>0:
                 tier1 = False
                 fc[9] = 1
                 fc_str = fc_str + 'OthTCEMtch_'
+                nFlags = nFlags + 1
             # PDC goodness stat
             if len(kpdcidx)>0:
                 if pdcNoi[kpdcidx] < 0.8:# and pdcCor[kpdcidx] <:
                     tier1 = False
                     fc[10] = 1
                     fc_str = fc_str + 'PDCsummaryPostfix_'
+                    nFlags = nFlags + 1
             # Planet radius too big caution
             if curRp > 20.0:
                 tier1 = False
                 fc[11] = 1
                 fc_str = fc_str +'RpBig_'
+                nFlags = nFlags + 1
             # Momentum dump on events caution
             if len(kmdidx)>0:
                 if mdFrac[kmdidx] > 0.9:
                     tier1 = False
                     fc[12] = 1
                     fc_str = fc_str + 'MoDump_'
-                
+                    nFlags = nFlags + 1
 
+            # undo sweet fail if sweet test is the only fail and no other flags thrown
+            if sweetFail and nFlags == 1:
+                sweetFail = False
+                print('TIC {0:d} PN {1:d} bypass sweet fail'.format(alltic[j], allpn[j]))
             reportIt = False
             if tier1:
                 if nWrk == 1:
