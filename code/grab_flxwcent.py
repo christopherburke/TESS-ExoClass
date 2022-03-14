@@ -40,9 +40,9 @@ def idx_filter(idx, *array_list):
 
 if __name__ == '__main__':
     
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector47/'
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector48/'
     RESAMP = 31  ###  USE AN ODD NUMBER ###
-    SECTOR = 47# =-1 if multi-sector
+    SECTOR = 48# =-1 if multi-sector
 
     
     #  Directory list for Sector light curve files
@@ -77,7 +77,7 @@ if __name__ == '__main__':
 #                          '/pdo/spoc-data/sector-036/light-curve/tess2021065132309-s0036-',\
 #                          '/pdo/spoc-data/sector-037/light-curve/tess2021091135823-s0037-',\
 #                          '/pdo/spoc-data/sector-038/light-curve/tess2021118034608-s0038-',\
-#                          '/pdo/spoc-data/sector-039/light-curve/tess2021364111932-s0047-']
+#                          '/pdo/spoc-data/sector-039/light-curve/tess2022027120115-s0048-']
 
 #    fileInputSuffixList = ['-0120-s_lc.fits.gz', \
 #                           '-0121-s_lc.fits.gz', \
@@ -107,17 +107,17 @@ if __name__ == '__main__':
 #                           '-0207-s_lc.fits.gz',\
 #                           '-0208-s_lc.fits.gz',\
 #                           '-0209-s_lc.fits.gz',\
-#                           '-0218-s_lc.fits.gz']
+#                           '-0219-s_lc.fits.gz']
 
 # Single sector block of file prefixes fill with fake values
     fileInputPrefixList = []
     for i in np.arange(1,SECTOR):
         fileInputPrefixList.append('/foo{0:d}'.format(i))
-    fileInputPrefixList.append('/pdo/spoc-data/sector-047/light-curve/tess2021364111932-s0047-')
+    fileInputPrefixList.append('/pdo/spoc-data/sector-048/light-curve/tess2022027120115-s0048-')
     fileInputSuffixList = []
     for i in np.arange(1,SECTOR):
         fileInputSuffixList.append('/foo{0:d}'.format(i))
-    fileInputSuffixList.append('-0218-s_lc.fits.gz')
+    fileInputSuffixList.append('-0219-s_lc.fits.gz')
 
 
     # fileInputPrefixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
@@ -129,7 +129,7 @@ if __name__ == '__main__':
     #                        '/foo31','/foo32','/foo33','/foo34','/foo35',\
     #                        '/foo36','/foo37','/foo38','/foo39','/foo40',\
     #                        '/foo41','/foo42','/foo43','/foo44',\
-    #                        '/pdo/spoc-data/sector-047/light-curve/tess2021364111932-s0047-']
+    #                        '/pdo/spoc-data/sector-048/light-curve/tess2022027120115-s0048-']
     # fileInputSuffixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
     #                        '/foo6','/foo7','/foo8','/foo9','/foo10',\
     #                        '/foo11','/foo12','/foo13','/foo14','/foo15',
@@ -139,17 +139,17 @@ if __name__ == '__main__':
     #                        '/foo31','/foo32','/foo33','/foo34','/foo35',\
     #                        '/foo36','/foo37','/foo38','/foo39','/foo40',\
     #                        '/foo41','/foo42','/foo43','/foo44',\
-    #                        '-0218-s_lc.fits.gz']
+    #                        '-0219-s_lc.fits.gz']
     nSector = len(fileInputPrefixList)    
 
-    #fileOut = 'spoc_pdcstats_sector47_20220207.txt'
+    #fileOut = 'spoc_pdcstats_sector48_20220314.txt'
     #fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector47_20220207.txt'
+    vetFile = 'spoc_fluxtriage_sector48_20220314.txt'
     #vetFile = 'junk.txt'
-    tceSeedInFile = 'sector47_20220207_tce.h5'
+    tceSeedInFile = 'sector48_20220314_tce.h5'
 
     # Load the tce data h5
-    tceSeedInFile = 'sector47_20220207_tce.h5'
+    tceSeedInFile = 'sector48_20220314_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     

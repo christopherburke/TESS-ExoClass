@@ -16,7 +16,7 @@ if __name__ == '__main__':
     tic = 55092869
     pn = 1
     sector = 9
-    sesDataDir = '/pdo/users/cjburke/spocvet/sector47/S09'
+    sesDataDir = '/pdo/users/cjburke/spocvet/sector48/S09'
 
     epcDir = '{0:04d}'.format(int(math.floor(tic/1000.0)))
     localDir = os.path.join(sesDataDir,epcDir)
