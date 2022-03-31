@@ -36,10 +36,15 @@ def genericFed(per, epc, tryper, tryepc, trydur, trypn, trytic, tStart, tEnd):
 
 
 if __name__ == '__main__':
-    fout = open('skyline_data_sector48_20220314.txt', 'w')
+    fout = open('skyline_data_sector1-46_20220328.txt', 'w')
+    # regular sigma criteria
+    #BADSIGMA=2.75
+    # long time series sigma
+    BADSIGMA=4.0
+    
     
     # Load the tce data h5
-    tceSeedInFile = 'sector48_20220314_tce.h5'
+    tceSeedInFile = 'sector1-46_20220328_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
@@ -104,7 +109,7 @@ if __name__ == '__main__':
     madSkyline = robust.mad(skylineData)
     tmp = np.arange(len(skylineData))
     plt.plot(tmp, skylineData, '.')
-    idxBad = np.where((skylineData-medSkyline)/madSkyline > 2.75)[0]
+    idxBad = np.where((skylineData-medSkyline)/madSkyline > BADSIGMA)[0]
     plt.plot(tmp[idxBad], skylineData[idxBad], '.r')
 
     plt.show()

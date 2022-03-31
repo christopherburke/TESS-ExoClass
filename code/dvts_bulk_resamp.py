@@ -195,10 +195,10 @@ def dvts_resamp(file, dirOut, RESAMP, SECTOR=None, overwrite=True):
 
 if __name__ == "__main__":
 
-    dirInputs = '/pdo/spoc-data/sector-048/dv-time-series/'
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector48/'
+    dirInputs = '/pdo/spoc-data/sector-001-046/dv-time-series/'
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector1-46/'
     RESAMP = 5  ###  USE AN ODD NUMBER HELPS WITH CADENCE NO ###
-    SECTOR_OVRRIDE = None # If NOT multisector set this to None ###
+    SECTOR_OVRRIDE = -1 # If NOT multisector set this to None ###
     overwrite = True # Set False to keep old results and only do files that dont exist
 
     fileList = glob.glob(os.path.join(dirInputs, '*dvt.fits*'))
@@ -216,23 +216,50 @@ if __name__ == "__main__":
     # Keep track of max data span for use in federation
     dataSpanMax = 0.0
     gdFracMax = 0.0
+    
+    # Do things slightly differently for multi-sector
+    minCad = 9999999999999
+    maxCad = -1
+    cadenceDict = {}
+    
     for fil in fileList:
         cnt = cnt + 1
         if np.mod(cnt,10) == 0:
             print(cnt,' Data Span {0:f} GdFrac: {1:f}'.format(dataSpanMax, gdFracMax))
         dataSpan, cadno, timetjd, quality, pdc = dvts_resamp(fil, dirOutputs, RESAMP, SECTOR=SECTOR_OVRRIDE, overwrite=overwrite)
-        nData = len(quality)
-        gdFrac = float(len(np.where((quality==0) & (np.isfinite(pdc)==True))[0]))/float(nData)
-        if dataSpan+2.0*gdFrac > dataSpanMax+2.0*gdFracMax:
-            dataSpanMax = dataSpan
-            gdFracMax = gdFrac
-            fout = open('cadnoVtimemap.txt','w')
-            for i, cad in enumerate(cadno):
-                momdump = int(0)
-                pdcfinite = int(0)
-                if quality[i] & 32:
-                    momdump = int(1)
-                if np.isfinite(pdc[i]):
-                    pdcfinite = int(1)
-                fout.write('{0:d} {1:f} {2:d} {3:d} {4:d}\n'.format(int(cad), timetjd[i], int(quality[i]), momdump, pdcfinite))
-            fout.close()
+        # Do things differently in single sector versus multi-sector
+        if SECTOR_OVRRIDE is None:
+            # Single sector portion
+            nData = len(quality)
+            gdFrac = float(len(np.where((quality==0) & (np.isfinite(pdc)==True))[0]))/float(nData)
+            if dataSpan+2.0*gdFrac > dataSpanMax+2.0*gdFracMax:
+                dataSpanMax = dataSpan
+                gdFracMax = gdFrac
+                fout = open('cadnoVtimemap.txt','w')
+                for i, cad in enumerate(cadno):
+                    momdump = int(0)
+                    pdcfinite = int(0)
+                    if quality[i] & 32:
+                        momdump = int(1)
+                    if np.isfinite(pdc[i]):
+                        pdcfinite = int(1)
+                    fout.write('{0:d} {1:f} {2:d} {3:d} {4:d}\n'.format(int(cad), timetjd[i], int(quality[i]), momdump, pdcfinite))
+                fout.close()
+        else:
+            # multi-sector portion
+            for i, curCad in enumerate(cadno):
+                cadenceDict[curCad] = timetjd[i]
+            dataSpanMax = len(cadenceDict)
+                
+    # multisector output all times encountered
+    if not SECTOR_OVRRIDE is None:    
+        # split dictionary into separate cadnece and time arrays
+        cadlist = [np.int32(x) for x in cadenceDict.keys()]
+        timelist = [np.float64(x) for x in cadenceDict.values()]
+        cadarr = np.array(cadlist, dtype=np.int32)
+        timearr = np.array(timelist, dtype=float)
+        ia = np.argsort(cadarr)
+        fout = open('cadnoVtimemap.txt','w')
+        for i in ia:
+            fout.write('{0:d} {1:f} 0 0 1\n'.format(cadarr[i], timearr[i]))
+        fout.close()

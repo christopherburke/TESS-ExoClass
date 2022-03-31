@@ -40,84 +40,121 @@ def idx_filter(idx, *array_list):
 
 if __name__ == '__main__':
     
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector48/'
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector1-46/'
     RESAMP = 31  ###  USE AN ODD NUMBER ###
-    SECTOR = 48# =-1 if multi-sector
+    SECTOR = -1# =-1 if multi-sector
 
     
     #  Directory list for Sector light curve files
     # This block is for the multi-sector case
 # In the case of a single sector One needs dummy entries for
 #  every sector
-#    fileInputPrefixList = ['/pdo/spoc-data/sector-001-20210219/light-curve/tess2018206045859-s0001-', \
-#                          '/pdo/spoc-data/sector-002-20210219/light-curve/tess2018234235059-s0002-', \
-#                          '/pdo/spoc-data/sector-003-20210219/light-curve/tess2018263035959-s0003-', \
-#                          '/pdo/spoc-data/sector-004-20210219/light-curve/tess2018292075959-s0004-', \
-#                          '/pdo/spoc-data/sector-005-20210219/light-curve/tess2018319095959-s0005-', \
-#                          '/pdo/spoc-data/sector-006-20210219/light-curve/tess2018349182459-s0006-', \
-#                          '/pdo/spoc-data/sector-007/light-curve/tess2019006130736-s0007-', \
-#                          '/pdo/spoc-data/sector-008/light-curve/tess2019032160000-s0008-', \
-#                          '/pdo/spoc-data/sector-009/light-curve/tess2019058134432-s0009-', \
-#                          '/pdo/spoc-data/sector-010/light-curve/tess2019085135100-s0010-', \
-#                          '/pdo/spoc-data/sector-011/light-curve/tess2019112060037-s0011-', \
-#                          '/pdo/spoc-data/sector-012/light-curve/tess2019140104343-s0012-', \
-#                          '/pdo/spoc-data/sector-013/light-curve/tess2019169103026-s0013-',\
-#                          '/foo14','/foo15','/foo16','/foo17','/foo18',\
-#                          '/foo19','/foo20','/foo21','/foo22','/foo23',\
-#                          '/foo24','/foo25','/foo26',\
-#                          '/pdo/spoc-data/sector-027/light-curve/tess2020186164531-s0027-',\
-#                          '/pdo/spoc-data/sector-028/light-curve/tess2020212050318-s0028-',\
-#                          '/pdo/spoc-data/sector-029/light-curve/tess2020238165205-s0029-',\
-#                          '/pdo/spoc-data/sector-030/light-curve/tess2020266004630-s0030-',\
-#                          '/pdo/spoc-data/sector-031/light-curve/tess2020294194027-s0031-',\
-#                          '/pdo/spoc-data/sector-032/light-curve/tess2020324010417-s0032-',\
-#                          '/pdo/spoc-data/sector-033/light-curve/tess2020351194500-s0033-',\
-#                          '/pdo/spoc-data/sector-034/light-curve/tess2021014023720-s0034-',\
-#                          '/pdo/spoc-data/sector-035/light-curve/tess2021039152502-s0035-',\
-#                          '/pdo/spoc-data/sector-036/light-curve/tess2021065132309-s0036-',\
-#                          '/pdo/spoc-data/sector-037/light-curve/tess2021091135823-s0037-',\
-#                          '/pdo/spoc-data/sector-038/light-curve/tess2021118034608-s0038-',\
-#                          '/pdo/spoc-data/sector-039/light-curve/tess2022027120115-s0048-']
+    fileInputPrefixList = ['/pdo/spoc-data/sector-001-20210219/light-curve/tess2018206045859-s0001-', \
+                          '/pdo/spoc-data/sector-002-20210219/light-curve/tess2018234235059-s0002-', \
+                          '/pdo/spoc-data/sector-003-20210219/light-curve/tess2018263035959-s0003-', \
+                          '/pdo/spoc-data/sector-004-20210219/light-curve/tess2018292075959-s0004-', \
+                          '/pdo/spoc-data/sector-005-20210219/light-curve/tess2018319095959-s0005-', \
+                          '/pdo/spoc-data/sector-006-20210219/light-curve/tess2018349182459-s0006-', \
+                          '/pdo/spoc-data/sector-007/light-curve/tess2019006130736-s0007-', \
+                          '/pdo/spoc-data/sector-008/light-curve/tess2019032160000-s0008-', \
+                          '/pdo/spoc-data/sector-009/light-curve/tess2019058134432-s0009-', \
+                          '/pdo/spoc-data/sector-010/light-curve/tess2019085135100-s0010-', \
+                          '/pdo/spoc-data/sector-011/light-curve/tess2019112060037-s0011-', \
+                          '/pdo/spoc-data/sector-012/light-curve/tess2019140104343-s0012-', \
+                          '/pdo/spoc-data/sector-013/light-curve/tess2019169103026-s0013-',\
+                          '/pdo/spoc-data/sector-014-reprocessed/light-curve/tess2019198215352-s0014-', \
+                          '/pdo/spoc-data/sector-015-reprocessed/light-curve/tess2019226182529-s0015-', \
+                          '/pdo/spoc-data/sector-016-reprocessed/light-curve/tess2019253231442-s0016-', \
+                          '/pdo/spoc-data/sector-017-reprocessed/light-curve/tess2019279210107-s0017-', \
+                          '/pdo/spoc-data/sector-018-reprocessed/light-curve/tess2019306063752-s0018-', \
+                          '/pdo/spoc-data/sector-019-reprocessed/light-curve/tess2019331140908-s0019-', \
+                          '/pdo/spoc-data/sector-020/light-curve/tess2019357164649-s0020-', \
+                          '/pdo/spoc-data/sector-021/light-curve/tess2020020091053-s0021-', \
+                          '/pdo/spoc-data/sector-022/light-curve/tess2020049080258-s0022-', \
+                          '/pdo/spoc-data/sector-023/light-curve/tess2020078014623-s0023-', \
+                          '/pdo/spoc-data/sector-024/light-curve/tess2020106103520-s0024-', \
+                          '/pdo/spoc-data/sector-025/light-curve/tess2020133194932-s0025-', \
+                          '/pdo/spoc-data/sector-026/light-curve/tess2020160202036-s0026-', \
+                          '/pdo/spoc-data/sector-027/light-curve/tess2020186164531-s0027-',\
+                          '/pdo/spoc-data/sector-028/light-curve/tess2020212050318-s0028-',\
+                          '/pdo/spoc-data/sector-029/light-curve/tess2020238165205-s0029-',\
+                          '/pdo/spoc-data/sector-030/light-curve/tess2020266004630-s0030-',\
+                          '/pdo/spoc-data/sector-031/light-curve/tess2020294194027-s0031-',\
+                          '/pdo/spoc-data/sector-032/light-curve/tess2020324010417-s0032-',\
+                          '/pdo/spoc-data/sector-033/light-curve/tess2020351194500-s0033-',\
+                          '/pdo/spoc-data/sector-034/light-curve/tess2021014023720-s0034-',\
+                          '/pdo/spoc-data/sector-035/light-curve/tess2021039152502-s0035-',\
+                          '/pdo/spoc-data/sector-036/light-curve/tess2021065132309-s0036-',\
+                          '/pdo/spoc-data/sector-037/light-curve/tess2021091135823-s0037-',\
+                          '/pdo/spoc-data/sector-038/light-curve/tess2021118034608-s0038-',\
+                          '/pdo/spoc-data/sector-039/light-curve/tess2021146024351-s0039-',\
+                          '/pdo/spoc-data/sector-040/light-curve/tess2021175071901-s0040-',\
+                          '/pdo/spoc-data/sector-041/light-curve/tess2021204101404-s0041-',\
+                          '/pdo/spoc-data/sector-042/light-curve/tess2021232031932-s0042-',\
+                          '/pdo/spoc-data/sector-043/light-curve/tess2021258175143-s0043-',\
+                          '/pdo/spoc-data/sector-044/light-curve/tess2021284114741-s0044-',\
+			  '/pdo/spoc-data/sector-045/light-curve/tess2021310001228-s0045-',\
+			  '/pdo/spoc-data/sector-046/light-curve/tess2021336043614-s0046-'
+]
 
-#    fileInputSuffixList = ['-0120-s_lc.fits.gz', \
-#                           '-0121-s_lc.fits.gz', \
-#                           '-0123-s_lc.fits.gz', \
-#                           '-0124-s_lc.fits.gz', \
-#                           '-0125-s_lc.fits.gz', \
-#                           '-0126-s_lc.fits.gz', \
-#                           '-0131-s_lc.fits.gz', \
-#                           '-0136-s_lc.fits.gz', \
-#                           '-0139-s_lc.fits.gz', \
-#                           '-0140-s_lc.fits.gz', \
-#                           '-0143-s_lc.fits.gz', \
-#                           '-0144-s_lc.fits.gz', \
-#                           '-0146-s_lc.fits.gz',\
-#                           '/foo14','/foo15','/foo16','/foo17','/foo18',\
-#                           '/foo19','/foo20','/foo21','/foo22','/foo23',\
-#                           '/foo24','/foo25','/foo26',\
-#                           '-0189-s_lc.fits.gz',\
-#                           '-0190-s_lc.fits.gz',\
-#                           '-0193-s_lc.fits.gz',\
-#                           '-0195-s_lc.fits.gz',\
-#                           '-0198-s_lc.fits.gz',\
-#                           '-0200-s_lc.fits.gz',\
-#                           '-0203-s_lc.fits.gz',\
-#                           '-0204-s_lc.fits.gz',\
-#                           '-0205-s_lc.fits.gz',\
-#                           '-0207-s_lc.fits.gz',\
-#                           '-0208-s_lc.fits.gz',\
-#                           '-0209-s_lc.fits.gz',\
-#                           '-0219-s_lc.fits.gz']
+    fileInputSuffixList = ['-0120-s_lc.fits.gz', \
+                           '-0121-s_lc.fits.gz', \
+                           '-0123-s_lc.fits.gz', \
+                           '-0124-s_lc.fits.gz', \
+                           '-0125-s_lc.fits.gz', \
+                           '-0126-s_lc.fits.gz', \
+                           '-0131-s_lc.fits.gz', \
+                           '-0136-s_lc.fits.gz', \
+                           '-0139-s_lc.fits.gz', \
+                           '-0140-s_lc.fits.gz', \
+                           '-0143-s_lc.fits.gz', \
+                           '-0144-s_lc.fits.gz', \
+                           '-0146-s_lc.fits.gz',\
+                           '-0150-s_lc.fits.gz',\
+                           '-0151-s_lc.fits.gz',\
+                           '-0152-s_lc.fits.gz',\
+                           '-0161-s_lc.fits.gz',\
+                           '-0162-s_lc.fits.gz',\
+                           '-0164-s_lc.fits.gz',\
+                           '-0165-s_lc.fits.gz',\
+                           '-0167-s_lc.fits.gz',\
+                           '-0174-s_lc.fits.gz',\
+                           '-0177-s_lc.fits.gz',\
+                           '-0180-s_lc.fits.gz',\
+                           '-0182-s_lc.fits.gz',\
+                           '-0188-s_lc.fits.gz',\
+                           '-0189-s_lc.fits.gz',\
+                           '-0190-s_lc.fits.gz',\
+                           '-0193-s_lc.fits.gz',\
+                           '-0195-s_lc.fits.gz',\
+                           '-0198-s_lc.fits.gz',\
+                           '-0200-s_lc.fits.gz',\
+                           '-0203-s_lc.fits.gz',\
+                           '-0204-s_lc.fits.gz',\
+                           '-0205-s_lc.fits.gz',\
+                           '-0207-s_lc.fits.gz',\
+                           '-0208-s_lc.fits.gz',\
+                           '-0209-s_lc.fits.gz',\
+                           '-0210-s_lc.fits.gz',\
+                           '-0211-s_lc.fits.gz',\
+                           '-0212-s_lc.fits.gz',\
+                           '-0213-s_lc.fits.gz',\
+                           '-0214-s_lc.fits.gz',\
+                           '-0215-s_lc.fits.gz',\
+			   '-0216-s_lc.fits.gz',\
+			   '-0217-s_lc.fits.gz'
+]
+
 
 # Single sector block of file prefixes fill with fake values
-    fileInputPrefixList = []
-    for i in np.arange(1,SECTOR):
-        fileInputPrefixList.append('/foo{0:d}'.format(i))
-    fileInputPrefixList.append('/pdo/spoc-data/sector-048/light-curve/tess2022027120115-s0048-')
-    fileInputSuffixList = []
-    for i in np.arange(1,SECTOR):
-        fileInputSuffixList.append('/foo{0:d}'.format(i))
-    fileInputSuffixList.append('-0219-s_lc.fits.gz')
+#    fileInputPrefixList = []
+#    for i in np.arange(1,SECTOR):
+#        fileInputPrefixList.append('/foo{0:d}'.format(i))
+#    fileInputPrefixList.append('/pdo/spoc-data/sector-001-046/light-curve/tess2021336043614-s0046-')
+#    fileInputSuffixList = []
+#    for i in np.arange(1,SECTOR):
+#        fileInputSuffixList.append('/foo{0:d}'.format(i))
+#    fileInputSuffixList.append('-0217-s_lc.fits.gz')
 
 
     # fileInputPrefixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
@@ -129,7 +166,7 @@ if __name__ == '__main__':
     #                        '/foo31','/foo32','/foo33','/foo34','/foo35',\
     #                        '/foo36','/foo37','/foo38','/foo39','/foo40',\
     #                        '/foo41','/foo42','/foo43','/foo44',\
-    #                        '/pdo/spoc-data/sector-048/light-curve/tess2022027120115-s0048-']
+    #                        '/pdo/spoc-data/sector-001-046/light-curve/tess2021336043614-s0046-']
     # fileInputSuffixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
     #                        '/foo6','/foo7','/foo8','/foo9','/foo10',\
     #                        '/foo11','/foo12','/foo13','/foo14','/foo15',
@@ -139,17 +176,17 @@ if __name__ == '__main__':
     #                        '/foo31','/foo32','/foo33','/foo34','/foo35',\
     #                        '/foo36','/foo37','/foo38','/foo39','/foo40',\
     #                        '/foo41','/foo42','/foo43','/foo44',\
-    #                        '-0219-s_lc.fits.gz']
+    #                        '-0217-s_lc.fits.gz']
     nSector = len(fileInputPrefixList)    
 
-    #fileOut = 'spoc_pdcstats_sector48_20220314.txt'
+    #fileOut = 'spoc_pdcstats_sector1-46_20220328.txt'
     #fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector48_20220314.txt'
+    vetFile = 'spoc_fluxtriage_sector1-46_20220328.txt'
     #vetFile = 'junk.txt'
-    tceSeedInFile = 'sector48_20220314_tce.h5'
+    tceSeedInFile = 'sector1-46_20220328_tce.h5'
 
     # Load the tce data h5
-    tceSeedInFile = 'sector48_20220314_tce.h5'
+    tceSeedInFile = 'sector1-46_20220328_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
