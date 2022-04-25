@@ -83,16 +83,16 @@ if __name__ == '__main__':
     nWrk = 6
     OVERWRITE = True
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-46'
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector49'
     SECTOR = 6
-    SECTOR1 = 14
-    SECTOR2 = 46
+    SECTOR1 = 494
+    SECTOR2 = 49
 #    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-2'
 #    SECTOR=-1
 
     #vetFile = 'spoc_sector1_early_fluxvet_20180904.txt'
-    vetFile = 'spoc_fluxtriage_sector1-46_20220328.txt'
-    tceSeedInFile = 'sector1-46_20220328_tce.pkl'
+    vetFile = 'spoc_fluxtriage_sector-49_20220424.txt'
+    tceSeedInFile = 'sector-49_20220424_tce.pkl'
 #    vetFile = 'spoc_sector1_2_fluxtriage_20181019.txt'
 #    tceSeedInFile = 'sector1_2_20181019_tce.pkl'
 
@@ -172,7 +172,7 @@ if __name__ == '__main__':
                 f.close()
                 
                 # Get the modshift trapezoid model fit
-                fileInput = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_trpzdfit_{0:016d}_{1:02d}.txt'.format(curTic,curPn))
+                fileInput = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_trpzdfit_{0:016d}_{1:02d}_2.txt'.format(curTic,curPn))
                 dataBlock = np.genfromtxt(fileInput, dtype=['f8','f8','f8'])
                 trpzdModel = dataBlock['f2']
                 

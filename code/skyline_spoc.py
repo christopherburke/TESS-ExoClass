@@ -36,15 +36,15 @@ def genericFed(per, epc, tryper, tryepc, trydur, trypn, trytic, tStart, tEnd):
 
 
 if __name__ == '__main__':
-    fout = open('skyline_data_sector1-46_20220328.txt', 'w')
+    fout = open('skyline_data_sector-49_20220424.txt', 'w')
     # regular sigma criteria
-    #BADSIGMA=2.75
-    # long time series sigma
-    BADSIGMA=4.0
+    BADSIGMA=2.75
+    # long time series sigma like for multi-sector
+    #BADSIGMA=4.0
     
     
     # Load the tce data h5
-    tceSeedInFile = 'sector1-46_20220328_tce.h5'
+    tceSeedInFile = 'sector-49_20220424_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     

@@ -208,7 +208,7 @@ def pgmcmc_iterate_proposals(ioblk):
                 ioblk.parm.maxPropTries)
         input("Please Ctrl-C to exit")
     
-    pgmcmc_save_state(ioblk,'ioblk_props')
+    pgmcmc_save_state(ioblk,'props')
     
     return ioblk
 
@@ -433,7 +433,7 @@ def pgmcmc_save_state(ioblk, prefix, pvals=[], cvals=[], bvals=[]):
         ioblk.cudaplanhostsfuncret = []
         
        
-    pickle.dump(ioblk, open(prefix+'.pkl', 'wb'), protocol=0)#, fix_imports=True)
+    pickle.dump(ioblk, open(ioblk.parm.outPrefix+'_'+prefix+'.pkl', 'wb'), protocol=0)#, fix_imports=True)
     ioblk.fighandle = fh
     ioblk.axhandle = ah
     ioblk.func_calcvals = func1
@@ -453,7 +453,7 @@ def pgmcmc_save_state(ioblk, prefix, pvals=[], cvals=[], bvals=[]):
         ioblk.cudaplansfuncret  = e3
         ioblk.cudaplanhostsfuncret = e4
      
-    f = h5py.File(prefix+'.hd5', 'w')
+    f = h5py.File(ioblk.parm.outPrefix+'_'+prefix+'.hd5', 'w')
     if (not len(pvals) == 0):
         pvaldset = f.create_dataset('Pvals', data = pvals, compression='gzip')
     if (not len(cvals) == 0):
@@ -567,7 +567,7 @@ def pgmcmc_setup(ioblk):
     ioblk.pt.alllike = np.ones_like(ioblk.pt.temps) * ioblk.mcmc.like
     ioblk.pt.allprior = np.ones_like(ioblk.pt.temps) * ioblk.mcmc.prior
                                     
-    pgmcmc_save_state(ioblk, 'ioblk_runstart')
+    pgmcmc_save_state(ioblk, 'runstart')
 
     return ioblk
 
@@ -599,6 +599,7 @@ class pgmcmc_parameters:
         self.avgpt = 6
         self.saveAltTemp = False
         self.savedTempIdx = 0
+        self.outPrefix = 'ioblk'
         
 
     def __str__(self):

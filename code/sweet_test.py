@@ -218,16 +218,16 @@ if __name__ == '__main__':
     MAXPER = 5.0
     
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-46'
-    SECTOR = -1
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector49'
+    SECTOR = 49
 
-    fileOut = 'spoc_sweet_sector1-46_20220328.txt'
+    fileOut = 'spoc_sweet_sector-49_20220424.txt'
     fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector1-46_20220328.txt'
-    tceSeedInFile = 'sector1-46_20220328_tce.h5'
+    vetFile = 'spoc_fluxtriage_sector-49_20220424.txt'
+    tceSeedInFile = 'sector-49_20220424_tce.h5'
 
     # Load the tce data h5
-    tceSeedInFile = 'sector1-46_20220328_tce.h5'
+    tceSeedInFile = 'sector-49_20220424_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
@@ -339,6 +339,7 @@ if __name__ == '__main__':
         ioblk.func_showmodel = []
         ioblk.parm.debugLevel = 0
         ioblk.parm.likehoodmoddisplay = 100
+        ioblk.parm.outPrefix = 'sweet'        
         ioblk.likecount = 0
 
         # setup some more variables

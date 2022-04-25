@@ -292,18 +292,18 @@ if __name__ == '__main__':
     if args.iteration == 1:
         print('Running Modshift on DV Median detrended light curves')
         medianInputFlux = True
-        fileOut = 'spoc_modshift_med_sector1-46_20220328.txt'
+        fileOut = 'spoc_modshift_med_sector-49_20220424.txt'
     elif args.iteration == 2:
         print('Running Modshift on Altername detrended light curves')
         medianInputFlux = False
-        fileOut = 'spoc_modshift_sector1-46_20220328.txt'
+        fileOut = 'spoc_modshift_sector-49_20220424.txt'
     else:
         print('First Argument must be 1 or 2')
         sys.exit(1)
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-46'
-    SECTOR = -1
-    OVERWRITE = False
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector49'
+    SECTOR = 49
+    OVERWRITE = True
     doPNGs = True
 #    pngFolder = '/pdo/users/cjburke/spocvet/sector2/pngs'
     # Debugging fileout
@@ -322,14 +322,14 @@ if __name__ == '__main__':
         rerun = True
     else:
         fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector1-46_20220328.txt'
+    vetFile = 'spoc_fluxtriage_sector-49_20220424.txt'
     #vetFile = 'junk.txt'
-    tceSeedInFile = 'sector1-46_20220328_tce.h5'
+    tceSeedInFile = 'sector-49_20220424_tce.h5'
     
     badTic = np.array([], dtype=np.int64);
 
     # Load the tce data h5
-    tceSeedInFile = 'sector1-46_20220328_tce.h5'
+    tceSeedInFile = 'sector-49_20220424_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
@@ -473,6 +473,7 @@ if __name__ == '__main__':
         ioblk.func_showmodel = []
         ioblk.parm.debugLevel = 0
         ioblk.parm.likehoodmoddisplay = 100
+        ioblk.parm.outPrefix = 'modshift_{0:d}'.format(args.iteration)
         ioblk.likecount = 0
 
 
@@ -496,7 +497,7 @@ if __name__ == '__main__':
         
         # Write out the trapezoid fit data and time series in order to run the
         # modshift
-        fileOutput = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_trpzdfit_{0:016d}_{1:02d}.txt'.format(curTic,curPn))
+        fileOutput = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_trpzdfit_{0:016d}_{1:02d}_{2:1d}.txt'.format(curTic,curPn,args.iteration))
         fo = open(fileOutput, 'w')
         # Write out the best fit parameters as a header
         #for j in range(len(ioblk.physvals)): 
