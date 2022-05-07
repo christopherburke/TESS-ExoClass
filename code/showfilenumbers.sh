@@ -1,6 +1,10 @@
 #!/bin/bash
 
-DATA_DIR='/pdo/spoc-data/sector-049'
+# convert first argument from sector number to
+# 3 characters with leading zeros
+printf -v SECTORN "%03d" $1
+echo "Sector ${SECTORN}"
+DATA_DIR="/pdo/spoc-data/sector-${SECTORN}"
 
 ls ${DATA_DIR}/dv-reports | head -4
 ls ${DATA_DIR}/dv-reports/*dvm.pdf | head -2
