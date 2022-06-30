@@ -154,8 +154,8 @@ def tpf_resamp(file, fileOut, RESAMP, lcFile):
 
 if __name__ == "__main__":
     
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector50/'
-    SECTOR = 50# =-1 if multi-sector
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector51/'
+    SECTOR = 51# =-1 if multi-sector
     RESAMP = 5  ###  USE AN ODD NUMBER HELPS WITH CADENCE NO ###
     overwrite = False
 
@@ -206,7 +206,7 @@ if __name__ == "__main__":
 #                           '/pdo/spoc-data/sector-043/target-pixel/tess2021258175143-s0043-',\
 #                           '/pdo/spoc-data/sector-044/target-pixel/tess2021284114741-s0044-',\
 # 			  '/pdo/spoc-data/sector-045/target-pixel/tess2021310001228-s0045-',\
-# 			  '/pdo/spoc-data/sector-046/target-pixel/tess2022085151738-s0050-'
+# 			  '/pdo/spoc-data/sector-046/target-pixel/tess2022112184951-s0051-'
 # ]
 
 #     fileInputSuffixList = ['-0120-s_tp.fits.gz', \
@@ -254,7 +254,7 @@ if __name__ == "__main__":
 #                            '-0214-s_tp.fits.gz',\
 #                            '-0215-s_tp.fits.gz',\
 # 			   '-0216-s_tp.fits.gz',\
-# 			   '-0222-s_tp.fits.gz'
+# 			   '-0223-s_tp.fits.gz'
 # ]
 
 # In the case of a single sector One needs dummy entries for
@@ -262,11 +262,11 @@ if __name__ == "__main__":
     fileInputPrefixList = []
     for i in np.arange(1,SECTOR):
         fileInputPrefixList.append('/foo{0:d}'.format(i))
-    fileInputPrefixList.append('/pdo/spoc-data/sector-050/target-pixel/tess2022085151738-s0050-')
+    fileInputPrefixList.append('/pdo/spoc-data/sector-051/target-pixel/tess2022112184951-s0051-')
     fileInputSuffixList = []
     for i in np.arange(1,SECTOR):
         fileInputSuffixList.append('/foo{0:d}'.format(i))
-    fileInputSuffixList.append('-0222-s_tp.fits.gz')
+    fileInputSuffixList.append('-0223-s_tp.fits.gz')
 
     # fileInputPrefixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
     #                        '/foo6','/foo7','/foo8','/foo9','/foo10',\
@@ -277,7 +277,7 @@ if __name__ == "__main__":
     #                        '/foo31','/foo32','/foo33','/foo34','/foo35',\
     #                        '/foo36','/foo37','/foo38','/foo39','/foo40',\
     #                        '/foo41','/foo42','/foo43','/foo44',\
-    #                        '/pdo/spoc-data/sector-050/target-pixel/tess2022085151738-s0050-']
+    #                        '/pdo/spoc-data/sector-051/target-pixel/tess2022112184951-s0051-']
     # fileInputSuffixList = ['/foo1','/foo2','/foo3','/foo4','/foo5',\
     #                        '/foo6','/foo7','/foo8','/foo9','/foo10',\
     #                        '/foo11', '/foo12', '/foo13','/foo14','/foo15',\
@@ -287,7 +287,7 @@ if __name__ == "__main__":
     #                        '/foo31','/foo32','/foo33','/foo34','/foo35',\
     #                        '/foo36','/foo37','/foo38','/foo39','/foo40',\
     #                        '/foo41','/foo42','/foo43','/foo44',\
-    #                        '-0222-s_tp.fits.gz']
+    #                        '-0223-s_tp.fits.gz']
 
     nSector = len(fileInputPrefixList)    
 
@@ -295,7 +295,7 @@ if __name__ == "__main__":
     #  You can specify a multisector tce seed file because
     #   al that it uses is TIC.  If it exists it is made
     # Load the tce data h5
-    tceSeedInFile = 'sector-50_20220506_tce.h5'
+    tceSeedInFile = 'sector-51_20220624_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
 
