@@ -12,6 +12,7 @@ import os
 from subprocess import Popen, PIPE
 import math
 import glob
+import argparse
 
 def make_data_dirs(prefix, sector, epic):
     secDir = 'S{0:02d}'.format(sector)
@@ -27,21 +28,35 @@ def make_data_dirs(prefix, sector, epic):
 
 
 if __name__ == '__main__':
-    # These are for parallel procoessing
-    wID = 0
-    nWrk = 1
+    # Parse the command line arguments for multiprocessing
+    # With Gnu parallel with 3 cores
+    # seq 0 2 | parallel --results get_dv_report_page_results python get_dv_report_page.py -w {} -n 3
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-w", type=int,\
+                        default = 0, \
+                        help="Worker ID Number 0 through nWrk-1")
+    parser.add_argument("-n", type=int,\
+                        default = 1, \
+                        help="Number of Workers")
     
-    summaryFolder = '/pdo/spoc-data/sector-051/dv-reports'
-    summaryPrefix = 'tess2022113103451-'
-    summaryPostfix = '-00618_dvr.pdf'
-    SECTOR1 = 51
-    SECTOR2 = 51
+
+    args = parser.parse_args() 
+    # These are for parallel procoessing
+    wID = int(args.w)
+    nWrk = int(args.n)
+
+    
+    summaryFolder = '/pdo/spoc-data/sector-014-026+040-050/dv-reports'
+    summaryPrefix = 'tess2019199201929-'
+    summaryPostfix = '-00611_dvr.pdf'
+    SECTOR1 = 14
+    SECTOR2 = 50
     multiRun = False
     if SECTOR2 - SECTOR1 > 0:
         multiRun = True
-    tceSeedInFile = 'sector-51_20220624_tce.h5'
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector51'
-    SECTOR = 51
+    tceSeedInFile = 'sector-14-50_20220630_tce.h5'
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector14-50'
+    SECTOR = -1
     overwrite = False
     
     # Load the tce data h5
