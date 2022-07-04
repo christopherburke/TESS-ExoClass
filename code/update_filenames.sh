@@ -1,41 +1,41 @@
 #!/bin/bash
 
-OLD_NAME="sector-51_20220624"
-NEW_NAME="sector-14-50_20220630"
+OLD_NAME="sector-14-50_20220630"
+NEW_NAME="sector-52"
 
-OLD1="SECTOR = 51"
-NEW1="SECTOR = -1"
+OLD1="SECTOR = -1"
+NEW1="SECTOR = 52"
 
-OLD2="SECTOR1 = 51"
-NEW2="SECTOR1 = 14"
+OLD2="SECTOR1 = 14"
+NEW2="SECTOR1 = 52"
 
-OLD3="SECTOR2 = 51"
-NEW3="SECTOR2 = 50"
+OLD3="SECTOR2 = 50"
+NEW3="SECTOR2 = 52"
 
 # This replaces my local directory
-OLD4="sector51"
-NEW4="sector14-50"
+OLD4="sector14-50"
+NEW4="sector52"
 
 # This replaces SPOC data directory
-OLD5="sector-051"
-NEW5="sector-014-026+040-050"
+OLD5="sector-014-026+040-050"
+NEW5="sector-052"
 
 # DV report prefix
-OLD6="tess2022113103451-"
-NEW6="tess2019199201929-"
+OLD6="tess2019199201929-"
+NEW6="tess2022139030450-"
 # DV report postfix
-OLD7="-00618"
-NEW7="-00611"
+OLD7="-00611"
+NEW7="-00624"
 
 #LC prefix
-OLD8="tess2022112184951-s0051-"
-NEW8="tess2022085151738-s0050-"
-OLD9="-0223-s"
-NEW9="-0222-s"
+OLD8="tess2022085151738-s0050-"
+NEW8="tess2022138205153-s0052-"
+OLD9="-0222-s"
+NEW9="-0224-s"
 
 # TOI Federation file
-OLD10="FIXED-20220624"
-NEW10="FIXED-20220630"
+OLD10="FIXED-20220630"
+NEW10="FIXED-20220703"
 
 for name in `ls *py`; do
   echo $name
@@ -63,5 +63,5 @@ else
 fi
 
 echo Retrieving TOI catalog file
-#curl https://tev.mit.edu/data/collection/193/csv/6/ > csv-file-toi-catalog.csv
-#sed -e 's/\"\"//g' -e 's/,\"[^\"]*/,\"NOCOMMENT/g' csv-file-toi-catalog.csv  > csv-file-toi-catalog-${NEW10}.csv
+curl https://tev.mit.edu/data/collection/193/csv/6/ > csv-file-toi-catalog.csv
+sed -e 's/\"\"//g' -e 's/,\"[^\"]*/,\"NOCOMMENT/g' csv-file-toi-catalog.csv  > csv-file-toi-catalog-${NEW10}.csv
