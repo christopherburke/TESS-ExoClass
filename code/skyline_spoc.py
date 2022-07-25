@@ -36,7 +36,7 @@ def genericFed(per, epc, tryper, tryepc, trydur, trypn, trytic, tStart, tEnd):
 
 
 if __name__ == '__main__':
-    fout = open('skyline_data_sector-52.txt', 'w')
+    fout = open('skyline_data_sector-53_20220724.txt', 'w')
     # regular sigma criteria
     BADSIGMA=2.75
     # long time series sigma like for multi-sector
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     
     
     # Load the tce data h5
-    tceSeedInFile = 'sector-52_tce.h5'
+    tceSeedInFile = 'sector-53_20220724_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
@@ -115,7 +115,7 @@ if __name__ == '__main__':
     #if uowEnd-uowStart > 90.0:
     #    print('Long time series detected; Use `display -geometry 720x480 skyline_spoc.png` command to make sure you are happy with the BADSIGMA level')
     #else:
-    #     plt.show()
+    #plt.show()
 
     for j in idxBad:
         fout.write('{:11.5f}\n'.format(ts.ts[j]))

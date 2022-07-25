@@ -7,6 +7,7 @@ import math
 import os
 from subprocess import Popen, PIPE
 import numpy as np
+import argparse
 
 def make_data_dirs(prefix, sector, epic):
     secDir = 'S{0:02d}'.format(sector)
@@ -27,12 +28,32 @@ def idx_filter(idx, *array_list):
 
 
 if __name__ == '__main__':
+    # Parse the command line arguments for multiprocessing
+    # With Gnu parallel with 3 cores
+    # seq 0 2 | parallel --results gen_twexo_results python gen_twexo.py -w {} -n 3
+    #  In practice, run on two separate pdo machine
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-w", type=int,\
+                        default = 0, \
+                        help="Worker ID Number 0 through nWrk-1")
+    parser.add_argument("-n", type=int,\
+                        default = 1, \
+                        help="Number of Workers")
+    
+
+    args = parser.parse_args() 
+    # These are for parallel procoessing
+    wID = int(args.w)
+    nWrk = int(args.n)
+
+
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector52'
-    SECTOR = 52
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector53'
+    SECTOR = 53
 
     doPDFs = True
-    vetFile = 'spoc_fluxtriage_sector-52.txt'
+    vetFile = 'spoc_fluxtriage_sector-53_20220724.txt'
     overwrite = False
 
     # Load the  flux vetting
@@ -46,24 +67,23 @@ if __name__ == '__main__':
     useTic = np.unique(fvtic[idx])
     nTic = len(useTic)
     for i,curTic in enumerate(useTic):
-        if np.mod(i, 20) == 0:
-            print('Done {0:d} of {1:d}'.format(i, nTic))
-        htmlOutput = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'twexo_{0:016d}'.format(curTic))
-        if not os.path.isfile(htmlOutput + '.pdf') or overwrite:
-            # Build argument list
-            syscall = 'python twexo.py -t {0:d} -of {1} -nw'.format(\
+        if np.mod(i, nWrk) == wID:
+            if np.mod(i, 20) == 0:
+                print('Done {0:d} of {1:d}'.format(i, nTic))
+            htmlOutput = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'twexo_{0:016d}'.format(curTic))
+            if not os.path.isfile(htmlOutput + '.pdf') or overwrite:
+                # Build argument list
+                syscall = 'python twexo.py -t {0:d} -of {1} -nw'.format(\
                                 curTic, htmlOutput)
-            print(syscall)
-            p = Popen(syscall.split(), stdin=None, stdout=PIPE, stderr=PIPE)
-            sysreturn, err = p.communicate()
-            if os.path.isfile(htmlOutput + '.html'):
-                syscall = 'wkhtmltopdf {0}.html {0}.pdf'.format(htmlOutput)
                 print(syscall)
                 p = Popen(syscall.split(), stdin=None, stdout=PIPE, stderr=PIPE)
                 sysreturn, err = p.communicate()
-            else:
-                print(syscall + ' failed to produce output')
-                print(sysreturn)
-                print(err)
-            #rc = p.returncode
-            #print('alpha')
+                if os.path.isfile(htmlOutput + '.html'):
+                    syscall = 'wkhtmltopdf {0}.html {0}.pdf'.format(htmlOutput)
+                    print(syscall)
+                    p = Popen(syscall.split(), stdin=None, stdout=PIPE, stderr=PIPE)
+                    sysreturn, err = p.communicate()
+                else:
+                    print(syscall + ' failed to produce output')
+                    print(sysreturn)
+                    print(err)

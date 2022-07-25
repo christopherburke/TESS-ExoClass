@@ -1,41 +1,41 @@
 #!/bin/bash
 
-OLD_NAME="sector-14-50_20220630"
-NEW_NAME="sector-52"
+OLD_NAME="sector-52"
+NEW_NAME="sector-53_20220724"
 
-OLD1="SECTOR = -1"
-NEW1="SECTOR = 52"
+OLD1="SECTOR = 52"
+NEW1="SECTOR = 53"
 
-OLD2="SECTOR1 = 14"
-NEW2="SECTOR1 = 52"
+OLD2="SECTOR1 = 52"
+NEW2="SECTOR1 = 53"
 
-OLD3="SECTOR2 = 50"
-NEW3="SECTOR2 = 52"
+OLD3="SECTOR2 = 52"
+NEW3="SECTOR2 = 53"
 
 # This replaces my local directory
-OLD4="sector14-50"
-NEW4="sector52"
+OLD4="sector52"
+NEW4="sector53"
 
 # This replaces SPOC data directory
-OLD5="sector-014-026+040-050"
-NEW5="sector-052"
+OLD5="sector-052"
+NEW5="sector-053"
 
 # DV report prefix
-OLD6="tess2019199201929-"
-NEW6="tess2022139030450-"
+OLD6="tess2022139030450-"
+NEW6="tess2022164114449-"
 # DV report postfix
-OLD7="-00611"
-NEW7="-00624"
+OLD7="-00624"
+NEW7="-00640"
 
 #LC prefix
-OLD8="tess2022085151738-s0050-"
-NEW8="tess2022138205153-s0052-"
-OLD9="-0222-s"
-NEW9="-0224-s"
+OLD8="tess2022138205153-s0052-"
+NEW8="tess2022164095748-s0053-"
+OLD9="-0224-s"
+NEW9="-0226-s"
 
 # TOI Federation file
-OLD10="FIXED-20220630"
-NEW10="FIXED-20220703"
+OLD10="FIXED-20220703"
+NEW10="FIXED-20220724"
 
 for name in `ls *py`; do
   echo $name
