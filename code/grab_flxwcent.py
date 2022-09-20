@@ -61,12 +61,12 @@ if __name__ == '__main__':
         maxsec = np.max(sectorswant)
         print('Requesting Sectors ',sectorswant)
     
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector54/'
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector55/'
     RESAMP = 31  ###  USE AN ODD NUMBER ###
-    SECTOR = 54# =-1 if multi-sector
+    SECTOR = 55# =-1 if multi-sector
 
     if (not 'maxsec' in locals()) and SECTOR == -1:
-        print('Code expects multi-sector (SECTOR = 54) but no sector argument was given. EXITING!')
+        print('Code expects multi-sector (SECTOR = 55) but no sector argument was given. EXITING!')
         sys.exit()
 
     if SECTOR > 0:
@@ -75,11 +75,11 @@ if __name__ == '__main__':
         fileInputPrefixList = []
         for i in np.arange(1,SECTOR):
             fileInputPrefixList.append('/foo{0:d}'.format(i))
-        fileInputPrefixList.append('/pdo/spoc-data/sector-054/light-curve/tess2022190063128-s0054-')
+        fileInputPrefixList.append('/pdo/spoc-data/sector-055/light-curve/tess2022217014003-s0055-')
         fileInputSuffixList = []
         for i in np.arange(1,SECTOR):
             fileInputSuffixList.append('/foo{0:d}'.format(i))
-        fileInputSuffixList.append('-0227-s_lc.fits.gz')
+        fileInputSuffixList.append('-0242-s_lc.fits.gz')
     else:
         print('Multi-Sector')
         # multisector read in table that has all the paths to data files
@@ -107,14 +107,14 @@ if __name__ == '__main__':
 
     nSector = len(fileInputPrefixList)    
 
-    #fileOut = 'spoc_pdcstats_sector-54_20220907.txt'
+    #fileOut = 'spoc_pdcstats_sector-55_20220919.txt'
     #fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector-54_20220907.txt'
+    vetFile = 'spoc_fluxtriage_sector-55_20220919.txt'
     #vetFile = 'junk.txt'
-    tceSeedInFile = 'sector-54_20220907_tce.h5'
+    tceSeedInFile = 'sector-55_20220919_tce.h5'
 
     # Load the tce data h5
-    tceSeedInFile = 'sector-54_20220907_tce.h5'
+    tceSeedInFile = 'sector-55_20220919_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     

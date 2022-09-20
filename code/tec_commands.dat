@@ -1,0 +1,23 @@
+python gather_tce_fromdvxml.py
+python dump_tce_info.py
+python dvts_bulk_resamp.py
+python skyline_spoc.py
+display -geometry 720x480 skyline_spoc.png
+python federate_knownPWtce.py
+python selfMatch_spoc.py
+python get_dv_report_pay.py
+python federate_toiWtce.py
+python tpf_bulk_resamp.py
+seq 0 19 | parallel --results ses_mes_results python ses_mes_stats.py -w {} -n 20
+python flux_triage.py
+python modshift_test.py 1
+python sweet_test.py
+python grab_flxwcent.py
+python modump_check.py
+python gen_twexo.py
+python modshift_test.py 2
+seq 0 19 | parallel --results centroid_basic_results python centroid_form_basic.py -w {} -n 20
+python rank_tces.py
+seq 0 19 | parallel --results rank_tces_results python rank_tces.py -w {} -n 20
+ls -Shlr *pdf | head
+seq 0 19 | parallel --results merge_results python merge4tev.py -w {} -n 20
