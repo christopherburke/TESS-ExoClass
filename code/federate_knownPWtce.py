@@ -127,7 +127,7 @@ def coughlin_sigmap(p1,p2):
 
 
 if __name__ == '__main__':
-    fout = open('federate_knownP_sector-55_20220919.txt', 'w')
+    fout = open('federate_knownP_sector-14-55_20220930.txt', 'w')
     dataSpan = 27.0
     wideSearch = True
     searchRad = 180.0 # Arcsecond search radius for other TICs
@@ -236,7 +236,7 @@ if __name__ == '__main__':
 
 
     # Load the tce data h5
-    tceSeedInFile = 'sector-55_20220919_tce.h5'
+    tceSeedInFile = 'sector-14-55_20220930_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
@@ -319,11 +319,13 @@ if __name__ == '__main__':
             if hasCadTimeMap:
                 minCadStrt = np.min(tryCadStrt)
                 maxCadStrt = np.max(tryCadEnd)
-                idxfnd = np.where(minCadStrt == cadmap)[0]
+                idxfnd = np.argmin(np.abs(minCadStrt-cadmap))
+                #idxfnd = np.where(minCadStrt == cadmap)[0]
                 uowStartUse = timemap[idxfnd]
-                idxfnd = np.where(maxCadStrt == cadmap)[0]
+                idxfnd = np.argmin(np.abs(maxCadStrt - cadmap))
+                #idxfnd = np.where(maxCadStrt == cadmap)[0]
                 uowEndUse = timemap[idxfnd]
-                print('Time: {0:f} {1:f}'.format(uowStartUse[0], uowEndUse[0]))
+                print('Time: {0:f} {1:f}'.format(uowStartUse, uowEndUse))
             else:
                 uowStartUse = uowStart
                 uowEndUse = uowEnd

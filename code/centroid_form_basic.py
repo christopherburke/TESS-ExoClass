@@ -99,16 +99,16 @@ if __name__ == '__main__':
 
     OVERWRITE = False
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector55'
-    SECTOR = 55
-    SECTOR1 = 55
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector14-55'
+    SECTOR = -1
+    SECTOR1 = 14
     SECTOR2 = 55
 #    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-2'
 #    SECTOR=-1
 
     #vetFile = 'spoc_sector1_early_fluxvet_20180904.txt'
-    vetFile = 'spoc_fluxtriage_sector-55_20220919.txt'
-    tceSeedInFile = 'sector-55_20220919_tce.h5'
+    vetFile = 'spoc_fluxtriage_sector-14-55_20220930.txt'
+    tceSeedInFile = 'sector-14-55_20220930_tce.h5'
 #    vetFile = 'spoc_sector1_2_fluxtriage_20181019.txt'
 #    tceSeedInFile = 'sector1_2_20181019_tce.pkl'
 
@@ -121,7 +121,7 @@ if __name__ == '__main__':
 
 
     # Load the tce data h5
-    tceSeedInFile = 'sector-55_20220919_tce.h5'
+    tceSeedInFile = 'sector-14-55_20220930_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     

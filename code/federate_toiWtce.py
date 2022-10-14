@@ -134,7 +134,7 @@ def query_othertics(ticWant, searchRad):
 
 
 if __name__ == '__main__':
-    fout = open('federate_toiWtce_sector-55_20220919.txt', 'w')
+    fout = open('federate_toiWtce_sector-14-55_20220930.txt', 'w')
     dataSpan = 27.0
 
     wideSearch = True # Do MASTTIC query if true to search
@@ -174,7 +174,7 @@ if __name__ == '__main__':
     # To fix string before reading in
     # As of Oct. 2019 I needed to use this to fix commas in strings
     # sed -e 's/""//g' -e 's/,"[^"]*/,"NOCOMMENT/g' csv-file-2019-10-29.csv > toi-plus-2019-10-29-fixed.csv
-    qlpfile = 'csv-file-toi-catalog-FIXED-20220919.csv'
+    qlpfile = 'csv-file-toi-catalog-FIXED-20220930.csv'
     dtypeseq = ['U20','U20','i4','f8','U2']
     dtypeseq.extend(['f8']*14)
     dtypeseq.extend(['U20','U80'])
@@ -202,7 +202,7 @@ if __name__ == '__main__':
 #                                gtTOI, gtDisp, gtPer, gtEpc, gtDur)
 
     # Load the tce data h5
-    tceSeedInFile = 'sector-55_20220919_tce.h5'
+    tceSeedInFile = 'sector-14-55_20220930_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
@@ -292,11 +292,13 @@ if __name__ == '__main__':
             if hasCadTimeMap:
                 minCadStrt = np.min(tryCadStrt)
                 maxCadStrt = np.max(tryCadEnd)
-                idxfnd = np.where(minCadStrt == cadmap)[0]
+                idxfnd = np.argmin(np.abs(minCadStrt-cadmap))
+#                idxfnd = np.where(minCadStrt == cadmap)[0]
                 uowStartUse = timemap[idxfnd]
-                idxfnd = np.where(maxCadStrt == cadmap)[0]
+                idxfnd = np.argmin(np.abs(maxCadStrt - cadmap))
+#                idxfnd = np.where(maxCadStrt == cadmap)[0]
                 uowEndUse = timemap[idxfnd]
-                print('Time: {0:f} {1:f}'.format(uowStartUse[0], uowEndUse[0]))
+                print('Time: {0:f} {1:f}'.format(uowStartUse, uowEndUse))
             else:
                 uowStartUse = uowStart
                 uowEndUse = uowEnd

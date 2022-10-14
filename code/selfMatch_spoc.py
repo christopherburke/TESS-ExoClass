@@ -135,10 +135,10 @@ def genericFed(per, epc, tryper, tryepc, trydur, trypn, trytic, tStart, tEnd):
 
 
 if __name__ == '__main__':
-    fout = open('selfMatch_sector-55_20220919.txt', 'w')
+    fout = open('selfMatch_sector-14-55_20220930.txt', 'w')
     dataSpan = 27.0
     # Load the tce data h5
-    tceSeedInFile = 'sector-55_20220919_tce.h5'
+    tceSeedInFile = 'sector-14-55_20220930_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     # Check to see if cadence to time mappting is available
@@ -225,11 +225,13 @@ if __name__ == '__main__':
         if hasCadTimeMap:
             minCadStrt = np.min(curCadStrt)
             maxCadStrt = np.max(curCadEnd)
-            idxfnd = np.where(minCadStrt == cadmap)[0]
+            idxfnd = np.argmin(np.abs(minCadStrt-cadmap))
+            #idxfnd = np.where(minCadStrt == cadmap)[0]
             uowStartUse = timemap[idxfnd]
-            idxfnd = np.where(maxCadStrt == cadmap)[0]
+            idxfnd = np.argmin(np.abs(maxCadStrt - cadmap))
+            #idxfnd = np.where(maxCadStrt == cadmap)[0]
             uowEndUse = timemap[idxfnd]
-            print('Time: {0:f} {1:f}'.format(uowStartUse[0], uowEndUse[0]))
+            print('Time: {0:f} {1:f}'.format(uowStartUse, uowEndUse))
         else:
             uowStartUse = uowStart
             uowEndUse = uowEnd
