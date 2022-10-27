@@ -101,7 +101,14 @@ def query_ticcone(curRa, curDec, searchRad):
                 'format':'json', 'removenullcolumns':False}
     while True:    
         headers, outString = mastQuery(request)
-        outObject = json.loads(outString)
+        try:
+            outObject = json.loads(outString)
+        except:
+            print("Error in json load")
+            print("Request")
+            print(request)
+            print("outString")
+            print(outString)
         if outObject['status'] != 'EXECUTING':
                 break
         if time.time() - startTime > 30:
@@ -127,7 +134,7 @@ def coughlin_sigmap(p1,p2):
 
 
 if __name__ == '__main__':
-    fout = open('federate_knownP_sector-14-55_20220930.txt', 'w')
+    fout = open('federate_knownP_sector-56_20221023.txt', 'w')
     dataSpan = 27.0
     wideSearch = True
     searchRad = 180.0 # Arcsecond search radius for other TICs
@@ -236,7 +243,7 @@ if __name__ == '__main__':
 
 
     # Load the tce data h5
-    tceSeedInFile = 'sector-14-55_20220930_tce.h5'
+    tceSeedInFile = 'sector-56_20221023_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     

@@ -175,13 +175,13 @@ if __name__ == "__main__":
         maxsec = np.max(sectorswant)
         print('Requesting Sectors ',sectorswant)
     
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector14-55/'
-    SECTOR = -1# =-1 if multi-sector
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector56/'
+    SECTOR = 56# =-1 if multi-sector
     RESAMP = 5  ###  USE AN ODD NUMBER HELPS WITH CADENCE NO ###
     overwrite = False
 
     if (not 'maxsec' in locals()) and SECTOR == -1:
-        print('Code expects multi-sector (SECTOR = -1) but no sector argument was given. EXITING!')
+        print('Code expects multi-sector (SECTOR = 56) but no sector argument was given. EXITING!')
         sys.exit()
 
     if SECTOR > 0:
@@ -191,11 +191,11 @@ if __name__ == "__main__":
         fileInputPrefixList = []
         for i in np.arange(1,SECTOR):
             fileInputPrefixList.append('/foo{0:d}'.format(i))
-        fileInputPrefixList.append('/pdo/spoc-data/sector-014-026+040-055/s14-s26+s40-s55_multi/target-pixel/tess2022217014003-s0055-')
+        fileInputPrefixList.append('/pdo/spoc-data/sector-056/target-pixel/tess2022244194134-s0056-')
         fileInputSuffixList = []
         for i in np.arange(1,SECTOR):
             fileInputSuffixList.append('/foo{0:d}'.format(i))
-        fileInputSuffixList.append('-0242-s_tp.fits.gz')
+        fileInputSuffixList.append('-0243-s_tp.fits.gz')
     else:
         print('Multi-Sector')
         # multisector read in table that has all the paths to data files
@@ -229,7 +229,7 @@ if __name__ == "__main__":
     #  You can specify a multisector tce seed file because
     #   al that it uses is TIC.  If it exists it is made
     # Load the tce data h5
-    tceSeedInFile = 'sector-14-55_20220930_tce.h5'
+    tceSeedInFile = 'sector-56_20221023_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
 
