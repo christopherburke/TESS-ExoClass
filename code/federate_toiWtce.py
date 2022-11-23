@@ -134,7 +134,7 @@ def query_othertics(ticWant, searchRad):
 
 
 if __name__ == '__main__':
-    fout = open('federate_toiWtce_sector-56_20221023.txt', 'w')
+    fout = open('federate_toiWtce_sector-57_20221122.txt', 'w')
     dataSpan = 27.0
 
     wideSearch = True # Do MASTTIC query if true to search
@@ -174,7 +174,7 @@ if __name__ == '__main__':
     # To fix string before reading in
     # As of Oct. 2019 I needed to use this to fix commas in strings
     # sed -e 's/""//g' -e 's/,"[^"]*/,"NOCOMMENT/g' csv-file-2019-10-29.csv > toi-plus-2019-10-29-fixed.csv
-    qlpfile = 'csv-file-toi-catalog-FIXED-20221023.csv'
+    qlpfile = 'csv-file-toi-catalog-FIXED-20221122.csv'
     dtypeseq = ['U20','U20','i4','f8','U2']
     dtypeseq.extend(['f8']*14)
     dtypeseq.extend(['U20','U80'])
@@ -202,7 +202,7 @@ if __name__ == '__main__':
 #                                gtTOI, gtDisp, gtPer, gtEpc, gtDur)
 
     # Load the tce data h5
-    tceSeedInFile = 'sector-56_20221023_tce.h5'
+    tceSeedInFile = 'sector-57_20221122_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
