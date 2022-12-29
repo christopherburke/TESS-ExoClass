@@ -1,3 +1,5 @@
+git clone https://github.com/christopherburke/TESS-ExoClass.git
+
 python gather_tce_fromdvxml.py
 python dump_tce_info.py
 python dvts_bulk_resamp.py

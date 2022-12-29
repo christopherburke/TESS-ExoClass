@@ -99,16 +99,16 @@ if __name__ == '__main__':
 
     OVERWRITE = False
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector57'
-    SECTOR = 57
-    SECTOR1 = 57
-    SECTOR2 = 57
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector58'
+    SECTOR = 58
+    SECTOR1 = 58
+    SECTOR2 = 58
 #    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-2'
 #    SECTOR=-1
 
     #vetFile = 'spoc_sector1_early_fluxvet_20180904.txt'
-    vetFile = 'spoc_fluxtriage_sector-57_20221122.txt'
-    tceSeedInFile = 'sector-57_20221122_tce.h5'
+    vetFile = 'spoc_fluxtriage_sector-58_20221227.txt'
+    tceSeedInFile = 'sector-58_20221227_tce.h5'
 #    vetFile = 'spoc_sector1_2_fluxtriage_20181019.txt'
 #    tceSeedInFile = 'sector1_2_20181019_tce.pkl'
 
@@ -121,7 +121,7 @@ if __name__ == '__main__':
 
 
     # Load the tce data h5
-    tceSeedInFile = 'sector-57_20221122_tce.h5'
+    tceSeedInFile = 'sector-58_20221227_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
@@ -161,7 +161,7 @@ if __name__ == '__main__':
     #               (allvet == 1) )[0]
 # DEBUG SINGLE TIC
 #    idx = np.where((allatvalid == 1) & (alltrpvalid == 1) & (allsolarflux > 0.0) & \
-#                   (allvet == 1) & (alltic == 30533103 ) & (allpn==1))[0]
+#                   (allvet == 1) & (alltic == 621646082 ) & (allpn==1))[0]
     idx = np.where((allatvalid == 1) & (alltrpvalid == 1) & (allsolarflux > 0.0) & \
                    (allvet == 1) )[0]
     alltic, allpn, allatvalid, allrp, allrstar, alllogg, allper, alltmags, \
@@ -277,7 +277,7 @@ if __name__ == '__main__':
                                     mnFlx = np.min(curFlx[useVD])
                                     print('MinFlux: {:f} {:d} {:d} {:d}'.format(mnFlx, k, ii, jj))
                                     if np.isfinite(mnFlx) and (len(np.where(tpf_vd)[0])>0):
-                                        if mnFlx < 0.0:
+                                        if mnFlx < 0.1:
                                             curFlx = curFlx - mnFlx + 10.0
                                             #plt.plot(curFlx, '.')
                                             #plt.show()
