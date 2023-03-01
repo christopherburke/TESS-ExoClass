@@ -61,12 +61,12 @@ if __name__ == '__main__':
         maxsec = np.max(sectorswant)
         print('Requesting Sectors ',sectorswant)
     
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector60/'
+    dirOutputs = '/pdo/users/cjburke/spocvet/sector14-60/'
     RESAMP = 31  ###  USE AN ODD NUMBER ###
-    SECTOR = 60# =-1 if multi-sector
+    SECTOR = -1# =-1 if multi-sector
 
     if (not 'maxsec' in locals()) and SECTOR == -1:
-        print('Code expects multi-sector (SECTOR = 60) but no sector argument was given. EXITING!')
+        print('Code expects multi-sector (SECTOR = -1) but no sector argument was given. EXITING!')
         sys.exit()
 
     if SECTOR > 0:
@@ -75,7 +75,7 @@ if __name__ == '__main__':
         fileInputPrefixList = []
         for i in np.arange(1,SECTOR):
             fileInputPrefixList.append('/foo{0:d}'.format(i))
-        fileInputPrefixList.append('/pdo/spoc-data/sector-060/light-curve/tess2022357055054-s0060-')
+        fileInputPrefixList.append('/pdo/spoc-data/sector-014-026+040-060/light-curve/tess2022357055054-s0060-')
         fileInputSuffixList = []
         for i in np.arange(1,SECTOR):
             fileInputSuffixList.append('/foo{0:d}'.format(i))
@@ -107,14 +107,14 @@ if __name__ == '__main__':
 
     nSector = len(fileInputPrefixList)    
 
-    #fileOut = 'spoc_pdcstats_sector-60_20230207.txt'
+    #fileOut = 'spoc_pdcstats_sector-14-60_20230219.txt'
     #fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector-60_20230207.txt'
+    vetFile = 'spoc_fluxtriage_sector-14-60_20230219.txt'
     #vetFile = 'junk.txt'
-    tceSeedInFile = 'sector-60_20230207_tce.h5'
+    tceSeedInFile = 'sector-14-60_20230219_tce.h5'
 
     # Load the tce data h5
-    tceSeedInFile = 'sector-60_20230207_tce.h5'
+    tceSeedInFile = 'sector-14-60_20230219_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     

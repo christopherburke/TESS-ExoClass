@@ -97,18 +97,18 @@ if __name__ == '__main__':
     wID = int(args.w)
     nWrk = int(args.n)
 
-    OVERWRITE = False
+    OVERWRITE = True
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector60'
-    SECTOR = 60
-    SECTOR1 = 60
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector14-60'
+    SECTOR = -1
+    SECTOR1 = 14
     SECTOR2 = 60
 #    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-2'
 #    SECTOR=-1
 
     #vetFile = 'spoc_sector1_early_fluxvet_20180904.txt'
-    vetFile = 'spoc_fluxtriage_sector-60_20230207.txt'
-    tceSeedInFile = 'sector-60_20230207_tce.h5'
+    vetFile = 'spoc_fluxtriage_sector-14-60_20230219.txt'
+    tceSeedInFile = 'sector-14-60_20230219_tce.h5'
 #    vetFile = 'spoc_sector1_2_fluxtriage_20181019.txt'
 #    tceSeedInFile = 'sector1_2_20181019_tce.pkl'
 
@@ -121,7 +121,7 @@ if __name__ == '__main__':
 
 
     # Load the tce data h5
-    tceSeedInFile = 'sector-60_20230207_tce.h5'
+    tceSeedInFile = 'sector-14-60_20230219_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
@@ -161,7 +161,7 @@ if __name__ == '__main__':
     #               (allvet == 1) )[0]
 # DEBUG SINGLE TIC
 #    idx = np.where((allatvalid == 1) & (alltrpvalid == 1) & (allsolarflux > 0.0) & \
-#                   (allvet == 1) & (alltic == 621646082 ) & (allpn==1))[0]
+#                   (allvet == 1) & (alltic == 198186769 ) & (allpn==1))[0]
     idx = np.where((allatvalid == 1) & (alltrpvalid == 1) & (allsolarflux > 0.0) & \
                    (allvet == 1) )[0]
     alltic, allpn, allatvalid, allrp, allrstar, alllogg, allper, alltmags, \
@@ -179,6 +179,7 @@ if __name__ == '__main__':
 
             outFile = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_bsc_diffImg_{0:016d}_{1:02d}_*.pdf'.format(curTic,curPn))
             outFileList = glob.glob(outFile)
+            #print(outFile)
             if OVERWRITE or not (len(outFileList)>0):
                 fileInput = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_sesmes_{0:016d}_{1:02d}.h5d'.format(curTic,curPn))
                 f = h5py.File(fileInput,'r')
@@ -202,6 +203,7 @@ if __name__ == '__main__':
                 for k in range(SECTOR1, SECTOR2+1):
                     fileInput = os.path.join(make_data_dirs(sesMesDir, SECTOR, curTic), 'tess_tpf_{0:016d}_{1:02d}.h5d'.format(curTic,k))
                     if os.path.isfile(fileInput):
+                        #print(fileInput)
                         f = h5py.File(fileInput, 'r')
                         tpf_cad = np.array(f['cadenceNo'])
                         tpf_time = np.array(f['timetbjd'])
@@ -375,7 +377,7 @@ if __name__ == '__main__':
                             plt.savefig(outFile, format='pdf')
                             #plt.show()
                             plt.close()
-                            print('alpha')
+                            #print('alpha')
                             f.close()
             else:
                 print('Skipping {0}'.format(outFile))
