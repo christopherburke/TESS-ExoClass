@@ -134,7 +134,7 @@ def coughlin_sigmap(p1,p2):
 
 
 if __name__ == '__main__':
-    fout = open('federate_knownP_sector-14-60_20230219.txt', 'w')
+    fout = open('federate_knownP_sector-61_20230302.txt', 'w')
     dataSpan = 27.0
     wideSearch = True
     searchRad = 180.0 # Arcsecond search radius for other TICs
@@ -185,7 +185,9 @@ if __name__ == '__main__':
     # Ecliptic pointing
     #idx = np.where((gtEclipLat > -20.0) & (gtEclipLat < 20.0))[0]
     # North Ecliptic pointing
-    idx = np.where((gtEclipLat > 3.0))[0]
+    #idx = np.where((gtEclipLat > 3.0))[0]
+    # South Ecliptic pointing
+    idx = np.where((gtEclipLat < -3.0))[0]
     gtName = gtName[idx]
     gtPer, gtEpc, gtDur, gtRa, gtDec, gtTIC, gtTOI = cjb.idx_filter(idx, \
         gtPer, gtEpc, gtDur, gtRa, gtDec, gtTIC, gtTOI                                                            )
@@ -243,7 +245,7 @@ if __name__ == '__main__':
 
 
     # Load the tce data h5
-    tceSeedInFile = 'sector-14-60_20230219_tce.h5'
+    tceSeedInFile = 'sector-61_20230302_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     
