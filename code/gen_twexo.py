@@ -49,11 +49,11 @@ if __name__ == '__main__':
 
 
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector61'
-    SECTOR = 61
+    sesMesDir = '/pdo/users/cjburke/spocvet/sector62'
+    SECTOR = 62
 
     doPDFs = True
-    vetFile = 'spoc_fluxtriage_sector-61_20230302.txt'
+    vetFile = 'spoc_fluxtriage_sector-62_20230404.txt'
     overwrite = False
 
     # Load the  flux vetting
