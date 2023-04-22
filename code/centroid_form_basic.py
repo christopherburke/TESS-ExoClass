@@ -22,6 +22,7 @@ import glob
 import cjb_utils as cjb
 import statsmodels.robust as sm
 import argparse
+from tec_used_params import tec_use_params
 
 def idx_filter(idx, *array_list):
     new_array_list = []
@@ -97,18 +98,19 @@ if __name__ == '__main__':
     wID = int(args.w)
     nWrk = int(args.n)
 
+    tp = tec_use_params()
     OVERWRITE = True
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector62'
-    SECTOR = 62
-    SECTOR1 = 62
-    SECTOR2 = 62
+    sesMesDir = '/pdo/users/cjburke/spocvet/{0}'.format(tp.tecdir)
+    SECTOR = tp.sector
+    SECTOR1 = tp.sector1
+    SECTOR2 = tp.sector2
 #    sesMesDir = '/pdo/users/cjburke/spocvet/sector1-2'
 #    SECTOR=-1
 
     #vetFile = 'spoc_sector1_early_fluxvet_20180904.txt'
-    vetFile = 'spoc_fluxtriage_sector-62_20230404.txt'
-    tceSeedInFile = 'sector-62_20230404_tce.h5'
+    vetFile = 'spoc_fluxtriage_{0}.txt'.format(tp.tecfile)
+    tceSeedInFile = '{0}_tce.h5'.format(tp.tecfile)
 #    vetFile = 'spoc_sector1_2_fluxtriage_20181019.txt'
 #    tceSeedInFile = 'sector1_2_20181019_tce.pkl'
 
@@ -121,7 +123,6 @@ if __name__ == '__main__':
 
 
     # Load the tce data h5
-    tceSeedInFile = 'sector-62_20230404_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     

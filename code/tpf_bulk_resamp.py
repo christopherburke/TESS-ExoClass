@@ -18,6 +18,7 @@ from gather_tce_fromdvxml import tce_seed
 import cjb_utils as cjb
 import argparse
 import sys
+from tec_used_params import tec_use_params
 
 def make_data_dirs(prefix, sector, epic):
     secDir = 'S{0:02d}'.format(sector)
@@ -186,9 +187,10 @@ if __name__ == "__main__":
         sectorswant = parse_range(secstr)
         maxsec = np.max(sectorswant)
         print('Requesting Sectors ',sectorswant)
-    
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector62/'
-    SECTOR = 62# =-1 if multi-sector
+
+    tp = tec_use_params()    
+    dirOutputs = '/pdo/users/cjburke/spocvet/{0}/'.format(tp.tecdir)
+    SECTOR = tp.sector# =-1 if multi-sector
     RESAMP = 5  ###  USE AN ODD NUMBER HELPS WITH CADENCE NO ###
     overwrite = False
 
@@ -203,11 +205,11 @@ if __name__ == "__main__":
         fileInputPrefixList = []
         for i in np.arange(1,SECTOR):
             fileInputPrefixList.append('/foo{0:d}'.format(i))
-        fileInputPrefixList.append('/pdo/spoc-data/sector-062/target-pixel/tess2023043185947-s0062-')
+        fileInputPrefixList.append('/pdo/spoc-data/{0}/target-pixel/{1}'.format(tp.spocdir, tp.lcpre))
         fileInputSuffixList = []
         for i in np.arange(1,SECTOR):
             fileInputSuffixList.append('/foo{0:d}'.format(i))
-        fileInputSuffixList.append('-0254-s_tp.fits.gz')
+        fileInputSuffixList.append('-{0}-s_tp.fits.gz'.format(tp.lcnum))
     else:
         print('Multi-Sector')
         # multisector read in table that has all the paths to data files
@@ -241,7 +243,7 @@ if __name__ == "__main__":
     #  You can specify a multisector tce seed file because
     #   al that it uses is TIC.  If it exists it is made
     # Load the tce data h5
-    tceSeedInFile = 'sector-62_20230404_tce.h5'
+    tceSeedInFile = '{0}_tce.h5'.format(tp.tecfile)
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
 

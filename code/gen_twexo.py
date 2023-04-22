@@ -8,6 +8,7 @@ import os
 from subprocess import Popen, PIPE
 import numpy as np
 import argparse
+from tec_used_params import tec_use_params
 
 def make_data_dirs(prefix, sector, epic):
     secDir = 'S{0:02d}'.format(sector)
@@ -47,13 +48,14 @@ if __name__ == '__main__':
     wID = int(args.w)
     nWrk = int(args.n)
 
+    tp = tec_use_params()
 
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector62'
-    SECTOR = 62
+    sesMesDir = '/pdo/users/cjburke/spocvet/{0}'.format(tp.tecdir)
+    SECTOR = tp.sector
 
     doPDFs = True
-    vetFile = 'spoc_fluxtriage_sector-62_20230404.txt'
+    vetFile = 'spoc_fluxtriage_{0}.txt'.format(tp.tecfile)
     overwrite = False
 
     # Load the  flux vetting

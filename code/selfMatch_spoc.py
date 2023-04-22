@@ -29,6 +29,7 @@ except ImportError:  # Python 2.x
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 import os
+from tec_used_params import tec_use_params
 
 def mastQuery(request):
 
@@ -135,10 +136,12 @@ def genericFed(per, epc, tryper, tryepc, trydur, trypn, trytic, tStart, tEnd):
 
 
 if __name__ == '__main__':
-    fout = open('selfMatch_sector-62_20230404.txt', 'w')
+    tp = tec_use_params()
+
+    fout = open('selfMatch_{0}.txt'.format(tp.tecfile), 'w')
     dataSpan = 27.0
     # Load the tce data h5
-    tceSeedInFile = 'sector-62_20230404_tce.h5'
+    tceSeedInFile = '{0}_tce.h5'.format(tp.tecfile)
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     # Check to see if cadence to time mappting is available

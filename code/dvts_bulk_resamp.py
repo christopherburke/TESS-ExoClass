@@ -16,6 +16,7 @@ import h5py
 import glob
 import os
 import math
+from tec_used_params import tec_use_params
 
 def make_data_dirs(prefix, sector, epic):
     secDir = 'S{0:02d}'.format(sector)
@@ -194,11 +195,15 @@ def dvts_resamp(file, dirOut, RESAMP, SECTOR=None, overwrite=True):
     return dataSpanMax, kpCadenceNo, kpTimetbjd, kpQuality, kpPDC
 
 if __name__ == "__main__":
+    tp = tec_use_params()
 
-    dirInputs = '/pdo/spoc-data/sector-062/dv-time-series/'
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector62/'
-    RESAMP = 5  ###  USE AN ODD NUMBER HELPS WITH CADENCE NO ###
-    SECTOR_OVRRIDE = None # If NOT multisector set this to None ###
+    dirInputs = '/pdo/spoc-data/{0}/dv-time-series/'.format(tp.spocdir)
+    dirOutputs = '/pdo/users/cjburke/spocvet/{0}/'.format(tp.tecdir)
+    RESAMP = tp.resamp  ###  USE AN ODD NUMBER HELPS WITH CADENCE NO ###
+    if tp.singlesector:
+        SECTOR_OVRRIDE = None # If NOT multisector set this to None ###
+    else:
+        SECTOR_OVERRIDE = -1
     overwrite = True # Set False to keep old results and only do files that dont exist
 
     fileList = glob.glob(os.path.join(dirInputs, '*dvt.fits*'))

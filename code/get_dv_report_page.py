@@ -13,6 +13,7 @@ from subprocess import Popen, PIPE
 import math
 import glob
 import argparse
+from tec_used_params import tec_use_params
 
 def make_data_dirs(prefix, sector, epic):
     secDir = 'S{0:02d}'.format(sector)
@@ -45,18 +46,19 @@ if __name__ == '__main__':
     wID = int(args.w)
     nWrk = int(args.n)
 
+    tp = tec_use_params()
     
-    summaryFolder = '/pdo/spoc-data/sector-062/dv-reports'
-    summaryPrefix = 'tess2023043222439-'
-    summaryPostfix = '-00706_dvr.pdf'
-    SECTOR1 = 62
-    SECTOR2 = 62
+    summaryFolder = '/pdo/spoc-data/{0}/dv-reports'.format(tp.spocdir)
+    summaryPrefix = tp.dvpre
+    summaryPostfix = '-{0}_dvr.pdf'.format(tp.dvnum)
+    SECTOR1 = tp.sector1
+    SECTOR2 = tp.sector2
     multiRun = False
     if SECTOR2 - SECTOR1 > 0:
         multiRun = True
-    tceSeedInFile = 'sector-62_20230404_tce.h5'
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector62'
-    SECTOR = 62
+    tceSeedInFile = '{0}_tce.h5'.format(tp.tecfile)
+    sesMesDir = '/pdo/users/cjburke/spocvet/{0}'.format(tp.tecdir)
+    SECTOR = tp.sector
     overwrite = False
     
     # Load the tce data h5

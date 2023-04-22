@@ -13,6 +13,7 @@ import gzip
 import xml.etree.cElementTree as ET
 import copy
 import h5py
+from tec_used_params import tec_use_params
 
 
 
@@ -196,8 +197,9 @@ class tce_seed(object):
         
         
 if __name__ == "__main__":
-    tceSeedOutFile = 'sector-62_20230404_tce.h5'
-    headXMLPath = '/pdo/spoc-data/sector-062/dv-results/'
+    tp = tec_use_params()
+    tceSeedOutFile = '{0}_tce.h5'.format(tp.tecfile)
+    headXMLPath = '/pdo/spoc-data/{0}/dv-results/'.format(tp.spocdir)
     # Namespace there is extra junk prepended to tags
     #  This is supposed to make it easier to use 
     ns = {'ns': 'http://www.nasa.gov/2018/TESS/DV'}

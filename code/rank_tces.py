@@ -15,6 +15,7 @@ import math
 import h5py
 import argparse
 import glob
+from tec_used_params import tec_use_params
 
 def make_data_dirs(prefix, sector, epic):
     secDir = 'S{0:02d}'.format(sector)
@@ -94,41 +95,42 @@ if __name__ == '__main__':
     wID = int(args.w)
     nWrk = int(args.n)
     
-    summaryFolder = '/pdo/spoc-data/sector-062/dv-reports'
-    summaryPrefix = 'tess2023043222439-'
-    summaryPostfix = '-00706_dvs.pdf'
-    SECTOR1 = 62
-    SECTOR2 = 62
+    tp = tec_use_params()
+    summaryFolder = '/pdo/spoc-data/{0}/dv-reports'.format(tp.spocdir)
+    summaryPrefix = tp.dvpre
+    summaryPostfix = '-{0}_dvs.pdf'.format(tp.dvnum)
+    SECTOR1 = tp.sector1
+    SECTOR2 = tp.sector2
     multiRun = False
     if SECTOR2 - SECTOR1 > 0:
         multiRun = True
 
     doPNGs = False
-    pngFolder = '/pdo/users/cjburke/spocvet/sector62/pngs/'
+    pngFolder = '/pdo/users/cjburke/spocvet/{0}/pngs/'.format(tp.tecdir)
     doMergeSum = True
     if nWrk == 1:
         doMergeSum = False
-    pdfFolder = '/pdo/users/cjburke/spocvet/sector62/pdfs/'
-    SECTOR1 = 62
-    SECTOR2 = 62
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector62'
-    SECTOR = 62# -1 for multi-sector
+    pdfFolder = '/pdo/users/cjburke/spocvet/{0}/pdfs/'.format(tp.tecdir)
+    SECTOR1 = tp.sector1
+    SECTOR2 = tp.sector2
+    sesMesDir = '/pdo/users/cjburke/spocvet/{0}'.format(tp.tecdir)
+    SECTOR = tp.sector# -1 for multi-sector
 
-    fileOut1 = 'spoc_ranking_Tier1_sector-62_20230404.txt'
-    fileOut2 = 'spoc_ranking_Tier2_sector-62_20230404.txt'
-    fileOut3 = 'spoc_ranking_Tier3_sector-62_20230404.txt'
-    vetFile = 'spoc_fluxtriage_sector-62_20230404.txt'
-    tceSeedInFile = 'sector-62_20230404_tce.h5'
-    modshiftFile = 'spoc_modshift_sector-62_20230404.txt'
-    modshiftFile2 = 'spoc_modshift_med_sector-62_20230404.txt'
-    sweetFile = 'spoc_sweet_sector-62_20230404.txt'
-    toiFederateFile = 'federate_toiWtce_sector-62_20230404.txt'
-    knowPFederateFile = 'federate_knownP_sector-62_20230404.txt'
-    selfMatchFile = 'selfMatch_sector-62_20230404.txt'
-    modumpFile = 'spoc_modump_sector-62_20230404.txt'
+    fileOut1 = 'spoc_ranking_Tier1_{0}.txt'.format(tp.tecfile)
+    fileOut2 = 'spoc_ranking_Tier2_{0}.txt'.format(tp.tecfile)
+    fileOut3 = 'spoc_ranking_Tier3_{0}.txt'.format(tp.tecfile)
+    vetFile = 'spoc_fluxtriage_{0}.txt'.format(tp.tecfile)
+    tceSeedInFile = '{0}_tce.h5'.format(tp.tecfile)
+    modshiftFile = 'spoc_modshift_{0}.txt'.format(tp.tecfile)
+    modshiftFile2 = 'spoc_modshift_med_{0}.txt'.format(tp.tecfile)
+    sweetFile = 'spoc_sweet_{0}.txt'.format(tp.tecfile)
+    toiFederateFile = 'federate_toiWtce_{0}.txt'.format(tp.tecfile)
+    knowPFederateFile = 'federate_knownP_{0}.txt'.format(tp.tecfile)
+    selfMatchFile = 'selfMatch_{0}.txt'.format(tp.tecfile)
+    modumpFile = 'spoc_modump_{0}.txt'.format(tp.tecfile)
 
     # Load the tce data h5
-    tceSeedInFile = 'sector-62_20230404_tce.h5'
+    tceSeedInFile = '{0}_tce.h5'.format(tp.tecfile)
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     

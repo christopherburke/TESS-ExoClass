@@ -19,6 +19,7 @@ from statsmodels import robust
 import matplotlib.pyplot as plt
 from astropy.io import fits
 import argparse
+from tec_used_params import tec_use_params
 
 def make_data_dirs(prefix, sector, epic):
     secDir = 'S{0:02d}'.format(sector)
@@ -60,10 +61,11 @@ if __name__ == '__main__':
         sectorswant = parse_range(secstr)
         maxsec = np.max(sectorswant)
         print('Requesting Sectors ',sectorswant)
-    
-    dirOutputs = '/pdo/users/cjburke/spocvet/sector62/'
+
+    tp = tec_use_params()    
+    dirOutputs = '/pdo/users/cjburke/spocvet/{0}/'.format(tp.tecdir)
     RESAMP = 31  ###  USE AN ODD NUMBER ###
-    SECTOR = 62# =-1 if multi-sector
+    SECTOR = tp.sector# =-1 if multi-sector
 
     if (not 'maxsec' in locals()) and SECTOR == -1:
         print('Code expects multi-sector (SECTOR = 62) but no sector argument was given. EXITING!')
@@ -75,11 +77,11 @@ if __name__ == '__main__':
         fileInputPrefixList = []
         for i in np.arange(1,SECTOR):
             fileInputPrefixList.append('/foo{0:d}'.format(i))
-        fileInputPrefixList.append('/pdo/spoc-data/sector-062/light-curve/tess2023043185947-s0062-')
+        fileInputPrefixList.append('/pdo/spoc-data/{0}/light-curve/{1}'.format(tp.spocdir, tp.lcpre))
         fileInputSuffixList = []
         for i in np.arange(1,SECTOR):
             fileInputSuffixList.append('/foo{0:d}'.format(i))
-        fileInputSuffixList.append('-0254-s_lc.fits.gz')
+        fileInputSuffixList.append('-{0}-s_lc.fits.gz'.format(tp.lcnum))
     else:
         print('Multi-Sector')
         # multisector read in table that has all the paths to data files
@@ -109,12 +111,11 @@ if __name__ == '__main__':
 
     #fileOut = 'spoc_pdcstats_sector-62_20230404.txt'
     #fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector-62_20230404.txt'
+    vetFile = 'spoc_fluxtriage_{0}.txt'.format(tp.tecfile)
     #vetFile = 'junk.txt'
-    tceSeedInFile = 'sector-62_20230404_tce.h5'
+    tceSeedInFile = '{0}_tce.h5'.format(tp.tecfile)
 
     # Load the tce data h5
-    tceSeedInFile = 'sector-62_20230404_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     

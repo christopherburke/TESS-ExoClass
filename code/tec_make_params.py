@@ -3,9 +3,11 @@ import argparse
 import os
 from datetime import datetime
 import glob
+from subprocess import Popen, PIPE
 
 class tec_param:
     def __init__(self):
+        self.singlesector = True
         self.sector = 0
         self.sector1 = 0
         self.sector2 = 0
@@ -41,6 +43,7 @@ if __name__ == '__main__':
     if args.sector2 is None:
         # Single Sector
         print('Single Sector')
+        tp.singlesector = True
         tp.sector = args.sector1[0] # nargs with integer produces list
         tp.sector1 = args.sector1[0]
         tp.sector2 = args.sector1[0]
@@ -55,10 +58,12 @@ if __name__ == '__main__':
         exlclist = exlc.split('-')
         tp.lcpre = '{0}-{1}-'.format(exlclist[0],exlclist[1])
         tp.lcnum = exlclist[3]
+        tp.resamp = 5
 
     else:
         # Multi sector
         print('Multi-Sector')
+        tp.singlesector = False
         tp.sector = -1
         tp.sector1 = args.sector1[0]
         tp.sector2 = args.sector2 # nargs with ? produces single item NOT list
@@ -78,7 +83,7 @@ if __name__ == '__main__':
         exlclist = exlc.split('-')
         tp.lcpre = '{0}-{1}-'.format(exlclist[0],exlclist[1])
         tp.lcnum = exlclist[3]
-
+        tp.resamp = 1
 
     tp.toifile = 'FIXED-{0}'.format(usedate)
 
@@ -101,3 +106,47 @@ if __name__ == '__main__':
     print('LC File Number {0}'.format(tp.lcnum))
     print('DV File Prefix {0}'.format(tp.dvpre))
     print('DV File Number {0}'.format(tp.dvnum))
+    print('LC Resampling factor {0:d}'.format(tp.resamp))
+
+    # create the tec used params class
+    if os.path.exists('tec_used_params.py'):
+        os.remove('tec_used_params.py')
+    fp = open('tec_used_params.py','w')
+    print('class tec_use_params:\n    def __init__(self):',file=fp)
+    if tp.singlesector:
+        print('        self.singlesector = True',file=fp)
+    else:
+        print('        self.singlesector = False',file=fp)
+    print('        self.sector = {0:d}'.format(tp.sector),file=fp)
+    print('        self.sector1 = {0:d}'.format(tp.sector1),file=fp)
+    print('        self.sector2 = {0:d}'.format(tp.sector2),file=fp)
+    print("        self.tecdir = '{0}'".format(tp.tecdir),file=fp)
+    print("        self.spocdir = '{0}'".format(tp.spocdir),file=fp)
+    print("        self.tecfile = '{0}'".format(tp.tecfile),file=fp)
+    print("        self.toifile = '{0}'".format(tp.toifile),file=fp)
+    print("        self.lcpre = '{0}'".format(tp.lcpre),file=fp)
+    print("        self.lcnum = '{0}'".format(tp.lcnum),file=fp)
+    print("        self.dvpre = '{0}'".format(tp.dvpre),file=fp)
+    print("        self.dvnum = '{0}'".format(tp.dvnum),file=fp)
+    print("        self.resamp = {0:d}".format(tp.resamp),file=fp)
+    fp.close()
+
+    # Get the TOI catalogc
+    print('Getting TOI catalog. This will take like 10-30 seconds')
+    syscall = 'curl https://tev.mit.edu/data/collection/193/csv/6/'
+    print(syscall)
+    if os.path.exists('csv-file-toi-catalog.csv'):
+        os.remove('csv-file-toi-catalog.csv')
+    fp = open('csv-file-toi-catalog.csv','w')
+    p = Popen(syscall.split(), stdout=fp)
+    sysreturn, err = p.communicate()
+    fp.flush()
+    fp.close()
+
+    syscall = """ sed -e s/\"\"//g -e s/,\"[^\"]*/,\"NOCOMMENT/g csv-file-toi-catalog.csv """
+    print(syscall)
+    fp = open('csv-file-toi-catalog-{0}.csv'.format(tp.toifile),'w')
+    p = Popen(syscall.split(), stdout=fp)
+    sysreturn, err = p.communicate()
+    fp.flush()
+    fp.close()

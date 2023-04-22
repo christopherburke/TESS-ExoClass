@@ -15,6 +15,7 @@ import pickle
 import math
 from gather_tce_fromdvxml import tce_seed
 import scipy.special as spec
+from tec_used_params import tec_use_params
 
 def coughlin_sigmap(p1,p2):
     up1 = p1
@@ -52,15 +53,16 @@ def get_useable_ephems(all_tces):
     return allepics, allpns, allper, allepoch, allduration
 
 if __name__ == '__main__':
+    tp = tec_use_params()
     
     # Load the h5 file that contains TCE seed information
     # The h5 file is created by gather_tce_fromdvxml.py
-    tceSeedInFile = 'sector-62_20230404_tce.h5'
+    tceSeedInFile = '{0}_tce.h5'.format(tp.tecfile)
 
     #  Directory storing the ses mes data
-    sesDataDir = '/pdo/users/cjburke/spocvet/sector62'
-    SECTOR = 62
-    fluxVetOut = 'spoc_fluxtriage_sector-62_20230404.txt'
+    sesDataDir = '/pdo/users/cjburke/spocvet/{0}'.format(tp.tecdir)
+    SECTOR = tp.sector
+    fluxVetOut = 'spoc_fluxtriage_{0}.txt'.format(tp.tecfile)
 #    fluxVetOut = 'junk.txt'
 
     tcedata = tce_seed()

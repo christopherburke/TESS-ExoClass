@@ -33,6 +33,8 @@ import urllib
 #import urllib2
 import os
 import ssl
+from tec_used_params import tec_use_params
+
 
 def mastQuery(request):
 
@@ -134,7 +136,9 @@ def coughlin_sigmap(p1,p2):
 
 
 if __name__ == '__main__':
-    fout = open('federate_knownP_sector-62_20230404.txt', 'w')
+    tp = tec_use_params()
+
+    fout = open('federate_knownP_{0}.txt'.format(tp.tecfile), 'w')
     dataSpan = 27.0
     wideSearch = True
     searchRad = 180.0 # Arcsecond search radius for other TICs
@@ -245,7 +249,7 @@ if __name__ == '__main__':
 
 
     # Load the tce data h5
-    tceSeedInFile = 'sector-62_20230404_tce.h5'
+    tceSeedInFile = '{0}_tce.h5'.format(tp.tecfile)
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     

@@ -31,6 +31,7 @@ from pgmcmc import pgmcmc_run_mcmc, pgmcmc_run_minimizer
 import matplotlib.pyplot as plt
 import argparse
 import sys
+from tec_used_params import tec_use_params
 
 def make_data_dirs(prefix, sector, epic):
     secDir = 'S{0:02d}'.format(sector)
@@ -288,21 +289,25 @@ if __name__ == '__main__':
     parser.add_argument("iteration", type=int,\
                     default = 1, choices=[1,2], \
                     help="Iteration # 1=DV median filtered LC; 2=alternate detrended LC")
-    args = parser.parse_args() 
+    args = parser.parse_args()
+    tp = tec_use_params()
+
     if args.iteration == 1:
         print('Running Modshift on DV Median detrended light curves')
         medianInputFlux = True
-        fileOut = 'spoc_modshift_med_sector-62_20230404.txt'
+        fileOut = 'spoc_modshift_med_{0}.txt'.format(tp.tecfile)
     elif args.iteration == 2:
         print('Running Modshift on Altername detrended light curves')
         medianInputFlux = False
-        fileOut = 'spoc_modshift_sector-62_20230404.txt'
+        fileOut = 'spoc_modshift_{0}.txt'.format(tp.tecfile)
     else:
         print('First Argument must be 1 or 2')
         sys.exit(1)
+
+
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector62'
-    SECTOR = 62
+    sesMesDir = '/pdo/users/cjburke/spocvet/{0}'.format(tp.tecdir)
+    SECTOR = tp.sector
     OVERWRITE = True
     doPNGs = True
 #    pngFolder = '/pdo/users/cjburke/spocvet/sector2/pngs'
@@ -322,14 +327,13 @@ if __name__ == '__main__':
         rerun = True
     else:
         fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector-62_20230404.txt'
+    vetFile = 'spoc_fluxtriage_{0}.txt'.format(tp.tecfile)
     #vetFile = 'junk.txt'
-    tceSeedInFile = 'sector-62_20230404_tce.h5'
     
     badTic = np.array([], dtype=np.int64);
 
     # Load the tce data h5
-    tceSeedInFile = 'sector-62_20230404_tce.h5'
+    tceSeedInFile = '{0}_tce.h5'.format(tp.tecfile)
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     

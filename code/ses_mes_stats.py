@@ -26,6 +26,7 @@ from gather_tce_fromdvxml import tce_seed
 import scipy.stats as st
 from statsmodels import robust
 import argparse
+from tec_used_params import tec_use_params
 
 def make_data_dirs(prefix, sector, epic):
     secDir = 'S{0:02d}'.format(sector)
@@ -280,14 +281,17 @@ if __name__ == "__main__":
     # These are for parallel procoessing
     wID = int(args.w)
     nWrk = int(args.n)
+
+    tp = tec_use_params()
+
     # Load the h5 file that contains TCE seed information
     # The h5 file is created by gather_tce_fromdvxml.py
-    tceSeedInFile = 'sector-62_20230404_tce.h5'
+    tceSeedInFile = '{0}_tce.h5'.format(tp.tecfile)
     #  Directory storing the resampled dv time series data
-    dvDataDir = '/pdo/users/cjburke/spocvet/sector62'
+    dvDataDir = '/pdo/users/cjburke/spocvet/{0}'.format(tp.tecdir)
     # Directory of output hd5 files
     outputDir = dvDataDir
-    SECTOR = 62
+    SECTOR = tp.sector
     # What fraction of data can be missing and still calculat ses_mes
     # In Sector 1 due to the 2 days of missing stuff it was 0.68
     # For multisector this does not need to be adjusted because
@@ -298,9 +302,9 @@ if __name__ == "__main__":
     overWrite = True
 
     # Skyline data excises loud cadecnes
-    skyline_file = 'skyline_data_sector-62_20230404.txt'
+    skyline_file = 'skyline_data_{0}.txt'.format(tp.tecfile)
     if os.path.isfile(skyline_file):
-        dataBlock = np.genfromtxt('skyline_data_sector-62_20230404.txt', dtype=['f8'])
+        dataBlock = np.genfromtxt('skyline_data_{0}.txt'.format(tp.tecfile), dtype=['f8'])
         badTimes = dataBlock['f0']
         if len(badTimes) < 2:
             badTimes = np.array([0.0])

@@ -16,6 +16,7 @@ from statsmodels import robust
 from pgmcmc import pgmcmc_ioblk, pgmcmc_setup
 from pgmcmc import pgmcmc_run_mcmc, pgmcmc_run_minimizer
 import matplotlib.pyplot as plt
+from tec_used_params import tec_use_params
 
 def make_data_dirs(prefix, sector, epic):
     secDir = 'S{0:02d}'.format(sector)
@@ -52,16 +53,17 @@ def idx_filter(idx, *array_list):
 
 
 if __name__ == '__main__':
+    tp = tec_use_params()
     #  Directory storing the ses mes time series
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector62'
-    SECTOR = 62
+    sesMesDir = '/pdo/users/cjburke/spocvet/{0}'.format(tp.tecdir)
+    SECTOR = tp.sector
 
     
-    fileOut = 'spoc_modump_sector-62_20230404.txt'    
+    fileOut = 'spoc_modump_{0}.txt'.format(tp.tecfile)    
     fom = open(fileOut, 'w')
-    vetFile = 'spoc_fluxtriage_sector-62_20230404.txt'
+    vetFile = 'spoc_fluxtriage_{0}.txt'.format(tp.tecfile)
     #vetFile = 'junk.txt'
-    tceSeedInFile = 'sector-62_20230404_tce.h5'
+    tceSeedInFile = '{0}_tce.h5'.format(tp.tecfile)
 
     # cadence number time mapping has momentum dump flags in it
     # It is generated in dvts_bulk_resamp.py
@@ -73,7 +75,6 @@ if __name__ == '__main__':
     bdTime = timemap[idx]
     
     # Load the tce data h5
-    tceSeedInFile = 'sector-62_20230404_tce.h5'
     tcedata = tce_seed()
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
     

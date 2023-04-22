@@ -12,6 +12,7 @@ import os
 from subprocess import Popen, PIPE
 import math
 import glob
+from tec_used_params import tec_use_params
 
 def make_data_dirs(prefix, sector, epic):
     secDir = 'S{0:02d}'.format(sector)
@@ -27,25 +28,28 @@ def make_data_dirs(prefix, sector, epic):
 
 
 if __name__ == '__main__':
-    SECTOR1 = 62
-    SECTOR2 = 62
-    multiRun = False
+    tp = tec_use_params()
+
+    SECTOR1 = tp.sector1
+    SECTOR2 = tp.sector2
+    multiRun = not tp.singlesector
     if SECTOR2 - SECTOR1 > 0:
         multiRun = True
-    tceSeedInFile = 'sector-62_20230404_tce.h5'
-    sesMesDir = '/pdo/users/cjburke/spocvet/sector62'
-    SECTOR = 62
-    skyline_out = 'skyline_data_sector-62_20230404.txt'
-    fed_knownP_out = 'federate_knownP_sector-62_20230404.txt'
-    fed_toi_out = 'federate_toiWtce_sector-62_20230404.txt'
-    fed_self_out = 'selfMatch_sector-62_20230404.txt'
-    fluxVetOut = 'spoc_fluxtriage_sector-62_20230404.txt'
+        print('MultiSector Run')
+    tceSeedInFile = '{0}_tce.h5'.format(tp.tecfile)
+    sesMesDir = '/pdo/users/cjburke/spocvet/{0}'.format(tp.tecdir)
+    SECTOR = tp.sector
+    skyline_out = 'skyline_data_{0}.txt'.format(tp.tecfile)
+    fed_knownP_out = 'federate_knownP_{0}.txt'.format(tp.tecfile)
+    fed_toi_out = 'federate_toiWtce_{0}.txt'.format(tp.tecfile)
+    fed_self_out = 'selfMatch_{0}.txt'.format(tp.tecfile)
+    fluxVetOut = 'spoc_fluxtriage_{0}.txt'.format(tp.tecfile)
     SWEETMAXPER = 5.0
-    sweet_out = 'spoc_sweet_sector-62_20230404.txt'
-    modump_out = 'spoc_modump_sector-62_20230404.txt'    
-    fileOut1 = 'spoc_ranking_Tier1_sector-62_20230404.txt'
-    fileOut2 = 'spoc_ranking_Tier2_sector-62_20230404.txt'
-    fileOut3 = 'spoc_ranking_Tier3_sector-62_20230404.txt'
+    sweet_out = 'spoc_sweet_{0}.txt'.format(tp.tecfile)
+    modump_out = 'spoc_modump_{0}.txt'.format(tp.tecfile)    
+    fileOut1 = 'spoc_ranking_Tier1_{0}.txt'.format(tp.tecfile)
+    fileOut2 = 'spoc_ranking_Tier2_{0}.txt'.format(tp.tecfile)
+    fileOut3 = 'spoc_ranking_Tier3_{0}.txt'.format(tp.tecfile)
     if multiRun:
         useSector = 1000+SECTOR2
     else:
