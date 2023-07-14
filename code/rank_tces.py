@@ -6,10 +6,12 @@ This routine brings in all the TEC attributes and metrics
  AUTHOR: Christopher J. Burke
 """
 
+import os
+os.environ['OPENBLAS_NUM_THREADS'] = '1'
+
 import numpy as np
 import pickle
 from gather_tce_fromdvxml import tce_seed
-import os
 from subprocess import call
 import math
 import h5py

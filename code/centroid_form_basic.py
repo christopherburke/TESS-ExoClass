@@ -4,11 +4,12 @@ Spyder Editor
 
 This is a temporary script file.
 """
+import os
+os.environ['OPENBLAS_NUM_THREADS'] = '1'
 
 import numpy as np
 import pickle
 from gather_tce_fromdvxml import tce_seed
-import os
 from subprocess import Popen, PIPE
 import math
 import h5py

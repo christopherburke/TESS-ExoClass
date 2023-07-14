@@ -14,6 +14,15 @@ here and the CHASES test.
 
 @author: Christopher J. Burke
 """
+# See if the following allows
+#  more parallel jobs to be run
+#  thoughts from google seem to indicate
+#  that openblas can request a thread pool
+#   that is equal to number of cores
+#   thus NumberJobs * NumberCores can be large
+#   in a large core system
+import os
+os.environ['OPENBLAS_NUM_THREADS'] = '1'
 
 import numpy as np
 import h5py
