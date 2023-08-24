@@ -28,6 +28,7 @@ import numpy as np
 import h5py
 import matplotlib.pyplot as plt
 import os
+import sys
 import math
 import fluxts_conditioning as flux_cond
 import kep_wavelets as kw
@@ -308,7 +309,7 @@ if __name__ == "__main__":
     # are missing. Those are treated as missing sectors
     # and are removed from the validFrac calculation
     validFrac = 0.56
-    overWrite = True
+    overWrite = False
 
     # Skyline data excises loud cadecnes
     skyline_file = 'skyline_data_{0}.txt'.format(tp.tecfile)
@@ -381,18 +382,37 @@ if __name__ == "__main__":
                 print('Orig ',origMes, epicid, pn)
                 localDir = make_data_dirs(dvDataDir,SECTOR,epicid)
                 fileInput = os.path.join(localDir, 'tess_dvts_{0:016d}_{1:02d}.h5d'.format(epicid,pn))
-                f = h5py.File(fileInput,'r')
-                # Decide which flux time series to use pdc or lc_init
-                # ***NOTE harmonic filter is not being used so pdf flux should be used
-                #useFlux = np.array(f['lc_init'])
-                #  ***If flux is norm subtracted at 1.0 to it
-                #useFlux = useFlux + 1.0
-                useFlux = np.array(f['pdc_flux'])
-                #useFlux3 = np.array(f['lc_white'])
-                #useFlux3 = useFlux3 + 1.0
-                vd = np.array(f['valid_data_flag'])
-                time = np.array(f['timetbjd'])
-                cadNo = np.array(f['cadenceNo'])
+                # Does lc input exist?! It really should but in S66 something went wrong
+                #  and the DV results includes a planet, but the dv time series file doesn't have it
+                if (not os.path.isfile(fileInput)):
+                    # we really need to error out
+                    print('Error: Missing LC file {0}! This shouldnt happen'.format(fileInput))
+                    print('Error: Missing LC file {0}! This shouldnt happen'.format(fileInput), file=sys.stderr)
+                    exit()
+                    # normally we want to exit, but in the case we want to gracefully
+                    # move on we need to insert some fake data and hopefully the 
+                    # valid data check will fail it in triage and it is never spoke of again
+                    # this code should normally be commented out
+                    # but if we really want to continue then comment out the exit() above
+                    # 
+                    useFlux = np.array([1.0, 1.0, 1.0, 1.0], dtype=float)
+                    vd = np.array([False,False,False,False], dtype=bool)
+                    time = np.array([1.0, 2.0, 3.0, 4.0], dtype=float)
+                    cadNo = np.array([1,2,3,4], dtype=int)
+                    
+                else:
+                    f = h5py.File(fileInput,'r')
+                    # Decide which flux time series to use pdc or lc_init
+                    # ***NOTE harmonic filter is not being used so pdf flux should be used
+                    #useFlux = np.array(f['lc_init'])
+                    #  ***If flux is norm subtracted at 1.0 to it
+                    #useFlux = useFlux + 1.0
+                    useFlux = np.array(f['pdc_flux'])
+                    #useFlux3 = np.array(f['lc_white'])
+                    #useFlux3 = useFlux3 + 1.0
+                    vd = np.array(f['valid_data_flag'])
+                    time = np.array(f['timetbjd'])
+                    cadNo = np.array(f['cadenceNo'])
                 for jj, curTime in enumerate(time):
                     diff = np.abs(curTime - badTimes)
                     if np.min(diff) < 5.0/60.0/24.0:

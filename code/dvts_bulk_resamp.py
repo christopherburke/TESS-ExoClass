@@ -226,6 +226,13 @@ if __name__ == "__main__":
     minCad = 9999999999999
     maxCad = -1
     cadenceDict = {}
+
+    # if the cadnoVtimemap.txt file exists from a previous running
+    # then prevent it from being overwritten and exit
+    # one should rename or remove it if one needs to rerun dvts_bulk_resamp
+    if os.path.isfile('cadnoVtimemap.txt'):
+        print('cadnoVtimemap.txt EXISTS! It Must be removed or renamed before rerunning')
+        exit()
     
     for fil in fileList:
         cnt = cnt + 1
