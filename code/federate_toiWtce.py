@@ -116,7 +116,13 @@ def query_othertics(ticWant, searchRad):
                     'format':'json', 'removenullcolumns':False}
         while True:    
             headers, outString = mastQuery(request)
-            outObject = json.loads(outString)
+            try:
+                outObject = json.loads(outString)
+            except:
+                # no tic or somehow fail
+                print('TIC Search {:d} Fail in jsonload'.format(ticWant))
+                ticList = [ticWant]
+                break
             if outObject['status'] != 'EXECUTING':
                     break
             if time.time() - startTime > 30:

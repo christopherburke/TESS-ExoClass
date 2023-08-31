@@ -203,7 +203,7 @@ if __name__ == "__main__":
     if tp.singlesector:
         SECTOR_OVRRIDE = None # If NOT multisector set this to None ###
     else:
-        SECTOR_OVERRIDE = -1
+        SECTOR_OVRRIDE = -1
     overwrite = True # Set False to keep old results and only do files that dont exist
 
     fileList = glob.glob(os.path.join(dirInputs, '*dvt.fits*'))
