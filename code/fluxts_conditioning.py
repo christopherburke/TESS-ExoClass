@@ -92,7 +92,7 @@ def fill_noise(nW, preY, postY, SIG=3.0, orderAR=4, debug=False):
         postVar = np.power(postYStd, 2)
     # final fill is linear weighted combination
     runN = np.arange(nW)
-    preRamp = runN/np.float(nW)
+    preRamp = runN/float(nW)
     postRamp = 1.0 - preRamp
     # This scaling factor is necessary to linearly transition from the variance
     #  of the pre portion to the post portion  
@@ -182,7 +182,7 @@ def detrend_with_smoothn_edgefix(flux, vd, ootvd, durat, fixEdge=True, \
     
     # Step 2 make a median filtered lightcurve that only keeps very long
     #  time scale variability
-    medfilterlen = np.int(durat * medfiltScaleFac)
+    medfilterlen = int(durat * medfiltScaleFac)
     # Make sure medfilterlen is odd
     if np.mod(medfilterlen,2) == 0:
         medfilterlen = medfilterlen+1
@@ -310,8 +310,8 @@ def detrend_with_smoothn_edgefix(flux, vd, ootvd, durat, fixEdge=True, \
 def fill_extend_fluxts(flux, vd, noiseWindow, doExtend=True, debug=False):
     #  fill all gaps and extend to the next power of two
     # Work on extending flux, detrending, filling gaps and identify outliers
-    nBand = np.int(np.ceil(np.log2(len(flux))))
-    wantNExtend = np.int(np.power(2,nBand))
+    nBand = int(np.ceil(np.log2(len(flux))))
+    wantNExtend = int(np.power(2,nBand))
     origN = len(flux)
 
     # Deal with case where first cadence is invalid
@@ -357,7 +357,7 @@ def fill_extend_fluxts(flux, vd, noiseWindow, doExtend=True, debug=False):
     # First do the extension fill
     # Allow previous filled data to now be valid
     # Determine the median gap size
-    medGapSz = np.int(np.median(idxGapEnd-idxGapStart))
+    medGapSz = int(np.median(idxGapEnd-idxGapStart))
     # set noiseWindow to bigger of noiseWindow or twice medGapSz
     oNoiseWindow = noiseWindow
     noiseWindow = np.max([noiseWindow, 2*medGapSz])
@@ -453,7 +453,7 @@ if __name__ == '__main__':
     plt.show()
     
     waveletLen = 12
-    searchLen = np.int(np.round(cadPerHr * searchDurationHours))
+    searchLen = int(np.round(cadPerHr * searchDurationHours))
     varianceFilterFactor = 15
     varianceFilterWindow = searchLen * varianceFilterFactor
     wavObj = kw.waveletObject(waveletLen, final_smooth_flux_ext, varianceFilterWindow)

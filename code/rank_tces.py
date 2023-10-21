@@ -185,7 +185,7 @@ if __name__ == '__main__':
     for i in range(len(allvet)):
         idx = np.where((alltic[i] == fvtic) & (allpn[i] == fvpn))[0]
         if len(idx) > 0:
-            allvet[i] = fvvet[idx]
+            allvet[i] = fvvet[idx[0]]
     # only keep tces with both valid dv and trapezoid fits
     # and flux vetted pass
     idx = np.where((allatvalid == 1) & (alltrpvalid == 1) & (allsolarflux > 0.0) & \

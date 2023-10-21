@@ -200,7 +200,7 @@ if __name__ == '__main__':
             for i in range(len(allvet)):
                 idx = np.where((alltic[i] == fvtic) & (all_pns[i] == fvpn))[0]
                 if len(idx) > 0:
-                    allvet[i] = fvvet[idx]
+                    allvet[i] = fvvet[idx[0]]
         else:
             print('Triage File Does NOT Exist!')
 

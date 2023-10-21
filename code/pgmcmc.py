@@ -819,7 +819,7 @@ def pgmcmc_run_minimizer(ioblk, nIter, startLocs=None):
     """
     bestChi2s = np.zeros(nIter)
     bestParameters = np.zeros((ioblk.physvals.size, nIter))
-    gdFits = np.zeros(nIter, dtype=np.bool)
+    gdFits = np.zeros(nIter, dtype=np.bool_)
     ioblk, err = boundedvals(ioblk)
 
     # physvalsavs and boundedvalsavs are used to store parameters

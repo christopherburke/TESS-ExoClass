@@ -1,15 +1,15 @@
 class tec_use_params:
     def __init__(self):
         self.singlesector = True
-        self.sector = 68
-        self.sector1 = 68
-        self.sector2 = 68
-        self.tecdir = 'sector68'
-        self.spocdir = 'sector-068'
-        self.tecfile = 'sector-68_20230928'
-        self.toifile = 'FIXED-20230928'
-        self.lcpre = 'tess2023209231226-s0068-'
-        self.lcnum = '0262'
-        self.dvpre = 'tess2023210023032-'
-        self.dvnum = '00778'
+        self.sector = 69
+        self.sector1 = 69
+        self.sector2 = 69
+        self.tecdir = 'sector69'
+        self.spocdir = 'sector-069'
+        self.tecfile = 'sector-69_20231020'
+        self.toifile = 'FIXED-20231020'
+        self.lcpre = 'tess2023237165326-s0069-'
+        self.lcnum = '0264'
+        self.dvpre = 'tess2023237202031-'
+        self.dvnum = '00803'
         self.resamp = 5

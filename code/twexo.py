@@ -399,17 +399,17 @@ if __name__ == '__main__':
             time.sleep(5)
          
         ticList = np.array([x['ID'] for x in outObject['data']], dtype=np.int32)
-        ticRas = np.array([x['ra'] for x in outObject['data']], dtype=np.float)
-        ticDecs = np.array([x['dec'] for x in outObject['data']], dtype=np.float)
-        ticTeffs = np.array([x['Teff'] for x in outObject['data']], dtype=np.float)
-        ticTeffEs = np.array([x['e_Teff'] for x in outObject['data']], dtype=np.float)
-        ticLoggs = np.array([x['logg'] for x in outObject['data']], dtype=np.float)
-        ticLoggEs = np.array([x['e_logg'] for x in outObject['data']], dtype=np.float)
-        ticRads = np.array([x['rad'] for x in outObject['data']], dtype=np.float)
-        ticRadEs = np.array([x['e_rad'] for x in outObject['data']], dtype=np.float)
-        ticMasss = np.array([x['mass'] for x in outObject['data']], dtype=np.float)
-        ticMassEs = np.array([x['e_mass'] for x in outObject['data']], dtype=np.float)
-        ticTmags = np.array([x['Tmag'] for x in outObject['data']], dtype=np.float)
+        ticRas = np.array([x['ra'] for x in outObject['data']], dtype=float)
+        ticDecs = np.array([x['dec'] for x in outObject['data']], dtype=float)
+        ticTeffs = np.array([x['Teff'] for x in outObject['data']], dtype=float)
+        ticTeffEs = np.array([x['e_Teff'] for x in outObject['data']], dtype=float)
+        ticLoggs = np.array([x['logg'] for x in outObject['data']], dtype=float)
+        ticLoggEs = np.array([x['e_logg'] for x in outObject['data']], dtype=float)
+        ticRads = np.array([x['rad'] for x in outObject['data']], dtype=float)
+        ticRadEs = np.array([x['e_rad'] for x in outObject['data']], dtype=float)
+        ticMasss = np.array([x['mass'] for x in outObject['data']], dtype=float)
+        ticMassEs = np.array([x['e_mass'] for x in outObject['data']], dtype=float)
+        ticTmags = np.array([x['Tmag'] for x in outObject['data']], dtype=float)
 
     except:
         # Cone search failed

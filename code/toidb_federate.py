@@ -45,12 +45,12 @@ class timeseries:
         self.tsjd = np.copy(self.ts + 2400000.5)
         self.ts = np.copy(self.ts) # whatever is left in self.ts is system 
                                         # used in calculation
-        self.ephemCentral = np.zeros((self.nt,), dtype=np.int8)
+        self.ephemCentral = np.zeros((self.nt,), dtype=int)
         self.ephemFull = np.zeros_like(self.ephemCentral)
         
     def makeEphemVector(self, period, epoch, duration):
         """ Make the ephemeris arrays """
-        self.ephemCentral = np.zeros((self.nt,), dtype=np.int8)
+        self.ephemCentral = np.zeros((self.nt,), dtype=int)
         self.ephemFull = np.zeros_like(self.ephemCentral)
         phase = np.mod((self.ts - epoch), period) / period
         phaseDuration = (duration / 24.0) / period / 2.0
@@ -154,10 +154,10 @@ def federateFunction(period, epoch, ts, tcePeriods, tceEpochs, tceDurations):
 
     # Also return the number of inputs that have a federation
     allPeriodRatio = period / allpers
-    allPeriodRatioFlag = np.zeros_like(allPeriodRatio, dtype=np.int)
+    allPeriodRatioFlag = np.zeros_like(allPeriodRatio, dtype=int)
     idx = np.where(np.abs(1.0 - allPeriodRatio) < periodMatchTol)[0]
     allPeriodRatioFlag[idx]
-    allFederate = np.zeros_like(allPeriodRatio, dtype=np.int)
+    allFederate = np.zeros_like(allPeriodRatio, dtype=int)
     idx = np.where((allPeriodRatioFlag == 1) & (matchres>=1) & (matchres<=4))[0]
     allFederate[idx] = 1
     idx = np.where((allPeriodRatioFlag == 0) & (matchres>=1) & (matchres<=2) & (allPeriodRatio>0.45))[0]
@@ -196,8 +196,8 @@ def federate2TOI(tce_data, db, sector, quiet=False, debugFigures=False):
     toi2Tce = np.zeros((nToi,))
     toiToi = np.zeros_like(toi2Tce)
     toiTic = np.zeros((nToi,), dtype=np.int64)
-    toiPlanN = np.zeros((nToi,), dtype=np.int)
-    toiMatchQual = np.zeros((nToi,), dtype=np.int)
+    toiPlanN = np.zeros((nToi,), dtype=int)
+    toiMatchQual = np.zeros((nToi,), dtype=int)
     toiPeriod = np.zeros_like(toi2Tce)
     toiTcePeriodRatio = np.zeros_like(toi2Tce)
     toiTcePeriodRatioFlag = np.zeros_like(toiMatchQual)

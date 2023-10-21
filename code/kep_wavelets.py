@@ -43,8 +43,8 @@ import scipy.io as sio
 
 class waveletObject:
     h0 = np.array([])
-    H = np.array([], dtype=np.complex)
-    G = np.array([], dtype=np.complex)
+    H = np.array([], dtype=np.cdouble)
+    G = np.array([], dtype=np.cdouble)
     nBands = 0
     def __init__(self, waveletlen, fluxTS, varwindow):
         """ fluxTS must be a power of 2 """
@@ -88,12 +88,12 @@ class waveletObject:
         #np.save('sfb_GHR', np.real(GL))
         #np.save('sfb_GHI', np.imag(GL))
         # define the filters
-        wavObj.G = np.zeros((nSamples, nBands), dtype=np.complex)
-        wavObj.H = np.zeros((nSamples, nBands), dtype=np.complex)
+        wavObj.G = np.zeros((nSamples, nBands), dtype=np.cdouble)
+        wavObj.H = np.zeros((nSamples, nBands), dtype=np.cdouble)
         
         # define 2 vectors which will hold product of low-pass filters
-        GLProduct = np.ones((nSamples,), dtype=np.complex)
-        HLProduct = np.ones((nSamples,), dtype=np.complex)
+        GLProduct = np.ones((nSamples,), dtype=np.cdouble)
+        HLProduct = np.ones((nSamples,), dtype=np.cdouble)
 
         # Loop over bands
         for iBand in range(0,nBands):
@@ -151,7 +151,7 @@ class waveletObject:
         # Except for some circshifts
         for iBand in range(nBands):
             shiftIndex = np.min([iBand+1, nBands-1])
-            nShift = filterLength*np.int(np.power(2, shiftIndex-1)) - np.int(np.power(2, shiftIndex-1))
+            nShift = filterLength*int(np.power(2, shiftIndex-1)) - int(np.power(2, shiftIndex-1))
             waveletCoefficients[:,iBand] = np.roll(waveletCoefficients[:,iBand], -nShift)
 
 #        print("hello world")
@@ -182,7 +182,7 @@ class waveletObject:
         outlierSigmaMultiplier = 6.0 #% 6.0 may need to become a module parameter and tuned
  
         #% an impulse has support of 2*2^iBand so multiply by buffer to be safe
-        waveletSupportInCadences = (waveletSupportBuffer * 2* np.power(2, np.arange(1,nBands+1))).astype(np.int)
+        waveletSupportInCadences = (waveletSupportBuffer * 2* np.power(2, np.arange(1,nBands+1))).astype(int)
         suspectBandIndicator = waveletSupportInCadences >= nSamples
 
         meanWhiteningCoefficients = np.mean(whitec,axis=0) 
@@ -236,7 +236,7 @@ class waveletObject:
         
   
 def calcNBands(wN, fN):
-    return int(np.log2(fN) - np.int(np.floor(np.log2(wN))) + 1)
+    return int(np.log2(fN) - int(np.floor(np.log2(wN))) + 1)
 
 def daubcqf(N):
     """literal translation of daubcqf.m of Kepler pipeline"""
@@ -285,7 +285,7 @@ def compute_statistic_time_series(wavObj, searchLen, trial_pulse):
     x = wavObj.waveletCoeffs
     nSamples = x.shape[0]
     nBands = x.shape[1]
-    shiftLength =  np.int(np.fix(searchLen/2.0)) + 1
+    shiftLength =  int(np.fix(searchLen/2.0)) + 1
     #% zero pad the pulse so its the same length as x
     full_trial_pulse = np.zeros((nSamples,))
     full_trial_pulse[0:len(trial_pulse)] = trial_pulse

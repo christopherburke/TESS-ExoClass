@@ -157,7 +157,7 @@ def initialGuess(y, iFin ):
         funcinterp = interp.interp1d(tmpx, tmpy, kind='linear', bounds_error=False, fill_value=(tmpy[0],tmpy[-1]))
         z = funcinterp(fullx)
     z = dct(z, type=2, norm='ortho')
-    zeroIdx = np.int(np.ceil(len(z)/10))
+    zeroIdx = int(np.ceil(len(z)/10))
     z[zeroIdx:] = 0.0
     z = dct(z, type=3, norm='ortho')
     return z
