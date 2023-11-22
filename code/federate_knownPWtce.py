@@ -187,11 +187,11 @@ if __name__ == '__main__':
     
     # Filter for planets in the correct ecliptic area to speed this up
     # Ecliptic pointing
-    #idx = np.where((gtEclipLat > -20.0) & (gtEclipLat < 20.0))[0]
+    idx = np.where((gtEclipLat > -20.0) & (gtEclipLat < 20.0))[0]
     # North Ecliptic pointing
     #idx = np.where((gtEclipLat > 3.0))[0]
     # South Ecliptic pointing
-    idx = np.where((gtEclipLat < -3.0))[0]
+    #idx = np.where((gtEclipLat < -3.0))[0]
     gtName = gtName[idx]
     gtPer, gtEpc, gtDur, gtRa, gtDec, gtTIC, gtTOI = cjb.idx_filter(idx, \
         gtPer, gtEpc, gtDur, gtRa, gtDec, gtTIC, gtTOI                                                            )
