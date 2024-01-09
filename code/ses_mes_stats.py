@@ -332,10 +332,10 @@ if __name__ == "__main__":
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
 
     # These next few lines can be used to examine a single target    
-#    all_epics = np.array([x.epicId for x in all_tces], dtype=np.int64)
-#    all_pns = np.array([x.planetNum for x in all_tces], dtype=int)
-#    ia = np.where((all_epics == 278139637) & (all_pns == 3))[0]
-#    doDebug = True
+    all_epics = np.array([x.epicId for x in all_tces], dtype=np.int64)
+    all_pns = np.array([x.planetNum for x in all_tces], dtype=int)
+    ia = np.where((all_epics == 616060323) & (all_pns == 1))[0]
+    doDebug = False
     # Loop over tces and perform various ses, mes, chases tests
     cnt = 0
     doDebug = False
@@ -423,7 +423,9 @@ if __name__ == "__main__":
                     plt.plot(tmpx[vd], useFlux[vd], '.')
                     
                     plt.show()
-                    
+                # Make sure all nan and non finite data is marked as invalid
+                idxvd = np.logical_not(np.isfinite(useFlux))
+                vd[idxvd] = False
                 # assign sector numbers to data
                 secnum = np.ones_like(cadNo, dtype=int)
                 idxSec = np.where(td.all_sectors>=0)[0]
@@ -450,9 +452,18 @@ if __name__ == "__main__":
 #                    plt.show()
                 # Determine empirical noise from flux time series
                 vdootIdx = np.where(vd & ootvd)[0]
-                flux_level = np.median(useFlux[vdootIdx])
-                flux_diff = np.diff(useFlux[vdootIdx]) / flux_level
-                emp_noise = robust.mad(flux_diff)/np.sqrt(2.0)
+                vdIdx = np.where(vd)[0]
+                # encountered target where there are no valid out of transit points
+                # protect against this
+                if not len(vdootIdx) == 0:
+                    flux_level = np.median(useFlux[vdootIdx])
+                    flux_diff = np.diff(useFlux[vdootIdx]) / flux_level
+                    emp_noise = robust.mad(flux_diff)/np.sqrt(2.0)
+                else:
+                    flux_level = np.median(useFlux[vdIdx])
+                    flux_diff = np.diff(useFlux[vdIdx]) / flux_level
+                    emp_noise = robust.mad(flux_diff)/np.sqrt(2.0)
+                                    
                 print('Empirical Noise [ppm]: {0:.1f}'.format(emp_noise*1.0e6))
 #                if doDebug:
 #                    plt.plot(flux_diff, '.')
@@ -483,7 +494,7 @@ if __name__ == "__main__":
                 # Need to look for long gaps and remove these from the calculation
                 # Protect against no valid data
                 idxGd = np.where(vd)[0]
-                if not len(idxGd) == 0:
+                if (not len(idxGd) == 0) and (not len(vdootIdx) == 0):
                     # Time differences
                     gdTime = time[idxGd]
                     difftime = np.diff(gdTime)

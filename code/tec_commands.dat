@@ -24,3 +24,5 @@ seq 0 19 | parallel --results rank_tces_results python rank_tces.py -w {} -n 20
 ls -Shlr *pdf | head
 seq 0 19 | parallel --results merge_results python merge4tev.py -w {} -n 20
 
+# identify ses mes files with zero length
+ls -l  */tess_sesmes*h5d | awk '{print $5,$9}' | sort -n | head
