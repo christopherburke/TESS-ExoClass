@@ -332,10 +332,10 @@ if __name__ == "__main__":
     all_tces = tcedata.fill_objlist_from_hd5f(tceSeedInFile)
 
     # These next few lines can be used to examine a single target    
-    all_epics = np.array([x.epicId for x in all_tces], dtype=np.int64)
-    all_pns = np.array([x.planetNum for x in all_tces], dtype=int)
-    ia = np.where((all_epics == 616060323) & (all_pns == 1))[0]
-    doDebug = False
+    #all_epics = np.array([x.epicId for x in all_tces], dtype=np.int64)
+    #all_pns = np.array([x.planetNum for x in all_tces], dtype=int)
+    #ia = np.where((all_epics == 616060323) & (all_pns == 1))[0]
+    #doDebug = True
     # Loop over tces and perform various ses, mes, chases tests
     cnt = 0
     doDebug = False
