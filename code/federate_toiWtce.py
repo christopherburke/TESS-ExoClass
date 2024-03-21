@@ -28,6 +28,46 @@ import os
 import astropy.units as u
 from astropy.coordinates import SkyCoord
 from tec_used_params import tec_use_params
+import pickle
+import math
+
+def make_knownTOI_cache(prefix, savetickey, saveticlist=None):
+    cacheDir = '../knownTOI_cache'
+    cacheFile = 'knownTOI_cache.pkl'
+    gotCache = True
+    localDir = os.path.join(prefix,cacheDir)
+    if not os.path.exists(localDir):
+        os.mkdir(localDir)
+        gotCache = False
+    localFile = os.path.join(localDir,cacheFile)
+    if not os.path.exists(localFile):
+        gotCache = False
+        knowntoi_tic_dict = {}
+        # See if we are in append data mode
+        if not saveticlist is None:
+            knowntoi_tic_dict[savetickey] = saveticlist
+            with open(localFile, 'wb') as handle:
+                pickle.dump(knowntoi_tic_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            gotCache = True
+            
+    else:
+        # See if we are in append data mode
+        if not saveticlist is None:
+            with open(localFile, 'rb') as handle:
+                knowntoi_tic_dict = pickle.load(handle)
+            knowntoi_tic_dict[savetickey] = saveticlist
+            with open(localFile, 'wb') as handle:
+                pickle.dump(knowntoi_tic_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            gotCache = True
+        else: # read data mode
+            with open(localFile, 'rb') as handle:
+                knowntoi_tic_dict = pickle.load(handle)
+            if savetickey in knowntoi_tic_dict:
+                gotCache = True
+            else:
+                gotCache = False
+
+    return gotCache, knowntoi_tic_dict
 
 
 def mastQuery(request):
@@ -142,6 +182,7 @@ def query_othertics(ticWant, searchRad):
 
 if __name__ == '__main__':
     tp = tec_use_params()
+    outputDir = '/pdo/users/cjburke/spocvet/{0}'.format(tp.tecdir)
 
     fout = open('federate_toiWtce_{0}.txt'.format(tp.tecfile), 'w')
     dataSpan = 27.0
@@ -277,10 +318,21 @@ if __name__ == '__main__':
             print('Done {0:d} of {1:d}'.format(i, nGT))
         # If wideSearch True then query MAST for 
         #  all TICs within searchRad arcsec of this target
-        print('Current Tic Search {0:d}'.format(curTic))
+        #print('Current Tic Search {0:d}'.format(curTic))
         if wideSearch:
-            otherTICs = np.array(query_othertics(curTic, searchRad), dtype=np.int64)
-            #otherTICs = np.sort(otherTICs)
+            savetickey = curTic
+            # look to see if the mast query was cached
+            gotcache, outData = make_knownTOI_cache(outputDir, savetickey)
+            if gotcache:
+                
+                otherTICs = outData[savetickey]
+                #print('Using cache mast query for : {0}'.format(savetickey))
+            else:
+                #print('Querying MAST for: {0}'.format(savetickey))
+                otherTICs = np.array(query_othertics(curTic, searchRad), dtype=np.int64)
+                #otherTICs = np.sort(otherTICs)
+                gotcache, outData = make_knownTOI_cache(outputDir, savetickey, otherTICs)
+
             idx = np.array([], dtype=np.int64)
             for ot in otherTICs:
                 idxtmp = np.where(ot == alltic)[0]

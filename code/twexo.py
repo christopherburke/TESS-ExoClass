@@ -88,6 +88,50 @@ except:
     foo_have_tp = False
 
 
+import pickle
+import math
+from tec_used_params import tec_use_params
+
+def make_twexo_cache(prefix, savetickey, saveticdata=None):
+    cacheDir = '../twexo_cache'
+    subtic = int(math.floor(savetickey/10000.0))
+    cacheFile = 'twexo_{0:03d}_cache.pkl'.format(subtic)
+    gotCache = True
+    localDir = os.path.join(prefix,cacheDir)
+    if not os.path.exists(localDir):
+        os.mkdir(localDir)
+        gotCache = False
+    localFile = os.path.join(localDir,cacheFile)
+    if not os.path.exists(localFile):
+        gotCache = False
+        known_tic_dict = {}
+        # See if we are in append data mode
+        if not saveticdata is None:
+            known_tic_dict[savetickey] = saveticdata
+            with open(localFile, 'wb') as handle:
+                pickle.dump(known_tic_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            gotCache = True
+            
+    else:
+        # See if we are in append data mode
+        if not saveticdata is None:
+            with open(localFile, 'rb') as handle:
+                known_tic_dict = pickle.load(handle)
+            known_tic_dict[savetickey] = saveticdata
+            with open(localFile, 'wb') as handle:
+                pickle.dump(known_tic_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            gotCache = True
+        else: # read data mode
+            with open(localFile, 'rb') as handle:
+                known_tic_dict = pickle.load(handle)
+            if savetickey in known_tic_dict:
+                gotCache = True
+            else:
+                gotCache = False
+
+    return gotCache, known_tic_dict
+
+
 def idx_filter(idx, *array_list):
     new_array_list = []
     for array in array_list:
@@ -180,20 +224,43 @@ if __name__ == '__main__':
         print('`python twex.py -h\' for help')
         sys.exit(1)
 
+    # For TEC twexo is called by tic only using local cache for saving/recalling
+    # queries
+    tp = tec_use_params()
+    outputDir = '/pdo/users/cjburke/spocvet/{0}'.format(tp.tecdir)
+    gotCache = False
+    # See if the inpout tic is in the cache or not
+    savetickey = args.ticId
+    # look to see if the mast query was cached
+    gotcache, outData = make_twexo_cache(outputDir, savetickey)
+    if gotcache:
+        ticq = outData[savetickey][0]
+        gaiaq = outData[savetickey][1]
+    else:
+        qData = []
+
+
+
     useTIC = 0
     # If TIC specified assign it to useTIC
     # and query MAST for RA and Dec and other catalog identifiers
     if args.ticId is not None:
-        useTIC = int(args.ticId)
-        starTics = np.array([useTIC], dtype=np.int32)
-        ticStringList = ['{0:d}'.format(x) for x in starTics]    
-        # Setup mast query
-        request = {'service':'Mast.Catalogs.Filtered.Tic', \
-           'params':{'columns':'*', 'filters':[{ \
+        # Check cace
+        if gotcache:
+            outObject = ticq
+        else:
+            useTIC = int(args.ticId)
+            starTics = np.array([useTIC], dtype=np.int32)
+            ticStringList = ['{0:d}'.format(x) for x in starTics]   
+            # Setup mast query
+            request = {'service':'Mast.Catalogs.Filtered.Tic', \
+                       'params':{'columns':'*', 'filters':[{ \
                     'paramName':'ID', 'values':ticStringList}]}, \
-            'format':'json', 'removenullcolumns':True}
-        headers, outString = mastQuery(request)
-        outObject = json.loads(outString)
+                       'format':'json', 'removenullcolumns':True}
+            headers, outString = mastQuery(request)
+            outObject = json.loads(outString)
+            qData.append(outObject)
+
         if len(outObject['data']) > 0:
             oo = outObject['data'][0]
             starRa = outObject['data'][0]['ra']
@@ -257,6 +324,7 @@ if __name__ == '__main__':
             sys.exit(1)
         
     # TOI specified get toi -> tic mapping from table at exofop
+    # TEC DOES NOT DO THIS
     if args.toi is not None:
         toiURL = 'https://exofop.ipac.caltech.edu/tess/download_toi.php?sort=toi&output=csv'
         tmp = []
@@ -368,6 +436,7 @@ if __name__ == '__main__':
             sys.exit(1)
 
 
+    #TEC DOES NOT DO THIS
     if args.coord is not None:
         starRa = args.coord[0]
         starDec = args.coord[1]
@@ -432,6 +501,7 @@ if __name__ == '__main__':
 
     # If we hadn't defined which target is useTIC yet do it now
     if useTIC == 0:
+        # TEC DOES NOT DO THIS
         useTIC = ticList[0]
         starTics = np.array([useTIC], dtype=np.int32)
         ticStringList = ['{0:d}'.format(x) for x in starTics]    
@@ -500,7 +570,13 @@ if __name__ == '__main__':
         starTmag = outObject['data'][0]['Tmag']
 
     # If we weren't given TOI number check exofop to see if it has TOIs
-    if args.toi is None:
+    # WE COULD DO THIS ONCE FOR TEC AND CACHE in Sector directory
+    tictoifile = os.path.join(outputDir,'twexo_tictoi.txt')
+    if os.path.exists(tictoifile):
+        dataBlock = np.genfromtxt(tictoifile,dtype=['i4','f8'])
+        exoTic = dataBlock['f0']
+        exoToi = dataBlock['f1']
+    else:
         toiURL = 'https://exofop.ipac.caltech.edu/tess/download_toi.php?sort=toi&output=csv'
         tmp = []
         response = urlopen(toiURL)
@@ -510,30 +586,35 @@ if __name__ == '__main__':
             for x in csv.reader([line]):
                 tmp.append("|".join(x))
 
-        dtypeseq = ['i4','f8']
+#'TIC ID|TOI|Previous CTOI|Master|SG1A|SG1B|SG2|SG3|SG4|SG5|ESM|TSM|Predicted Mass (M_Earth)|Time Series Observations|Spectroscopy Observations|Imaging Observations|TESS Disposition|TFOPWG Disposition|TESS Mag|TESS Mag err|Planet Name|Pipeline Signal ID|Source|Detection|RA|Dec|PM RA (mas/yr)|PM RA err (mas/yr)|PM Dec (mas/yr)|PM Dec err (mas/yr)|Epoch (BJD)|Epoch (BJD) err|Period (days)|Period (days) err|Duration (hours)|Duration (hours) err|Depth (mmag)|Depth (mmag) err|Depth (ppm)|Depth (ppm) err|Planet Radius (R_Earth)|Planet Radius (R_Earth) err|Planet Insolation (Earth Flux)|Planet Equil Temp (K)|Planet SNR|Stellar Distance (pc)|Stellar Distance (pc) err|Stellar Eff Temp (K)|Stellar Eff Temp (K) err|Stellar log(g) (cm/s^2)|Stellar log(g) (cm/s^2) err|Stellar Radius (R_Sun)|Stellar Radius (R_Sun) err|Stellar Metallicity|Stellar Metallicity err|Stellar Mass (M_Sun)|Stellar Mass (M_Sun) err|Sectors|Date TOI Alerted (UTC)|Date TOI Updated (UTC)|Date Modified|Comments'
+        dtypeseq = ['i4','f8','f8']
         dtypeseq.extend(['i4']*7)
+        dtypeseq.extend(['f8']*6)
         dtypeseq.extend(['U3','U3'])
         dtypeseq.extend(['f8','f8'])
-        dtypeseq.extend(['U40','i4','U40','U40','U40'])
-        dtypeseq.extend(['f8']*27)
-        dtypeseq.extend(['U80']*4)
+        dtypeseq.extend(['U40','i4','U40','U40','U40','U40'])
+        dtypeseq.extend(['f8']*31)
+        dtypeseq.extend(['U80']*5)
         dataBlock = np.genfromtxt(tmp, \
                                   dtype=dtypeseq, delimiter='|',skip_header=1)
         exoTic = dataBlock['f0']
         exoToi = dataBlock['f1']
-        idx = np.where(exoTic == useTIC)[0]
-        if len(idx) == 0:
-            toihdr = 'No TOIs associated with TIC at ExoFop'
-            toicheckstr = '<br>'
-        else:
-            toihdr = 'TIC Hosts TOIs'
-            toilist = []
-            for j in idx:
-                toilist.append('{0:.2f}<br>'.format(exoToi[j]))     
-            toicheckstr = ' '.join(toilist)
+        fout = open(tictoifile,'w')
+        for i, curTic in enumerate(exoTic):
+            strout = '{0:d} {1:f}'.format(curTic, exoToi[i])
+            fout.write('{0}\n'.format(strout))
+        fout.close()
+
+    idx = np.where(exoTic == useTIC)[0]
+    if len(idx) == 0:
+        toihdr = 'No TOIs associated with TIC at ExoFop'
+        toicheckstr = '<br>'
     else:
-        toihdr = 'Using TOI {:.2f}'.format(args.toi)
-        toicheckstr = ''
+        toihdr = 'TIC Hosts TOIs'
+        toilist = []
+        for j in idx:
+            toilist.append('{0:.2f}<br>'.format(exoToi[j]))     
+        toicheckstr = ' '.join(toilist)
         
     # FORM THE URLS
     gaiaURLPart1 = 'https://mast.stsci.edu/portal/Mashup/Clients/Mast/Portal.html?searchQuery={"service":"GAIADR2","inputText":"'
@@ -682,7 +763,11 @@ if __name__ == '__main__':
     gaiaPos = 'Predicted GAIA position {0:.6f} {1:.6f} [J2000.0; epoch 2015.5]'.format(gaiaPredRa, gaiaPredDec)
 
     # We are go for GAIA Cone search
-    ADSQL_Str = "SELECT \
+    # TEC could cache this
+    if gotcache:
+        r = gaiaq
+    else:
+        ADSQL_Str = "SELECT \
        DISTANCE( POINT('ICRS', ra, dec),\
        POINT('ICRS', {0}, {1}) ) AS dist, phot_g_mean_mag, teff_val, teff_percentile_lower, \
        teff_percentile_upper, radius_val, radius_percentile_lower, radius_percentile_upper,\
@@ -691,9 +776,14 @@ if __name__ == '__main__':
         ra, dec , solution_id \
         from gaiadr2.gaia_source WHERE 1 = CONTAINS( POINT('ICRS', ra, dec), \
         CIRCLE('ICRS', {0}, {1}, 0.016666666666666666)) order by dist".format(gaiaPredRa, gaiaPredDec)
-    #print(ADSQL_Str)
-    job = Gaia.launch_job(ADSQL_Str)
-    r = job.get_results()
+        #print(ADSQL_Str)
+        job = Gaia.launch_job(ADSQL_Str)
+        r = job.get_results()
+        qData.append(r)
+        # Done with queries to cache store the results
+        gotcache, outData = make_twexo_cache(outputDir, savetickey, qData)
+
+
     gaiaTeff = r['teff_val'][0]
     gaiaTeffE = ((r['teff_percentile_upper'][0] - gaiaTeff) + (gaiaTeff - r['teff_percentile_lower'][0]))/2.0
     gaiaRad = r['radius_val'][0]
@@ -722,6 +812,7 @@ if __name__ == '__main__':
 
     #LOOK for DV reports for this target available at MAST
     # Setup mast query first step is to get obsid's for the target
+    # TEC PROBABLY SHOULDNT CACHE THIS
     print('Query MAST for DV reports')
     dvStr = 'No DV Results for this target at MAST<br>'
     request = {'service':'Mast.Caom.Filtered.Position', \

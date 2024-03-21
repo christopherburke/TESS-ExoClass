@@ -308,7 +308,7 @@ if __name__ == '__main__':
     #  Directory storing the ses mes time series
     sesMesDir = '/pdo/users/cjburke/spocvet/{0}'.format(tp.tecdir)
     SECTOR = tp.sector
-    OVERWRITE = True
+    OVERWRITE = False
     doPNGs = True
 #    pngFolder = '/pdo/users/cjburke/spocvet/sector2/pngs'
     # Debugging fileout

@@ -254,7 +254,7 @@ if __name__ == '__main__':
             # Potential match
             tryper = usePer[idxSig]
             tryepc = useEpc[idxSig]
-            trypn = np.ones_like(idxSig)
+            trypn = useToi[idxSig]
             trydur = useDur[idxSig]
             trytic = useTic[idxSig]
             bstpn, bsttic, bstMatch, bstStat, bstPeriodRatio, bstPeriodRatioFlag, bstFederateFlag, nFed = \
